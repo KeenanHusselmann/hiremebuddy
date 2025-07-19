@@ -36,20 +36,20 @@ const Header = () => {
               
               {/* User profile avatar or login button */}
               {user ? (
-                <div className="flex items-center space-x-2">
+                <Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                   {profile?.avatar_url ? (
                     <img 
                       src={profile.avatar_url} 
                       alt="Profile" 
-                      className="h-8 w-8 rounded-full object-cover border border-border"
+                      className="h-8 w-8 rounded-full object-cover border border-border cursor-pointer"
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer">
                       <User className="h-4 w-4 text-primary" />
                     </div>
                   )}
                   <span className="hidden sm:block text-sm font-medium">{profile?.full_name || 'User'}</span>
-                </div>
+                </Link>
               ) : (
                 <Link to="/auth" className="hidden sm:block">
                   <Button variant="ghost" size="sm">
@@ -100,15 +100,15 @@ const Header = () => {
                 <div className="pt-4 border-t border-glass-border/30">
                   {user ? (
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
+                      <Link to="/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                         {profile?.avatar_url ? (
                           <img 
                             src={profile.avatar_url} 
                             alt="Profile" 
-                            className="h-10 w-10 rounded-full object-cover border border-border"
+                            className="h-10 w-10 rounded-full object-cover border border-border cursor-pointer"
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer">
                             <User className="h-5 w-5 text-primary" />
                           </div>
                         )}
@@ -118,7 +118,7 @@ const Header = () => {
                             {profile?.user_type === 'labourer' ? 'Provider' : 'Client'}
                           </span>
                         </div>
-                      </div>
+                      </Link>
                       <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
                         <LogOut className="h-4 w-4 mr-2" />
                         {t('nav.logout')}
