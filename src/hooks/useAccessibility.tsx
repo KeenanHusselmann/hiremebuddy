@@ -4,11 +4,13 @@ interface AccessibilityContextType {
   isScreenReaderEnabled: boolean;
   fontSize: 'normal' | 'large' | 'extra-large';
   highContrast: boolean;
+  isReading: boolean;
   toggleScreenReader: () => void;
   setFontSize: (size: 'normal' | 'large' | 'extra-large') => void;
   toggleHighContrast: () => void;
   announceToScreenReader: (message: string) => void;
   readPageContent: () => void;
+  stopReading: () => void;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -17,6 +19,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isScreenReaderEnabled, setIsScreenReaderEnabled] = useState(false);
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [highContrast, setHighContrast] = useState(false);
+  const [isReading, setIsReading] = useState(false);
 
   useEffect(() => {
     // Load accessibility settings from localStorage
@@ -77,6 +80,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     if (isScreenReaderEnabled && 'speechSynthesis' in window) {
       // Stop any current speech
       window.speechSynthesis.cancel();
+      setIsReading(true);
       
       // Get page content to read
       const pageTitle = document.title;
@@ -105,10 +109,27 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       utterance.pitch = 1;
       utterance.volume = 0.8;
       
+      // Handle speech end
+      utterance.onend = () => {
+        setIsReading(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsReading(false);
+      };
+      
       // Speak the content
       window.speechSynthesis.speak(utterance);
       
       announceToScreenReader("Reading page content");
+    }
+  };
+
+  const stopReading = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsReading(false);
+      announceToScreenReader("Stopped reading");
     }
   };
 
@@ -117,11 +138,13 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       isScreenReaderEnabled,
       fontSize,
       highContrast,
+      isReading,
       toggleScreenReader,
       setFontSize,
       toggleHighContrast,
       announceToScreenReader,
-      readPageContent
+      readPageContent,
+      stopReading
     }}>
       {children}
     </AccessibilityContext.Provider>
