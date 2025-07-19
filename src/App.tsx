@@ -40,39 +40,39 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessibilityProvider>
-        <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
-          <LanguageProvider>
-            <AuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
+        <LanguageProvider>
+          <AuthProvider>
             <TooltipProvider>
               <PageLoader isLoading={isLoading} />
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/browse" element={<BrowseServicesPage />} />
-                  <Route path="/services/:category" element={<ServiceCategoryPage />} />
-                  <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
-                  <Route path="/how-it-works" element={<HowItWorksPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/booking" element={<BookingPage />} />
-                  <Route path="/support" element={<SupportPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="/privacy" element={<PrivacyPage />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <AccessibilityProvider>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/browse" element={<BrowseServicesPage />} />
+                    <Route path="/services/:category" element={<ServiceCategoryPage />} />
+                    <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
+                    <Route path="/how-it-works" element={<HowItWorksPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/booking" element={<BookingPage />} />
+                    <Route path="/support" element={<SupportPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AccessibilityProvider>
               </BrowserRouter>
             </TooltipProvider>
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-      </AccessibilityProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
