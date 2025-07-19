@@ -76,7 +76,7 @@ const HeroSection = () => {
               </Button>
               <Button 
                 className="btn-glass px-8 py-4 text-lg min-w-[200px]"
-                onClick={() => window.location.href = '/auth'}
+                onClick={() => window.location.href = '/create-service'}
               >
                 {t('hero.offerSkills')}
               </Button>
@@ -88,14 +88,14 @@ const HeroSection = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">500+</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">0</p>
                 <p className="text-white/80">{t('hero.skilledWorkers')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">1000+</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">0</p>
                 <p className="text-white/80">{t('hero.jobsCompleted')}</p>
               </div>
               <div className="text-center">

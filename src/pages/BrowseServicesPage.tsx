@@ -46,74 +46,8 @@ const BrowseServicesPage = () => {
     'rundu', 'katima-mulilo', 'keetmanshoop', 'otjiwarongo'
   ];
 
-  // Mock services data
-  const services: Service[] = [
-    {
-      id: '1',
-      title: 'Professional Plumbing Services',
-      provider: 'Johannes Mwandingi',
-      description: 'Expert plumber with 10+ years experience. Specializing in pipe repairs, installations, and emergency fixes.',
-      price: 'N$300/hour',
-      rating: 4.8,
-      reviewCount: 24,
-      location: 'Windhoek',
-      category: 'plumbing',
-      availability: 'Available',
-      tags: ['emergency-service', 'licensed', 'insured']
-    },
-    {
-      id: '2',
-      title: 'Electrical Installations & Repairs',
-      provider: 'Maria Nghishikwa',
-      description: 'Certified electrician offering residential and commercial electrical services.',
-      price: 'N$400/hour',
-      rating: 4.9,
-      reviewCount: 18,
-      location: 'Windhoek',
-      category: 'electrical',
-      availability: 'Available',
-      tags: ['certified', 'commercial', 'residential']
-    },
-    {
-      id: '3',
-      title: 'Custom Carpentry & Woodwork',
-      provider: 'David Uushona',
-      description: 'Skilled carpenter creating custom furniture, cabinets, and home installations.',
-      price: 'N$250/hour',
-      rating: 4.7,
-      reviewCount: 31,
-      location: 'Swakopmund',
-      category: 'carpentry',
-      availability: 'Busy',
-      tags: ['custom-work', 'furniture', 'installations']
-    },
-    {
-      id: '4',
-      title: 'Interior & Exterior Painting',
-      provider: 'Anna Shifiona',
-      description: 'Professional painter with eye for detail. Quality work guaranteed.',
-      price: 'N$200/hour',
-      rating: 4.6,
-      reviewCount: 15,
-      location: 'Walvis Bay',
-      category: 'painting',
-      availability: 'Available',
-      tags: ['interior', 'exterior', 'quality-guaranteed']
-    },
-    {
-      id: '5',
-      title: 'Garden Design & Maintenance',
-      provider: 'Peter Haikela',
-      description: 'Landscape designer offering complete garden solutions and maintenance.',
-      price: 'N$180/hour',
-      rating: 4.5,
-      reviewCount: 22,
-      location: 'Windhoek',
-      category: 'gardening',
-      availability: 'Available',
-      tags: ['landscaping', 'maintenance', 'design']
-    }
-  ];
+  // Services data will be fetched from database
+  const services: Service[] = [];
 
   const filteredServices = services.filter(service => {
     const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -343,17 +277,28 @@ const BrowseServicesPage = () => {
             {sortedServices.length === 0 && (
               <div className="text-center py-12">
                 <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                <h3 className="text-xl font-semibold mb-2">No Providers Currently</h3>
                 <p className="text-muted-foreground mb-4">
-                  Try adjusting your search criteria or browse all services
+                  Be the first to join our platform and start offering your services to local clients.
                 </p>
-                <Button onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('all');
-                  setSelectedLocation('all');
-                }}>
-                  Clear Filters
-                </Button>
+                <div className="flex gap-4 justify-center">
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    className="btn-sunset"
+                  >
+                    Register as Provider
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('all');
+                      setSelectedLocation('all');
+                    }}
+                    variant="outline"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
               </div>
             )}
           </div>
