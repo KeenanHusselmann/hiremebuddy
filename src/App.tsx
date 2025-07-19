@@ -19,7 +19,7 @@ import ServiceCategoryPage from "./pages/ServiceCategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import ContactPage from "./pages/ContactPage";
-import BookingPage from "./pages/BookingPage";
+import BookingDetailPage from "./pages/BookingDetailPage";
 import InsightsPage from "./pages/InsightsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SupportPage from "./pages/SupportPage";
@@ -64,7 +64,7 @@ const App = () => {
                     <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
                     <Route path="/how-it-works" element={<HowItWorksPage />} />
                     <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/booking" element={<BookingPage />} />
+                    <Route path="/bookings/:bookingId" element={<BookingDetailPage />} />
                     <Route path="/support" element={<SupportPage />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />

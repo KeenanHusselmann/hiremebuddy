@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import logo from '@/assets/hiremebuddy-logo.png';
 
 const Header = () => {
@@ -33,6 +34,7 @@ const Header = () => {
             {/* Right side items */}
             <div className="flex items-center space-x-2">
               <ThemeToggle />
+              {user && <NotificationCenter />}
               
               {/* User profile avatar or login button */}
               {user ? (
