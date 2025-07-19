@@ -249,37 +249,14 @@ const AuthPage = () => {
 
             {isLogin && (
               <div className="mt-4 text-center">
-                <Button
-                  variant="link"
-                  onClick={async () => {
-                    if (!email) {
-                      toast({
-                        title: "Error",
-                        description: "Please enter your email address first",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    try {
-                      await supabase.auth.resetPasswordForEmail(email, {
-                        redirectTo: `${window.location.origin}/auth`,
-                      });
-                      toast({
-                        title: "Email sent",
-                        description: "Check your email for password reset instructions",
-                      });
-                    } catch (error: any) {
-                      toast({
-                        title: "Error",
-                        description: error.message,
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  className="p-0 h-auto text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Forgot your password?
-                </Button>
+                <Link to="/forgot-password">
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Forgot your password?
+                  </Button>
+                </Link>
               </div>
             )}
           </CardContent>
