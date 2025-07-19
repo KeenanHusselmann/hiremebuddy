@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { FacebookMarketplace } from '@/components/FacebookMarketplace';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -268,23 +270,121 @@ const BrowseServicesPage = () => {
           ))}
         </div>
 
-        {/* No Results */}
-        {sortedServices.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No services found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your search criteria or browse all services
-            </p>
-            <Button onClick={() => {
-              setSearchQuery('');
-              setSelectedCategory('all');
-              setSelectedLocation('all');
-            }}>
-              Clear Filters
-            </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+          <div className="lg:col-span-3">
+            {/* Services Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sortedServices.map((service) => (
+                <Card 
+                  key={service.id} 
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                  onClick={() => handleServiceClick(service)}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge 
+                        variant={service.availability === 'Available' ? 'default' : service.availability === 'Busy' ? 'secondary' : 'destructive'}
+                      >
+                        {service.availability}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium">{service.rating}</span>
+                        <span className="text-sm text-muted-foreground">({service.reviewCount})</span>
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardDescription className="text-lg font-semibold text-primary">
+                      {service.provider}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-4 line-clamp-3">
+                      {service.description}
+                    </p>
+                    
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{service.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold text-primary">{service.price}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {service.tags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag.replace('-', ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* No Results */}
+            {sortedServices.length === 0 && (
+              <div className="text-center py-12">
+                <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Try adjusting your search criteria or browse all services
+                </p>
+                <Button onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                  setSelectedLocation('all');
+                }}>
+                  Clear Filters
+                </Button>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Filter Services</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="windhoek">Windhoek</SelectItem>
+                      <SelectItem value="swakopmund">Swakopmund</SelectItem>
+                      <SelectItem value="oshakati">Oshakati</SelectItem>
+                      <SelectItem value="rundu">Rundu</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button 
+                  onClick={() => {
+                    setSelectedLocation('all');
+                  }}
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Clear Filters
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Facebook Marketplace Integration */}
+            <FacebookMarketplace />
+          </div>
+        </div>
       </main>
 
       <Footer />

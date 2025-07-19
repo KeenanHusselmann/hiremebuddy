@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AccessibilityPanel } from '@/components/AccessibilityPanel';
+import { FacebookMarketplace } from '@/components/FacebookMarketplace';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -319,6 +321,12 @@ const ProfilePage = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Accessibility Settings */}
+              <AccessibilityPanel />
+
+              {/* Facebook Marketplace */}
+              <FacebookMarketplace />
             </TabsContent>
           </Tabs>
         </div>

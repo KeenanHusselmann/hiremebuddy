@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import PageLoader from "@/components/PageLoader";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
@@ -39,9 +40,10 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
-        <LanguageProvider>
-          <AuthProvider>
+      <AccessibilityProvider>
+        <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
+          <LanguageProvider>
+            <AuthProvider>
             <TooltipProvider>
               <PageLoader isLoading={isLoading} />
               <Toaster />
@@ -67,9 +69,10 @@ const App = () => {
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </AccessibilityProvider>
     </QueryClientProvider>
   );
 };
