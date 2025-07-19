@@ -162,17 +162,23 @@ const FeaturedWorkers = () => {
                   Book Service
                 </Button>
                 <div className="grid grid-cols-3 gap-2">
-                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
-                    <Phone className="h-4 w-4 md:mr-1" />
-                    <span className="hidden md:inline ml-1">Call</span>
+                  <Button 
+                    size="sm" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-2 truncate"
+                  >
+                    Call
                   </Button>
-                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
-                    <MessageCircle className="h-4 w-4 md:mr-1" />
-                    <span className="hidden md:inline ml-1">WhatsApp</span>
+                  <Button 
+                    size="sm" 
+                    className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-2 truncate"
+                  >
+                    WhatsApp
                   </Button>
-                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
-                    <Facebook className="h-4 w-4 md:mr-1" />
-                    <span className="hidden md:inline ml-1">Facebook</span>
+                  <Button 
+                    size="sm" 
+                    className="bg-blue-800 hover:bg-blue-900 text-white text-xs px-2 py-2 truncate"
+                  >
+                    Facebook
                   </Button>
                 </div>
               </div>
