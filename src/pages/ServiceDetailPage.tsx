@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, MapPin, Clock, Phone, MessageCircle, Calendar, Shield, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const ServiceDetailPage = () => {
   const { category, serviceId } = useParams();
@@ -69,7 +70,7 @@ const ServiceDetailPage = () => {
     ]
   };
 
-  const handleBookService = () => {
+  const handleBookService = async () => {
     if (!user) {
       toast({
         title: "Please sign in",
@@ -80,12 +81,65 @@ const ServiceDetailPage = () => {
       return;
     }
 
-    toast({
-      title: "Booking initiated",
-      description: "Redirecting to booking form...",
-    });
-    // In real app, navigate to booking form
-    navigate('/booking', { state: { service } });
+    try {
+      // Get user profile
+      const { data: clientProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profileError || !clientProfile) {
+        toast({
+          title: "Profile not found",
+          description: "Please complete your profile first",
+          variant: "destructive"
+        });
+        navigate('/profile');
+        return;
+      }
+
+      // Get real service from database
+      const { data: realService, error: serviceError } = await supabase
+        .from('services')
+        .select(`
+          *,
+          profiles!services_labourer_id_fkey (
+            id,
+            full_name,
+            contact_number,
+            whatsapp_link
+          )
+        `)
+        .eq('id', serviceId)
+        .single();
+      
+      if (serviceError || !realService) {
+        toast({
+          title: "Service not found",
+          description: "Unable to find this service",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Navigate to booking with real service data
+      navigate('/booking', { 
+        state: { 
+          service: realService,
+          serviceId: realService.id,
+          labourerId: realService.labourer_id,
+          clientId: clientProfile.id
+        } 
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleContact = (method: 'phone' | 'whatsapp') => {
@@ -255,6 +309,7 @@ const ServiceDetailPage = () => {
                     phoneNumber={service.contact.phone}
                     whatsappNumber={service.contact.whatsapp}
                     facebookUrl={service.contact.facebook}
+                    className="justify-center"
                   />
                 </div>
 

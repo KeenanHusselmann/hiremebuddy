@@ -25,6 +25,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SupportPage from "./pages/SupportPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import CreateServicePage from "./pages/CreateServicePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => {
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/create-service" element={<CreateServicePage />} />
                     <Route path="/insights" element={<InsightsPage />} />
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/browse" element={<BrowseServicesPage />} />

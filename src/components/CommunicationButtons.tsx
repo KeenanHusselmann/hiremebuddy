@@ -35,16 +35,16 @@ export const CommunicationButtons: React.FC<CommunicationButtonsProps> = ({
   };
 
   return (
-    <div className={`flex gap-2 ${className}`}>
+    <div className={`flex flex-wrap gap-2 ${className}`}>
       {phoneNumber && (
         <Button
           onClick={handleCall}
           variant="outline"
           size="sm"
-          className="flex items-center gap-2 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20"
+          className="flex items-center gap-1 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20 text-xs sm:text-sm px-2 py-1 min-w-0 flex-shrink"
         >
-          <Phone className="h-4 w-4 text-green-600" />
-          Call
+          <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+          <span className="hidden xs:inline">Call</span>
         </Button>
       )}
 
@@ -53,10 +53,10 @@ export const CommunicationButtons: React.FC<CommunicationButtonsProps> = ({
           onClick={handleWhatsApp}
           variant="outline"
           size="sm"
-          className="flex items-center gap-2 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20"
+          className="flex items-center gap-1 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20 text-xs sm:text-sm px-2 py-1 min-w-0 flex-shrink"
         >
-          <MessageCircle className="h-4 w-4 text-green-600" />
-          WhatsApp
+          <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+          <span className="hidden xs:inline">WhatsApp</span>
         </Button>
       )}
 
@@ -65,10 +65,10 @@ export const CommunicationButtons: React.FC<CommunicationButtonsProps> = ({
           onClick={handleFacebook}
           variant="outline"
           size="sm"
-          className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20"
+          className="flex items-center gap-1 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20 text-xs sm:text-sm px-2 py-1 min-w-0 flex-shrink"
         >
-          <Facebook className="h-4 w-4 text-blue-600" />
-          Facebook
+          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+          <span className="hidden xs:inline">Facebook</span>
         </Button>
       )}
     </div>

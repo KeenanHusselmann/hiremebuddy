@@ -37,9 +37,11 @@ const ProfilePage = () => {
     whatsapp_link: '',
     facebook_link: '',
     location_text: '',
+    town: '',
     bio: '',
     user_type: 'client' as 'client' | 'labourer' | 'both',
   });
+  const [namibianTowns, setNamibianTowns] = useState<Array<{id: string, name: string, region: string}>>([]);
   // Remove the separate language state - use the one from context
 
   useEffect(() => {
@@ -49,6 +51,9 @@ const ProfilePage = () => {
       return;
     }
 
+    // Load Namibian towns
+    loadNamibianTowns();
+
     // Initialize form data with profile data
     if (profile) {
       setFormData({
@@ -57,11 +62,26 @@ const ProfilePage = () => {
         whatsapp_link: profile.whatsapp_link || '',
         facebook_link: profile.facebook_link || '',
         location_text: profile.location_text || '',
+        town: (profile as any).town || '',
         bio: profile.bio || '',
         user_type: profile.user_type === 'admin' ? 'client' : profile.user_type || 'client',
       });
     }
   }, [user, profile, navigate]);
+
+  const loadNamibianTowns = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('namibian_towns')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setNamibianTowns(data || []);
+    } catch (error: any) {
+      console.error('Error loading towns:', error);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -241,15 +261,34 @@ const ProfilePage = () => {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="location_text">{t('profile.location')}</Label>
-                        <Input
-                          id="location_text"
-                          value={formData.location_text}
-                          onChange={(e) => handleInputChange('location_text', e.target.value)}
-                          placeholder="City, Region"
-                        />
-                      </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="town">Town/City</Label>
+                         <Select
+                           value={formData.town}
+                           onValueChange={(value) => handleInputChange('town', value)}
+                         >
+                           <SelectTrigger>
+                             <SelectValue placeholder="Select your town" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             {namibianTowns.map((town) => (
+                               <SelectItem key={town.id} value={town.name}>
+                                 {town.name}, {town.region}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
+
+                       <div className="space-y-2">
+                         <Label htmlFor="location_text">{t('profile.location')}</Label>
+                         <Input
+                           id="location_text"
+                           value={formData.location_text}
+                           onChange={(e) => handleInputChange('location_text', e.target.value)}
+                           placeholder="Specific address or area"
+                         />
+                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="whatsapp_link">WhatsApp Link</Label>
@@ -287,9 +326,41 @@ const ProfilePage = () => {
                       {isLoading ? t('profile.updating') : t('profile.updateProfile')}
                     </Button>
                   </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                 </CardContent>
+               </Card>
+
+               {/* Service Management for Labourers */}
+               {(formData.user_type === 'labourer' || formData.user_type === 'both') && (
+                 <Card>
+                   <CardHeader>
+                     <CardTitle>Service Management</CardTitle>
+                     <CardDescription>
+                       Manage your professional services and connect with clients
+                     </CardDescription>
+                   </CardHeader>
+                   <CardContent className="space-y-4">
+                     <div className="flex flex-col sm:flex-row gap-4">
+                       <Button 
+                         onClick={() => navigate('/create-service')} 
+                         className="btn-sunset flex-1"
+                       >
+                         Create New Service
+                       </Button>
+                       <Button 
+                         onClick={() => navigate('/browse')} 
+                         variant="outline"
+                         className="flex-1"
+                       >
+                         View All Services
+                       </Button>
+                     </div>
+                     <p className="text-sm text-muted-foreground">
+                       Add your services to reach clients across Namibia. Upload portfolio images and set competitive rates.
+                     </p>
+                   </CardContent>
+                 </Card>
+               )}
+             </TabsContent>
 
             <TabsContent value="stats" className="space-y-6">
               <ProfileStats 

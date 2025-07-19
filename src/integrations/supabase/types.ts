@@ -138,6 +138,27 @@ export type Database = {
         }
         Relationships: []
       }
+      namibian_towns: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          region: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          region: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          region?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           category: string | null
@@ -191,6 +212,7 @@ export type Database = {
           latitude: number | null
           location_text: string | null
           longitude: number | null
+          town: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -207,6 +229,7 @@ export type Database = {
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
+          town?: string | null
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -223,6 +246,7 @@ export type Database = {
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
+          town?: string | null
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -282,8 +306,36 @@ export type Database = {
           },
         ]
       }
+      service_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon_name: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon_name?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
+          category_id: string | null
           created_at: string
           description: string
           hourly_rate: number | null
@@ -295,6 +347,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           description: string
           hourly_rate?: number | null
@@ -306,6 +359,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           description?: string
           hourly_rate?: number | null
@@ -317,6 +371,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "services_labourer_id_fkey"
             columns: ["labourer_id"]
