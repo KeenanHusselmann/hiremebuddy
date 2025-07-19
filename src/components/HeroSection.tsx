@@ -28,7 +28,7 @@ const HeroSection = () => {
           {/* Main Heading */}
           <div className="hero-glass p-8 md:p-12 fade-in">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              HireMeBuddy
+              Hire.Me.Bra
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
               Connecting Namibian Skills, Building Trust

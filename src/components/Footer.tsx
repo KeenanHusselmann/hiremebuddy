@@ -11,9 +11,9 @@ const Footer = () => {
             {/* Brand Section */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <img src={logo} alt="HireMeBuddy Logo" className="h-8 w-8" />
+                <img src={logo} alt="Hire.Me.Bra Logo" className="h-8 w-8" />
                 <div>
-                  <h3 className="font-bold text-foreground">HireMeBuddy</h3>
+                  <h3 className="font-bold text-foreground">Hire.Me.Bra</h3>
                   <p className="text-xs text-muted-foreground">Empowering Namibian Skills</p>
                 </div>
               </div>
@@ -109,7 +109,7 @@ const Footer = () => {
           <div className="mt-12 pt-8 border-t border-glass-border/30">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                ©2025 HireMeBuddy - Building Trust, Creating Opportunities
+                ©2025 Hire.Me.Bra - Building Trust, Creating Opportunities
               </p>
               <nav className="flex flex-wrap items-center justify-center space-x-6">
                 <Link 

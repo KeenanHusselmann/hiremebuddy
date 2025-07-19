@@ -1,22 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, User, Bell } from 'lucide-react';
+import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import logo from '@/assets/hiremebuddy-logo.png';
 
-interface HeaderProps {
-  isAuthenticated?: boolean;
-  userType?: 'client' | 'labourer';
-  userName?: string;
-  notificationCount?: number;
-}
-
-const Header = ({ 
-  isAuthenticated = false, 
-  userType = 'client', 
-  userName = '',
-  notificationCount = 0 
-}: HeaderProps) => {
+const Header = () => {
+  const { user, profile, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -28,9 +18,9 @@ const Header = ({
           <div className="flex items-center justify-between h-16">
             {/* Logo and Brand */}
             <Link to="/" className="flex items-center space-x-3 hover:scale-105 transition-transform duration-200">
-              <img src={logo} alt="HireMeBuddy Logo" className="h-10 w-10" />
+              <img src={logo} alt="Hire.Me.Bra Logo" className="h-10 w-10" />
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-foreground">HireMeBuddy</h1>
+                <h1 className="text-xl font-bold text-foreground">Hire.Me.Bra</h1>
                 <p className="text-xs text-muted-foreground">Connect • Create • Collaborate</p>
               </div>
             </Link>
@@ -49,7 +39,7 @@ const Header = ({
               >
                 Browse Services
               </Link>
-              {isAuthenticated && (
+              {user && (
                 <Link 
                   to="/profile" 
                   className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
@@ -61,39 +51,35 @@ const Header = ({
 
             {/* Desktop Auth/User Section */}
             <div className="hidden md:flex items-center space-x-4">
-              {isAuthenticated ? (
+              {user ? (
                 <>
                   {/* Notifications */}
                   <Button variant="ghost" size="sm" className="relative">
                     <Bell className="h-5 w-5" />
-                    {notificationCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                        {notificationCount > 9 ? '9+' : notificationCount}
-                      </span>
-                    )}
                   </Button>
 
                   {/* User Menu */}
                   <div className="flex items-center space-x-2">
                     <User className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm font-medium">{userName}</span>
+                    <span className="text-sm font-medium">{profile?.full_name || 'User'}</span>
                     <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                      {userType === 'labourer' ? 'Service Provider' : 'Client'}
+                      {profile?.user_type === 'labourer' ? 'Service Provider' : 'Client'}
                     </span>
                   </div>
 
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={signOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
                 <>
-                  <Link to="/login">
+                  <Link to="/auth">
                     <Button variant="ghost" size="sm">
                       Login
                     </Button>
                   </Link>
-                  <Link to="/signup">
+                  <Link to="/auth">
                     <Button className="btn-sunset">
                       Get Started
                     </Button>
@@ -131,7 +117,7 @@ const Header = ({
                 >
                   Browse Services
                 </Link>
-                {isAuthenticated && (
+                {user && (
                   <Link 
                     to="/profile" 
                     className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
@@ -142,27 +128,28 @@ const Header = ({
                 )}
                 
                 <div className="pt-4 border-t border-glass-border/30">
-                  {isAuthenticated ? (
+                  {user ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <User className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-sm font-medium">{userName}</span>
+                        <span className="text-sm font-medium">{profile?.full_name || 'User'}</span>
                         <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                          {userType === 'labourer' ? 'Provider' : 'Client'}
+                          {profile?.user_type === 'labourer' ? 'Provider' : 'Client'}
                         </span>
                       </div>
-                      <Button variant="outline" size="sm" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
+                        <LogOut className="h-4 w-4 mr-2" />
                         Logout
                       </Button>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <Link to="/login" className="block">
+                      <Link to="/auth" className="block">
                         <Button variant="ghost" size="sm" className="w-full">
                           Login
                         </Button>
                       </Link>
-                      <Link to="/signup" className="block">
+                      <Link to="/auth" className="block">
                         <Button className="btn-sunset w-full">
                           Get Started
                         </Button>
