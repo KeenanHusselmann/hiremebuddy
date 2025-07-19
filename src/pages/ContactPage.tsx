@@ -5,6 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PhoneInputWithWhatsApp } from '@/components/PhoneInputWithWhatsApp';
+import { CommunicationButtons } from '@/components/CommunicationButtons';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
@@ -15,6 +17,7 @@ const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     subject: '',
     category: '',
     message: ''
@@ -41,6 +44,7 @@ const ContactPage = () => {
       setFormData({
         name: '',
         email: '',
+        phone: '',
         subject: '',
         category: '',
         message: ''
@@ -190,6 +194,13 @@ const ContactPage = () => {
                       </div>
                     </div>
 
+                    <PhoneInputWithWhatsApp
+                      value={formData.phone}
+                      onChange={(value) => handleInputChange('phone', value)}
+                      placeholder="+264 81 234 5678"
+                      label="Phone Number (Optional)"
+                    />
+
                     <div className="space-y-2">
                       <Label htmlFor="category">Category</Label>
                       <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
@@ -338,6 +349,14 @@ const ContactPage = () => {
                             <p className="text-muted-foreground">+264 61 123 456</p>
                           </div>
                         </div>
+                        
+                        <CommunicationButtons
+                          phoneNumber="+264611234567"
+                          whatsappNumber="+264611234567"
+                          facebookUrl="https://facebook.com/hiremebuddy"
+                          className="mt-4"
+                        />
+
                         <div className="flex items-center gap-3">
                           <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>

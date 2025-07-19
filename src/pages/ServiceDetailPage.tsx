@@ -4,6 +4,7 @@ import { ArrowLeft, Star, MapPin, Clock, Phone, MessageCircle, Calendar, Shield,
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import Header from '@/components/Header';
@@ -34,6 +35,7 @@ const ServiceDetailPage = () => {
     contact: {
       phone: '+264 81 123 4567',
       whatsapp: '+264 81 123 4567',
+      facebook: 'https://facebook.com/johannes.plumber.namibia'
     },
     portfolio: [
       'Bathroom renovation - Klein Windhoek residence',
@@ -246,23 +248,13 @@ const ServiceDetailPage = () => {
                   Book Now
                 </Button>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleContact('phone')}
-                    className="w-full"
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    Call
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleContact('whatsapp')}
-                    className="w-full"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
-                  </Button>
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium mb-3">Contact Provider</h4>
+                  <CommunicationButtons
+                    phoneNumber={service.contact.phone}
+                    whatsappNumber={service.contact.whatsapp}
+                    facebookUrl={service.contact.facebook}
+                  />
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
