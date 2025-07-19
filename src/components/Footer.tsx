@@ -3,6 +3,9 @@ import { Facebook, MessageCircle, Phone, Mail, MapPin } from 'lucide-react';
 import logo from '@/assets/hiremebuddy-logo.png';
 
 const Footer = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   return (
     <footer className="mt-16 border-t border-glass-border/30">
       <div className="glass-card rounded-none border-0">
@@ -38,30 +41,30 @@ const Footer = () => {
             <div className="space-y-4">
               <h4 className="font-semibold text-foreground">Quick Links</h4>
               <nav className="flex flex-col space-y-2">
-                <Link 
-                  to="/" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
-                >
-                  Home
-                </Link>
-                <Link 
-                  to="/browse" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
-                >
-                  Browse Services
-                </Link>
-                <Link 
-                  to="/how-it-works" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
-                >
-                  How It Works
-                </Link>
-                <Link 
-                  to="/contact" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
-                >
-                  Contact Us
-                </Link>
+                 <button
+                   onClick={scrollToTop}
+                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
+                 >
+                   Home
+                 </button>
+                 <button
+                   onClick={scrollToTop}
+                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
+                 >
+                   Browse Services
+                 </button>
+                 <button
+                   onClick={scrollToTop}
+                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
+                 >
+                   How It Works
+                 </button>
+                 <button
+                   onClick={scrollToTop}
+                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
+                 >
+                   Contact Us
+                 </button>
               </nav>
             </div>
 

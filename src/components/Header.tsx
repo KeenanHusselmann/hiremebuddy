@@ -4,6 +4,7 @@ import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import logo from '@/assets/hiremebuddy-logo.png';
 
 const Header = () => {
@@ -53,6 +54,9 @@ const Header = () => {
 
             {/* Desktop Auth/User Section */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {user ? (
                 <>
                   {/* Notifications */}
