@@ -14,6 +14,7 @@ interface Profile {
   location_text?: string;
   avatar_url?: string;
   bio?: string;
+  created_at: string;
 }
 
 interface AuthContextType {

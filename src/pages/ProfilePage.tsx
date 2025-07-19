@@ -164,6 +164,9 @@ const ProfilePage = () => {
             />
             <h1 className="text-3xl font-bold mt-4">{profile.full_name}</h1>
             <p className="text-muted-foreground capitalize">{profile.user_type}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              User since {new Date(profile.created_at).toLocaleDateString()}
+            </p>
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
