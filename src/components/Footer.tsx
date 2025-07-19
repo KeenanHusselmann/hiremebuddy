@@ -92,7 +92,7 @@ const Footer = () => {
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">
-                    hello@hiremebuddy.com
+                    hello@hiremebuddy.na
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -109,7 +109,7 @@ const Footer = () => {
           <div className="mt-12 pt-8 border-t border-glass-border/30">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                ©2025 Hire.Me.Bra - Building Trust, Creating Opportunities
+                ©2025 HireMeBuddy - Connecting Namibian Skills with Opportunities
               </p>
               <nav className="flex flex-wrap items-center justify-center space-x-6">
                 <Link 

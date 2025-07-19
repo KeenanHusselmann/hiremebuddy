@@ -40,14 +40,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "HireMeBuddy <onboarding@resend.dev>",
+      from: "HireMeBuddy <noreply@hiremebuddy.na>",
       to: [email],
       subject: "Reset Your Password - HireMeBuddy",
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="background: linear-gradient(135deg, #f97316, #ea580c); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
             <h1 style="color: white; margin: 0; font-size: 28px;">HireMeBuddy</h1>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Connect Skills, Build Trust</p>
+            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Connecting Namibian Skills with Opportunities</p>
           </div>
           
           <div style="background: white; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
