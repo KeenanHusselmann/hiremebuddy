@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { ContactServiceProvider } from '@/components/ContactServiceProvider';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
@@ -298,6 +299,14 @@ const ServiceDetailPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Contact Form */}
+            <ContactServiceProvider
+              workerName={service.provider}
+              workerEmail="johannes.plumber@email.com"
+              workerPhone={service.contact.phone}
+              serviceName={service.title}
+            />
           </div>
         </div>
       </main>
