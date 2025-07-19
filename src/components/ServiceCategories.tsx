@@ -105,11 +105,13 @@ const ServiceCategories = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {categories.map((category, index) => {
             const IconComponent = category.icon;
+            const categorySlug = category.title.toLowerCase().replace(/\s+/g, '-');
             return (
               <div
                 key={category.title}
                 className="service-card group cursor-pointer fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => window.location.href = `/services/${categorySlug}`}
               >
                 <div className="mb-4">
                   <div className="w-16 h-16 mx-auto bg-gradient-sunset rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -136,7 +138,10 @@ const ServiceCategories = () => {
         </div>
 
         <div className="text-center mt-12">
-          <button className="btn-glass px-8 py-3 text-lg hover:scale-105 transition-transform duration-200">
+          <button 
+            className="btn-glass px-8 py-3 text-lg hover:scale-105 transition-transform duration-200"
+            onClick={() => window.location.href = '/browse'}
+          >
             View All Services
           </button>
         </div>

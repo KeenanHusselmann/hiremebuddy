@@ -9,6 +9,9 @@ import AuthPage from "./pages/AuthPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
+import BrowseServicesPage from "./pages/BrowseServicesPage";
+import ServiceCategoryPage from "./pages/ServiceCategoryPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
 import SupportPage from "./pages/SupportPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -29,6 +32,9 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/browse" element={<BrowseServicesPage />} />
+            <Route path="/services/:category" element={<ServiceCategoryPage />} />
+            <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />

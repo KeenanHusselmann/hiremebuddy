@@ -8,8 +8,11 @@ const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
-    // TODO: Implement search functionality
-    console.log('Searching for:', searchQuery);
+    if (searchQuery.trim()) {
+      window.location.href = `/browse?search=${encodeURIComponent(searchQuery)}`;
+    } else {
+      window.location.href = '/browse';
+    }
   };
 
   return (
@@ -64,10 +67,16 @@ const HeroSection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button className="btn-sunset px-8 py-4 text-lg min-w-[200px]">
+              <Button 
+                className="btn-sunset px-8 py-4 text-lg min-w-[200px]"
+                onClick={() => window.location.href = '/browse'}
+              >
                 Find Services
               </Button>
-              <Button className="btn-glass px-8 py-4 text-lg min-w-[200px]">
+              <Button 
+                className="btn-glass px-8 py-4 text-lg min-w-[200px]"
+                onClick={() => window.location.href = '/auth'}
+              >
                 Offer Your Skills
               </Button>
             </div>

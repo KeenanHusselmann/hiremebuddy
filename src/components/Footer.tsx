@@ -69,12 +69,12 @@ const Footer = () => {
             <div className="space-y-4">
               <h4 className="font-semibold text-foreground">Popular Services</h4>
               <nav className="flex flex-col space-y-2">
-                <span className="text-sm text-muted-foreground">Plumbing</span>
-                <span className="text-sm text-muted-foreground">Electrical Work</span>
-                <span className="text-sm text-muted-foreground">Carpentry</span>
-                <span className="text-sm text-muted-foreground">Home Repairs</span>
-                <span className="text-sm text-muted-foreground">Gardening</span>
-                <span className="text-sm text-muted-foreground">Painting</span>
+                <Link to="/services/plumbing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Plumbing</Link>
+                <Link to="/services/electrical" className="text-sm text-muted-foreground hover:text-primary transition-colors">Electrical Work</Link>
+                <Link to="/services/carpentry" className="text-sm text-muted-foreground hover:text-primary transition-colors">Carpentry</Link>
+                <Link to="/services/home-repairs" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home Repairs</Link>
+                <Link to="/services/gardening" className="text-sm text-muted-foreground hover:text-primary transition-colors">Gardening</Link>
+                <Link to="/services/painting" className="text-sm text-muted-foreground hover:text-primary transition-colors">Painting</Link>
               </nav>
             </div>
 
