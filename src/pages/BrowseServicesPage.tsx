@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
 import { MapWithWorkers } from '@/components/MapWithWorkers';
+import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -146,8 +147,9 @@ const BrowseServicesPage = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Page Header */}
+        {/* Back Button and Header */}
         <div className="mb-8">
+          <BackButton fallbackPath="/" className="mb-4" />
           <h1 className="text-4xl font-bold text-foreground mb-4">Browse Services</h1>
           <p className="text-xl text-muted-foreground">
             Discover skilled professionals for all your needs

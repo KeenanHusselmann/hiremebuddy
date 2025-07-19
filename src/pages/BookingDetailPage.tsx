@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ChatInterface } from '@/components/ChatInterface';
 import { useUserPresence } from '@/hooks/useUserPresence';
+import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { format } from 'date-fns';
@@ -217,14 +218,7 @@ const BookingDetailPage: React.FC = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/bookings')}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Bookings
-          </Button>
+          <BackButton fallbackPath="/bookings" />
           
           <div className="flex items-center justify-between">
             <div>
