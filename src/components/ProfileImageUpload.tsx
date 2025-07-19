@@ -85,7 +85,10 @@ const ProfileImageUpload = ({ currentImageUrl, onImageUpload, size = 'medium' }:
       });
 
     } catch (error: any) {
-      console.error('Error uploading image:', error);
+      // Log error only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error uploading image:', error);
+      }
       toast({
         title: "Error",
         description: error.message || "Failed to upload image",

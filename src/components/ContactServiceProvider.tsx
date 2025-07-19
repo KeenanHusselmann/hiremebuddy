@@ -31,22 +31,55 @@ export const ContactServiceProvider: React.FC<ContactServiceProviderProps> = ({
     message: ''
   });
 
+  const validateInput = (input: string) => {
+    // Basic sanitization - remove potential XSS patterns
+    return input.replace(/<script.*?>.*?<\/script>/gi, '').trim();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Input validation and sanitization
+    const sanitizedData = {
+      name: validateInput(formData.name),
+      email: validateInput(formData.email),
+      phone: validateInput(formData.phone),
+      message: validateInput(formData.message)
+    };
+
+    // Additional validation
+    if (sanitizedData.name.length < 2) {
+      toast({
+        title: "Validation Error",
+        description: "Name must be at least 2 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (sanitizedData.message.length < 10) {
+      toast({
+        title: "Validation Error", 
+        description: "Message must be at least 10 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('send-notifications', {
         body: {
           type: 'client_contact_worker',
-          clientName: formData.name,
-          clientEmail: formData.email,
-          clientPhone: formData.phone,
+          clientName: sanitizedData.name,
+          clientEmail: sanitizedData.email,
+          clientPhone: sanitizedData.phone,
           workerName,
           workerEmail,
           workerPhone,
           serviceName,
-          message: formData.message
+          message: sanitizedData.message
         }
       });
 
@@ -67,7 +100,10 @@ export const ContactServiceProvider: React.FC<ContactServiceProviderProps> = ({
 
       onContactSent?.();
     } catch (error: any) {
-      console.error('Error sending message:', error);
+      // Log error only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error sending message:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to send message. Please try again.",

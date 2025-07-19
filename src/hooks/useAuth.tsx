@@ -56,7 +56,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       return data;
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      // Log error only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching profile:', error);
+      }
       return null;
     }
   };
