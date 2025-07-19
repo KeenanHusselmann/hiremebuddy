@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CalendarDays, Star, TrendingUp, Users, DollarSign, Clock, Target, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { BackButton } from '@/hooks/useBackNavigation';
 
 interface BookingStats {
   total: number;
@@ -222,12 +223,16 @@ const InsightsPage: React.FC = () => {
 
   return (
     <div className="container-responsive space-y-4 sm:space-y-6 pb-safe-bottom">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="heading-responsive font-bold">Insights Dashboard</h1>
-          <p className="text-responsive text-muted-foreground">
-            Comprehensive analytics for your {profile?.user_type} account
-          </p>
+      {/* Back Button and Header */}
+      <div className="mb-6">
+        <BackButton fallbackPath="/" className="mb-4" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="heading-responsive font-bold">Insights Dashboard</h1>
+            <p className="text-responsive text-muted-foreground">
+              Comprehensive analytics for your {profile?.user_type} account
+            </p>
+          </div>
         </div>
       </div>
 
