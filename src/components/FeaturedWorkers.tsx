@@ -161,25 +161,28 @@ const FeaturedWorkers = () => {
                 <Button className="w-full btn-sunset">
                   Book Service
                 </Button>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button 
-                    size="sm" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-2 truncate"
-                  >
-                    Call
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-2 truncate"
-                  >
-                    WhatsApp
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="bg-blue-800 hover:bg-blue-900 text-white text-xs px-2 py-2 truncate"
-                  >
-                    Facebook
-                  </Button>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground text-center">Or contact us using</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Button 
+                      size="sm" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    >
+                      <Phone className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="bg-blue-800 hover:bg-blue-900 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    >
+                      <Facebook className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
