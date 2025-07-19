@@ -88,13 +88,22 @@ const Header = () => {
                   {t('nav.browse')}
                 </Link>
                 {user && (
-                  <Link 
-                    to="/profile" 
-                    className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('nav.profile')}
-                  </Link>
+                  <>
+                    <Link 
+                      to="/profile" 
+                      className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {t('nav.profile')}
+                    </Link>
+                    <Link 
+                      to="/insights" 
+                      className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Insights
+                    </Link>
+                  </>
                 )}
                 
                 <div className="pt-4 border-t border-glass-border/30">
