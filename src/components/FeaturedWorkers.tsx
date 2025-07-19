@@ -161,18 +161,18 @@ const FeaturedWorkers = () => {
                 <Button className="w-full btn-sunset">
                   Book Service
                 </Button>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Call
+                <div className="grid grid-cols-3 gap-2">
+                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
+                    <Phone className="h-4 w-4 md:mr-1" />
+                    <span className="hidden md:inline ml-1">Call</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
+                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
+                    <MessageCircle className="h-4 w-4 md:mr-1" />
+                    <span className="hidden md:inline ml-1">WhatsApp</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Facebook className="h-4 w-4 mr-2" />
-                    Facebook
+                  <Button variant="outline" size="sm" className="flex items-center justify-center p-2">
+                    <Facebook className="h-4 w-4 md:mr-1" />
+                    <span className="hidden md:inline ml-1">Facebook</span>
                   </Button>
                 </div>
               </div>
