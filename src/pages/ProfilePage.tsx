@@ -16,9 +16,13 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowLeft, User, Settings, Camera } from 'lucide-react';
+import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
+import TicTacToe from '@/components/TicTacToe';
+import MiniSudoku from '@/components/MiniSudoku';
+import ProfileStats from '@/components/ProfileStats';
+import QuickActions from '@/components/QuickActions';
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
@@ -170,10 +174,18 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 {t('profile.title')}
+              </TabsTrigger>
+              <TabsTrigger value="stats" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Stats
+              </TabsTrigger>
+              <TabsTrigger value="games" className="flex items-center gap-2">
+                <Gamepad2 className="h-4 w-4" />
+                Games
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -275,6 +287,47 @@ const ProfilePage = () => {
                       {isLoading ? t('profile.updating') : t('profile.updateProfile')}
                     </Button>
                   </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="stats" className="space-y-6">
+              <ProfileStats 
+                profile={profile} 
+                joinDate={new Date(profile.created_at)} 
+              />
+              <QuickActions userType={profile.user_type} />
+            </TabsContent>
+
+            <TabsContent value="games" className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold mb-2">Mini Games</h2>
+                <p className="text-muted-foreground">
+                  Take a break and enjoy these lightweight games!
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div className="flex justify-center">
+                  <TicTacToe />
+                </div>
+                <div className="flex justify-center">
+                  <MiniSudoku />
+                </div>
+              </div>
+
+              {/* Fun Facts Section */}
+              <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-center">Did You Know?</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center space-y-3">
+                  <p className="text-muted-foreground">
+                    Playing brain games can improve problem-solving skills and cognitive function.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Perfect skills for both service providers and clients on HireMeBuddy!
+                  </p>
                 </CardContent>
               </Card>
             </TabsContent>
