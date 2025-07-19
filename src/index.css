@@ -358,14 +358,6 @@ html.high-contrast.dark {
   .container-responsive {
     @apply w-full mx-auto px-4 sm:px-6 lg:px-8;
   }
-}
-
-/* Extra small screens for button text */
-@media (min-width: 400px) {
-  .xs\:inline {
-    display: inline;
-  }
-}
   
   .text-responsive {
     @apply text-sm sm:text-base lg:text-lg;
@@ -409,6 +401,13 @@ html.high-contrast.dark {
   
   .m-responsive {
     @apply m-2 sm:m-3 md:m-4 lg:m-6;
+  }
+}
+
+/* Extra small screens for button text */
+@media (min-width: 400px) {
+  .xs\:inline {
+    display: inline;
   }
 }
 
