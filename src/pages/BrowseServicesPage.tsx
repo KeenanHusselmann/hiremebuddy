@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
+import { MapWithWorkers } from '@/components/MapWithWorkers';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -151,6 +153,15 @@ const BrowseServicesPage = () => {
             Discover skilled professionals for all your needs
           </p>
         </div>
+
+        {/* Browse Mode Tabs */}
+        <Tabs defaultValue="list" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:w-auto">
+            <TabsTrigger value="list">Service List</TabsTrigger>
+            <TabsTrigger value="map">Map View</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-6">
 
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
@@ -385,6 +396,17 @@ const BrowseServicesPage = () => {
             <FacebookMarketplace />
           </div>
         </div>
+          </TabsContent>
+
+          <TabsContent value="map">
+            <MapWithWorkers 
+              onWorkerSelect={(worker) => {
+                // Navigate to worker profile or service detail
+                navigate(`/services/${worker.service.toLowerCase()}/${worker.id}`);
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
 
       <Footer />
