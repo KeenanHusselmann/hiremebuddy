@@ -221,18 +221,18 @@ const InsightsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container-responsive space-y-4 sm:space-y-6 pb-safe-bottom">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Insights Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="heading-responsive font-bold">Insights Dashboard</h1>
+          <p className="text-responsive text-muted-foreground">
             Comprehensive analytics for your {profile?.user_type} account
           </p>
         </div>
       </div>
 
       <Tabs defaultValue={profile?.user_type === 'client' ? 'client' : 'worker'} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 gap-1">
           {(profile?.user_type === 'labourer' || profile?.user_type === 'both') && (
             <TabsTrigger value="worker">Worker Analytics</TabsTrigger>
           )}
@@ -242,10 +242,10 @@ const InsightsPage: React.FC = () => {
         </TabsList>
 
         {(profile?.user_type === 'labourer' || profile?.user_type === 'both') && (
-          <TabsContent value="worker" className="space-y-6">
+          <TabsContent value="worker" className="space-y-4 sm:space-y-6">
             {/* Booking Statistics */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -256,7 +256,7 @@ const InsightsPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
                   <Star className="h-4 w-4 text-muted-foreground" />
@@ -271,7 +271,7 @@ const InsightsPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -286,7 +286,7 @@ const InsightsPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">This Month</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -309,7 +309,7 @@ const InsightsPage: React.FC = () => {
                 <CardDescription>Distribution of your booking statuses</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Pending</span>
@@ -386,10 +386,10 @@ const InsightsPage: React.FC = () => {
         )}
 
         {(profile?.user_type === 'client' || profile?.user_type === 'both') && (
-          <TabsContent value="client" className="space-y-6">
+          <TabsContent value="client" className="space-y-4 sm:space-y-6">
             {/* Client Statistics */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -413,7 +413,7 @@ const InsightsPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Satisfaction</CardTitle>
                   <Target className="h-4 w-4 text-muted-foreground" />
@@ -426,7 +426,7 @@ const InsightsPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Avg per Booking</CardTitle>
                   <Award className="h-4 w-4 text-muted-foreground" />
@@ -444,7 +444,7 @@ const InsightsPage: React.FC = () => {
             </div>
 
             {/* Favorite Services */}
-            <Card>
+              <Card className="card-mobile">
               <CardHeader>
                 <CardTitle>Most Booked Services</CardTitle>
                 <CardDescription>Your frequently used services</CardDescription>
@@ -471,7 +471,7 @@ const InsightsPage: React.FC = () => {
             </Card>
 
             {/* Satisfaction Meter */}
-            <Card>
+              <Card className="card-mobile">
               <CardHeader>
                 <CardTitle>Satisfaction Meter</CardTitle>
                 <CardDescription>Based on your booking completion rate</CardDescription>

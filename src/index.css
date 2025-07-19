@@ -352,3 +352,138 @@ html.high-contrast.dark {
     }
   }
 }
+
+/* Mobile Optimization Utilities */
+@responsive {
+  .container-responsive {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .heading-responsive {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
+  }
+  
+  .hero-heading-responsive {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
+  }
+  
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 md:grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+  }
+  
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .gap-responsive {
+    @apply gap-3 sm:gap-4 md:gap-6;
+  }
+  
+  .p-responsive {
+    @apply p-3 sm:p-4 md:p-6 lg:p-8;
+  }
+  
+  .m-responsive {
+    @apply m-2 sm:m-3 md:m-4 lg:m-6;
+  }
+}
+
+/* Touch-friendly button sizes */
+.btn-touch {
+  @apply min-h-[44px] min-w-[44px] text-base;
+}
+
+.btn-touch-large {
+  @apply min-h-[48px] min-w-[120px] text-lg;
+}
+
+/* Mobile table improvements */
+.table-mobile {
+  @apply overflow-x-auto;
+}
+
+.table-mobile table {
+  @apply min-w-[600px] sm:min-w-full;
+}
+
+/* Card improvements for mobile */
+.card-mobile {
+  @apply mx-2 sm:mx-0;
+}
+
+.card-mobile-spacing {
+  @apply space-y-4 sm:space-y-6;
+}
+
+/* Form improvements for mobile */
+.form-mobile {
+  @apply space-y-4 sm:space-y-6;
+}
+
+.form-mobile input,
+.form-mobile textarea,
+.form-mobile select {
+  @apply text-base; /* Prevents zoom on iOS */
+}
+
+/* Navigation improvements */
+.nav-mobile {
+  @apply pb-safe-bottom;
+}
+
+/* Safe area support for mobile devices */
+.pb-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Improved tap targets */
+.tap-target {
+  @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+}
+
+/* Mobile-specific animations */
+@media (max-width: 768px) {
+  .animate-fade-in {
+    animation-duration: 0.2s;
+  }
+  
+  .animate-scale-in {
+    animation-duration: 0.15s;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-accordion-down,
+  .animate-accordion-up {
+    animation: none;
+  }
+  
+  .transition-all,
+  .transition-transform,
+  .transition-colors {
+    transition: none;
+  }
+}

@@ -217,31 +217,31 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container-responsive space-y-4 sm:space-y-6 pb-safe-bottom">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
+          <h1 className="heading-responsive font-bold flex items-center gap-2">
+            <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             Admin Dashboard
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-responsive text-muted-foreground">
             Complete system overview and management for HireMeBra
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">User Management</TabsTrigger>
-          <TabsTrigger value="bookings">Booking Management</TabsTrigger>
-          <TabsTrigger value="settings">System Settings</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs sm:text-sm">Users</TabsTrigger>
+          <TabsTrigger value="bookings" className="text-xs sm:text-sm">Bookings</TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-4 sm:space-y-6">
           {/* Key Metrics */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="card-mobile">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -252,7 +252,7 @@ const AdminDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-mobile">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -263,7 +263,7 @@ const AdminDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-mobile">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Platform Revenue</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -276,7 +276,7 @@ const AdminDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-mobile">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Services</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
@@ -289,8 +289,8 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
+            <Card className="card-mobile">
               <CardHeader>
                 <CardTitle>Recent Users</CardTitle>
                 <CardDescription>Latest user registrations</CardDescription>
@@ -314,7 +314,7 @@ const AdminDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-mobile">
               <CardHeader>
                 <CardTitle>Recent Bookings</CardTitle>
                 <CardDescription>Latest booking activity</CardDescription>
@@ -345,18 +345,18 @@ const AdminDashboard: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-6">
-          <Card>
+        <TabsContent value="users" className="space-y-4 sm:space-y-6">
+          <Card className="card-mobile">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <CardTitle>User Management</CardTitle>
+                  <CardTitle className="heading-responsive">User Management</CardTitle>
                   <CardDescription>Manage all platform users</CardDescription>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="userType">Filter by type:</Label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <Label htmlFor="userType" className="text-sm">Filter by type:</Label>
                   <Select value={selectedUserType} onValueChange={setSelectedUserType}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -371,7 +371,8 @@ const AdminDashboard: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
+              <div className="table-mobile">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
@@ -422,19 +423,20 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="bookings" className="space-y-6">
-          <Card>
+        <TabsContent value="bookings" className="space-y-4 sm:space-y-6">
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle>Booking Management</CardTitle>
+              <CardTitle className="heading-responsive">Booking Management</CardTitle>
               <CardDescription>Monitor and manage all platform bookings</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-3 mb-6">
-                <Card>
+              <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3 mb-4 sm:mb-6">
+                <Card className="card-mobile">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Pending Bookings</CardTitle>
                   </CardHeader>
@@ -442,7 +444,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="text-2xl font-bold">{platformStats?.pendingBookings || 0}</div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="card-mobile">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Completed Bookings</CardTitle>
                   </CardHeader>
@@ -450,7 +452,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="text-2xl font-bold">{platformStats?.completedBookings || 0}</div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="card-mobile">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Completion Rate</CardTitle>
                   </CardHeader>
@@ -463,7 +465,8 @@ const AdminDashboard: React.FC = () => {
                 </Card>
               </div>
 
-              <Table>
+              <div className="table-mobile">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Service</TableHead>
@@ -491,18 +494,19 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
-          <Card>
+        <TabsContent value="settings" className="space-y-4 sm:space-y-6">
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle>System Settings</CardTitle>
+              <CardTitle className="heading-responsive">System Settings</CardTitle>
               <CardDescription>Configure platform-wide settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
+            <CardContent className="form-mobile">
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="platformName">Platform Name</Label>
                   <Input id="platformName" defaultValue="HireMeBra" />
@@ -528,7 +532,7 @@ const AdminDashboard: React.FC = () => {
                   </Select>
                 </div>
               </div>
-              <Button className="w-full md:w-auto">
+              <Button className="btn-touch-large w-full sm:w-auto mt-4">
                 <Settings className="w-4 h-4 mr-2" />
                 Save Settings
               </Button>
