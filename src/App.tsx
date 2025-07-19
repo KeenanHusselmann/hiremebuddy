@@ -12,6 +12,9 @@ import ProfilePage from "./pages/ProfilePage";
 import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceCategoryPage from "./pages/ServiceCategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import ContactPage from "./pages/ContactPage";
+import BookingPage from "./pages/BookingPage";
 import SupportPage from "./pages/SupportPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/browse" element={<BrowseServicesPage />} />
             <Route path="/services/:category" element={<ServiceCategoryPage />} />
             <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/booking" element={<BookingPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
