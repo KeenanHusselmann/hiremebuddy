@@ -8,6 +8,7 @@ interface AccessibilityContextType {
   setFontSize: (size: 'normal' | 'large' | 'extra-large') => void;
   toggleHighContrast: () => void;
   announceToScreenReader: (message: string) => void;
+  readPageContent: () => void;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -72,6 +73,45 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const readPageContent = () => {
+    if (isScreenReaderEnabled && 'speechSynthesis' in window) {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+      
+      // Get page content to read
+      const pageTitle = document.title;
+      const mainContent = document.querySelector('main');
+      const headings = document.querySelectorAll('h1, h2, h3');
+      
+      let contentToRead = `Page: ${pageTitle}. `;
+      
+      // Read main headings
+      headings.forEach((heading, index) => {
+        if (index < 3) { // Limit to first 3 headings
+          contentToRead += `${heading.tagName}: ${heading.textContent}. `;
+        }
+      });
+      
+      // Read first paragraph or text content
+      const firstParagraph = mainContent?.querySelector('p, .text-lg, .text-xl, .description');
+      if (firstParagraph) {
+        const text = firstParagraph.textContent?.slice(0, 200) || '';
+        contentToRead += text;
+      }
+      
+      // Create and configure speech
+      const utterance = new SpeechSynthesisUtterance(contentToRead);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      
+      // Speak the content
+      window.speechSynthesis.speak(utterance);
+      
+      announceToScreenReader("Reading page content");
+    }
+  };
+
   return (
     <AccessibilityContext.Provider value={{
       isScreenReaderEnabled,
@@ -80,7 +120,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       toggleScreenReader,
       setFontSize,
       toggleHighContrast,
-      announceToScreenReader
+      announceToScreenReader,
+      readPageContent
     }}>
       {children}
     </AccessibilityContext.Provider>

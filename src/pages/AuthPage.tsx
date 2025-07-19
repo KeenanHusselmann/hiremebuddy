@@ -84,15 +84,22 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
+      // Get user profile for personalized welcome
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', data.user?.id)
+        .single();
+
       toast({
-        title: "Welcome back!",
+        title: `Welcome back${profile?.full_name ? `, ${profile.full_name}` : ''}!`,
         description: "You've been successfully logged in.",
       });
     } catch (error: any) {
@@ -119,8 +126,13 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sunset-deep via-sunset-primary to-sunset-light flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-sunset-deep via-sunset-primary to-sunset-light flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
+      </div>
+      
+      <div className="w-full max-w-lg relative z-10">
         <div className="mb-6">
           <Link to="/" className="inline-flex items-center text-white hover:text-sunset-accent transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -128,17 +140,26 @@ const AuthPage = () => {
           </Link>
         </div>
 
-        <Card className="glass-card border-glass-border/30">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-foreground">
-              {isLogin ? 'Welcome Back' : 'Join Hire.Me.Bra'}
+        <Card className="glass-card border-glass-border/30 shadow-2xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-3xl font-bold text-foreground mb-2">
+              {isLogin ? 'Welcome Back!' : 'Join Hire.Me.Bra'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-lg">
               {isLogin 
-                ? 'Sign in to your account to continue' 
-                : 'Create your account to get started'
+                ? 'Sign in to connect with skilled professionals' 
+                : 'Start connecting with Namibian talent today'
               }
             </CardDescription>
+            {!isLogin && (
+              <div className="mt-4 p-4 bg-primary/10 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  ✨ Connect with trusted service providers<br/>
+                  🔒 Secure and verified professionals<br/>
+                  📱 Direct communication tools
+                </p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={isLogin ? handleSignIn : handleSignUp} className="space-y-4">

@@ -18,6 +18,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ArrowLeft, User, Settings, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ProfileImageUpload from '@/components/ProfileImageUpload';
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
@@ -101,6 +102,14 @@ const ProfilePage = () => {
     });
   };
 
+  const handleImageUpload = async (imageUrl: string) => {
+    await refreshProfile();
+    toast({
+      title: "Profile Image Updated",
+      description: "Your profile image has been successfully updated.",
+    });
+  };
+
   const handleChangePassword = async () => {
     if (!user?.email) return;
 
@@ -148,13 +157,12 @@ const ProfilePage = () => {
 
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">
-            <Avatar className="w-24 h-24 mx-auto mb-4">
-              <AvatarImage src={profile.avatar_url} />
-              <AvatarFallback className="text-2xl">
-                {profile.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <h1 className="text-3xl font-bold">{profile.full_name}</h1>
+            <ProfileImageUpload 
+              currentImageUrl={profile.avatar_url}
+              onImageUpload={handleImageUpload}
+              size="large"
+            />
+            <h1 className="text-3xl font-bold mt-4">{profile.full_name}</h1>
             <p className="text-muted-foreground capitalize">{profile.user_type}</p>
           </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Type, Contrast, Volume2 } from 'lucide-react';
+import { Eye, Type, Contrast, Volume2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,7 +14,8 @@ export const AccessibilityPanel: React.FC = () => {
     toggleScreenReader,
     setFontSize,
     toggleHighContrast,
-    announceToScreenReader
+    announceToScreenReader,
+    readPageContent
   } = useAccessibility();
 
   const handleScreenReaderTest = () => {
@@ -46,7 +47,7 @@ export const AccessibilityPanel: React.FC = () => {
         </div>
 
         {isScreenReaderEnabled && (
-          <div className="ml-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="ml-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
             <Button
               onClick={handleScreenReaderTest}
               variant="outline"
@@ -55,6 +56,15 @@ export const AccessibilityPanel: React.FC = () => {
             >
               <Volume2 className="h-4 w-4 mr-2" />
               Test Screen Reader
+            </Button>
+            <Button
+              onClick={readPageContent}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Read Current Page
             </Button>
           </div>
         )}
