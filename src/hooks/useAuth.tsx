@@ -7,7 +7,7 @@ interface Profile {
   id: string;
   user_id: string;
   full_name: string;
-  user_type: 'client' | 'labourer' | 'both';
+  user_type: 'client' | 'labourer' | 'both' | 'admin';
   contact_number?: string;
   whatsapp_link?: string;
   facebook_link?: string;

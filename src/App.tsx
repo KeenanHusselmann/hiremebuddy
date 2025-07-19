@@ -21,6 +21,7 @@ import HowItWorksPage from "./pages/HowItWorksPage";
 import ContactPage from "./pages/ContactPage";
 import BookingPage from "./pages/BookingPage";
 import InsightsPage from "./pages/InsightsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import SupportPage from "./pages/SupportPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -57,6 +58,7 @@ const App = () => {
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/insights" element={<InsightsPage />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/browse" element={<BrowseServicesPage />} />
                     <Route path="/services/:category" element={<ServiceCategoryPage />} />
                     <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />

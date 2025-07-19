@@ -54,7 +54,7 @@ const ProfilePage = () => {
         facebook_link: profile.facebook_link || '',
         location_text: profile.location_text || '',
         bio: profile.bio || '',
-        user_type: profile.user_type || 'client',
+        user_type: profile.user_type === 'admin' ? 'client' : profile.user_type || 'client',
       });
     }
   }, [user, profile, navigate]);

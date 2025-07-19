@@ -103,6 +103,15 @@ const Header = () => {
                     >
                       Insights
                     </Link>
+                    {profile?.user_type === 'admin' && (
+                      <Link 
+                        to="/admin" 
+                        className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                   </>
                 )}
                 
