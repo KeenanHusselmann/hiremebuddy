@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface AccessibilityContextType {
   isScreenReaderEnabled: boolean;
   fontSize: 'normal' | 'large' | 'extra-large';
   highContrast: boolean;
   isReading: boolean;
+  autoReadOnPageChange: boolean;
   toggleScreenReader: () => void;
   setFontSize: (size: 'normal' | 'large' | 'extra-large') => void;
   toggleHighContrast: () => void;
+  toggleAutoRead: () => void;
   announceToScreenReader: (message: string) => void;
   readPageContent: () => void;
   stopReading: () => void;
@@ -20,15 +23,18 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [highContrast, setHighContrast] = useState(false);
   const [isReading, setIsReading] = useState(false);
+  const [autoReadOnPageChange, setAutoReadOnPageChange] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // Load accessibility settings from localStorage
     const savedSettings = localStorage.getItem('accessibility-settings');
     if (savedSettings) {
-      const { screenReader, fontSize: savedFontSize, highContrast: savedHighContrast } = JSON.parse(savedSettings);
+      const { screenReader, fontSize: savedFontSize, highContrast: savedHighContrast, autoRead } = JSON.parse(savedSettings);
       setIsScreenReaderEnabled(screenReader || false);
       setFontSize(savedFontSize || 'normal');
       setHighContrast(savedHighContrast || false);
+      setAutoReadOnPageChange(autoRead || false);
     }
   }, []);
 
@@ -37,7 +43,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem('accessibility-settings', JSON.stringify({
       screenReader: isScreenReaderEnabled,
       fontSize,
-      highContrast
+      highContrast,
+      autoRead: autoReadOnPageChange
     }));
 
     // Apply font size classes
@@ -51,7 +58,77 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     } else {
       root.classList.remove('high-contrast');
     }
-  }, [isScreenReaderEnabled, fontSize, highContrast]);
+  }, [isScreenReaderEnabled, fontSize, highContrast, autoReadOnPageChange]);
+
+  // Handle route changes - stop reading when page changes
+  useEffect(() => {
+    // Stop any current reading when route changes
+    if (isReading) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        setIsReading(false);
+      }
+    }
+    
+    // Auto-read new page if enabled and screen reader is on
+    if (isScreenReaderEnabled && autoReadOnPageChange) {
+      // Delay to allow page content to load
+      const timeout = setTimeout(() => {
+        if (isScreenReaderEnabled && 'speechSynthesis' in window) {
+          // Stop any current speech
+          window.speechSynthesis.cancel();
+          setIsReading(true);
+          
+          // Get current page specific content
+          const pageTitle = document.title;
+          const mainContent = document.querySelector('main');
+          const headings = mainContent?.querySelectorAll('h1, h2, h3') || [];
+          
+          let contentToRead = `Page: ${pageTitle}. `;
+          
+          // Read page-specific headings
+          headings.forEach((heading, index) => {
+            if (index < 3) {
+              contentToRead += `${heading.tagName}: ${heading.textContent}. `;
+            }
+          });
+          
+          // Read first few paragraphs or key content
+          const paragraphs = mainContent?.querySelectorAll('p, .text-lg, .text-xl, .description, .card-description') || [];
+          Array.from(paragraphs).slice(0, 2).forEach(paragraph => {
+            const text = paragraph.textContent?.slice(0, 150) || '';
+            if (text.trim()) {
+              contentToRead += text + '. ';
+            }
+          });
+          
+          // Create and configure speech
+          const utterance = new SpeechSynthesisUtterance(contentToRead);
+          utterance.rate = 0.8;
+          utterance.pitch = 1;
+          utterance.volume = 0.8;
+          
+          // Handle speech end
+          utterance.onend = () => {
+            setIsReading(false);
+          };
+          
+          utterance.onerror = () => {
+            setIsReading(false);
+          };
+          
+          // Speak the content
+          window.speechSynthesis.speak(utterance);
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [location.pathname, isScreenReaderEnabled, autoReadOnPageChange]);
+
+  const toggleAutoRead = () => {
+    setAutoReadOnPageChange(prev => !prev);
+  };
 
   const toggleScreenReader = () => {
     setIsScreenReaderEnabled(prev => !prev);
@@ -82,26 +159,28 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       window.speechSynthesis.cancel();
       setIsReading(true);
       
-      // Get page content to read
+      // Get current page specific content
       const pageTitle = document.title;
       const mainContent = document.querySelector('main');
-      const headings = document.querySelectorAll('h1, h2, h3');
+      const headings = mainContent?.querySelectorAll('h1, h2, h3') || [];
       
       let contentToRead = `Page: ${pageTitle}. `;
       
-      // Read main headings
+      // Read page-specific headings
       headings.forEach((heading, index) => {
-        if (index < 3) { // Limit to first 3 headings
+        if (index < 3) {
           contentToRead += `${heading.tagName}: ${heading.textContent}. `;
         }
       });
       
-      // Read first paragraph or text content
-      const firstParagraph = mainContent?.querySelector('p, .text-lg, .text-xl, .description');
-      if (firstParagraph) {
-        const text = firstParagraph.textContent?.slice(0, 200) || '';
-        contentToRead += text;
-      }
+      // Read first few paragraphs or key content
+      const paragraphs = mainContent?.querySelectorAll('p, .text-lg, .text-xl, .description, .card-description') || [];
+      Array.from(paragraphs).slice(0, 2).forEach(paragraph => {
+        const text = paragraph.textContent?.slice(0, 150) || '';
+        if (text.trim()) {
+          contentToRead += text + '. ';
+        }
+      });
       
       // Create and configure speech
       const utterance = new SpeechSynthesisUtterance(contentToRead);
@@ -121,7 +200,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       // Speak the content
       window.speechSynthesis.speak(utterance);
       
-      announceToScreenReader("Reading page content");
+      announceToScreenReader("Reading current page content");
     }
   };
 
@@ -129,7 +208,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsReading(false);
-      announceToScreenReader("Stopped reading");
+      announceToScreenReader("Stopped reading current page");
     }
   };
 
@@ -139,9 +218,11 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       fontSize,
       highContrast,
       isReading,
+      autoReadOnPageChange,
       toggleScreenReader,
       setFontSize,
       toggleHighContrast,
+      toggleAutoRead,
       announceToScreenReader,
       readPageContent,
       stopReading
