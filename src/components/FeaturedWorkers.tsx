@@ -1,6 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Star, MapPin, Phone, MessageCircle, Facebook, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Worker {
@@ -121,7 +121,29 @@ const FeaturedWorkers = () => {
               </div>
             ))}
           </div>
-        ) : workers.length > 0 ? (
+        ) : workers.length === 0 ? (
+          <div className="text-center py-16">
+            <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold mb-4">No Providers Currently</h3>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Be the first to join our platform! Register as a service provider and start connecting with clients in your area.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                className="btn-sunset px-8 py-3"
+                onClick={() => window.location.href = '/auth'}
+              >
+                Register as Provider
+              </Button>
+              <Button 
+                className="btn-glass px-8 py-3"
+                onClick={() => window.location.href = '/browse'}
+              >
+                Explore Services
+              </Button>
+            </div>
+          </div>
+        ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {workers.map((worker, index) => (
@@ -243,28 +265,6 @@ const FeaturedWorkers = () => {
               </Button>
             </div>
           </>
-        ) : (
-          <div className="text-center py-16">
-            <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-4">No Providers Currently</h3>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Be the first to join our platform! Register as a service provider and start connecting with clients in your area.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                className="btn-sunset px-8 py-3"
-                onClick={() => window.location.href = '/auth'}
-              >
-                Register as Provider
-              </Button>
-              <Button 
-                className="btn-glass px-8 py-3"
-                onClick={() => window.location.href = '/browse'}
-              >
-                Explore Services
-              </Button>
-            </div>
-          </div>
         )}
       </div>
     </section>
