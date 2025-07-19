@@ -1,13 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ArrowRight, Users, Award, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/hooks/useLanguage';
+import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.jpg';
 
 const HeroSection = () => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
+  const [stats, setStats] = useState({
+    providers: 0,
+    jobsCompleted: 0,
+    regionsCovered: 14
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      // Count active service providers
+      const { count: providersCount } = await supabase
+        .from('services')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      // Count completed bookings
+      const { count: jobsCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'completed');
+
+      setStats({
+        providers: providersCount || 0,
+        jobsCompleted: jobsCount || 0,
+        regionsCovered: 14 // Static for now as it represents coverage areas
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -88,21 +122,21 @@ const HeroSection = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">0</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">{stats.providers}</p>
                 <p className="text-white/80">{t('hero.skilledWorkers')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">0</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">{stats.jobsCompleted}</p>
                 <p className="text-white/80">{t('hero.jobsCompleted')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <MapPin className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">14</p>
+                <p className="text-2xl md:text-3xl font-bold text-white">{stats.regionsCovered}</p>
                 <p className="text-white/80">{t('hero.regionsCovered')}</p>
               </div>
             </div>
