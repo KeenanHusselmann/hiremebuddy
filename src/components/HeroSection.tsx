@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Search, ArrowRight, Users, Award, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/hooks/useLanguage';
 import heroBackground from '@/assets/hero-background.jpg';
 
 const HeroSection = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
@@ -31,14 +33,13 @@ const HeroSection = () => {
           {/* Main Heading */}
           <div className="hero-glass p-8 md:p-12 fade-in">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Hire.Me.Bra
+              {t('hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              Connecting Namibian Skills, Building Trust
+              {t('hero.subtitle')}
             </p>
             <p className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto">
-              Find skilled laborers for plumbing, electrical work, carpentry, and more. 
-              Connect directly with trusted professionals in your area.
+              {t('hero.description')}
             </p>
 
             {/* Search Bar */}
@@ -48,7 +49,7 @@ const HeroSection = () => {
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                   <Input
                     type="text"
-                    placeholder="Search for services (plumbing, electrical, carpentry...)"
+                    placeholder={t('hero.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="input-glass pl-12 pr-4 py-4 text-lg"
@@ -59,7 +60,7 @@ const HeroSection = () => {
                   onClick={handleSearch}
                   className="btn-sunset px-8 py-4 text-lg"
                 >
-                  Search
+                  {t('hero.searchButton')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
@@ -71,13 +72,13 @@ const HeroSection = () => {
                 className="btn-sunset px-8 py-4 text-lg min-w-[200px]"
                 onClick={() => window.location.href = '/browse'}
               >
-                Find Services
+                {t('hero.findServices')}
               </Button>
               <Button 
                 className="btn-glass px-8 py-4 text-lg min-w-[200px]"
                 onClick={() => window.location.href = '/auth'}
               >
-                Offer Your Skills
+                {t('hero.offerSkills')}
               </Button>
             </div>
 
@@ -88,21 +89,21 @@ const HeroSection = () => {
                   <Users className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-2xl md:text-3xl font-bold text-white">500+</p>
-                <p className="text-white/80">Skilled Workers</p>
+                <p className="text-white/80">{t('hero.skilledWorkers')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-2xl md:text-3xl font-bold text-white">1000+</p>
-                <p className="text-white/80">Jobs Completed</p>
+                <p className="text-white/80">{t('hero.jobsCompleted')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <MapPin className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-2xl md:text-3xl font-bold text-white">14</p>
-                <p className="text-white/80">Regions Covered</p>
+                <p className="text-white/80">{t('hero.regionsCovered')}</p>
               </div>
             </div>
           </div>

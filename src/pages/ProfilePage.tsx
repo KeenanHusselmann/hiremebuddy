@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -18,6 +19,7 @@ import { Link } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
+  const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -31,7 +33,7 @@ const ProfilePage = () => {
     bio: '',
     user_type: 'client' as 'client' | 'labourer' | 'both',
   });
-  const [language, setLanguage] = useState('english');
+  // Remove the separate language state - use the one from context
 
   useEffect(() => {
     // Redirect to auth if not logged in
@@ -89,13 +91,11 @@ const ProfilePage = () => {
     setIsLoading(false);
   };
 
-  const handleLanguageChange = (newLanguage: string) => {
+  const handleLanguageChange = (newLanguage: 'en' | 'af' | 'de') => {
     setLanguage(newLanguage);
-    // Store language preference in localStorage
-    localStorage.setItem('preferredLanguage', newLanguage);
     toast({
-      title: "Language Updated",
-      description: `Language preference changed to ${newLanguage.charAt(0).toUpperCase() + newLanguage.slice(1)}`,
+      title: t('profile.settings'),
+      description: `Language preference updated to ${newLanguage === 'en' ? 'English' : newLanguage === 'af' ? 'Afrikaans' : 'German'}`,
     });
   };
 
@@ -160,18 +160,18 @@ const ProfilePage = () => {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Profile
+                {t('profile.title')}
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                Settings
+                {t('profile.settings')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
+                  <CardTitle>{t('profile.personalInfo')}</CardTitle>
                   <CardDescription>
                     Update your profile information and contact details
                   </CardDescription>
@@ -180,7 +180,7 @@ const ProfilePage = () => {
                   <form onSubmit={handleUpdateProfile} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="full_name">Full Name</Label>
+                        <Label htmlFor="full_name">{t('profile.fullName')}</Label>
                         <Input
                           id="full_name"
                           value={formData.full_name}
@@ -190,7 +190,7 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="user_type">Account Type</Label>
+                        <Label htmlFor="user_type">{t('profile.accountType')}</Label>
                         <Select
                           value={formData.user_type}
                           onValueChange={(value) => handleInputChange('user_type', value)}
@@ -199,15 +199,15 @@ const ProfilePage = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="client">Client</SelectItem>
-                            <SelectItem value="labourer">Service Provider</SelectItem>
-                            <SelectItem value="both">Both</SelectItem>
+                            <SelectItem value="client">{t('profile.client')}</SelectItem>
+                            <SelectItem value="labourer">{t('profile.provider')}</SelectItem>
+                            <SelectItem value="both">{t('profile.both')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="contact_number">Contact Number</Label>
+                        <Label htmlFor="contact_number">{t('profile.phone')}</Label>
                         <Input
                           id="contact_number"
                           value={formData.contact_number}
@@ -217,7 +217,7 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="location_text">Location</Label>
+                        <Label htmlFor="location_text">{t('profile.location')}</Label>
                         <Input
                           id="location_text"
                           value={formData.location_text}
@@ -248,7 +248,7 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
+                      <Label htmlFor="bio">{t('profile.bio')}</Label>
                       <Textarea
                         id="bio"
                         value={formData.bio}
@@ -259,7 +259,7 @@ const ProfilePage = () => {
                     </div>
 
                     <Button type="submit" disabled={isLoading} className="btn-sunset">
-                      {isLoading ? 'Updating...' : 'Update Profile'}
+                      {isLoading ? t('profile.updating') : t('profile.updateProfile')}
                     </Button>
                   </form>
                 </CardContent>
@@ -269,7 +269,7 @@ const ProfilePage = () => {
             <TabsContent value="settings" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Language Preferences</CardTitle>
+                  <CardTitle>{t('profile.languagePreferences')}</CardTitle>
                   <CardDescription>
                     Choose your preferred language for the interface
                   </CardDescription>
@@ -277,15 +277,15 @@ const ProfilePage = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="language">Language</Label>
+                      <Label htmlFor="language">{t('profile.language')}</Label>
                       <Select value={language} onValueChange={handleLanguageChange}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="english">English</SelectItem>
-                          <SelectItem value="afrikaans">Afrikaans</SelectItem>
-                          <SelectItem value="german">German</SelectItem>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="af">Afrikaans</SelectItem>
+                          <SelectItem value="de">Deutsch (German)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -295,7 +295,7 @@ const ProfilePage = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Account Security</CardTitle>
+                  <CardTitle>{t('profile.accountSettings')}</CardTitle>
                   <CardDescription>
                     Manage your account security settings
                   </CardDescription>
@@ -303,18 +303,18 @@ const ProfilePage = () => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">Email</h4>
+                      <h4 className="font-medium">{t('profile.email')}</h4>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
                     </div>
                   </div>
 
                   <Button onClick={handleChangePassword} variant="outline">
-                    Change Password
+                    {t('profile.changePassword')}
                   </Button>
 
                   <div className="pt-4 border-t">
                     <Button onClick={signOut} variant="destructive">
-                      Sign Out
+                      {t('profile.signOut')}
                     </Button>
                   </div>
                 </CardContent>

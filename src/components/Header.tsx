@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 import logo from '@/assets/hiremebuddy-logo.png';
 
 const Header = () => {
   const { user, profile, signOut } = useAuth();
+  const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -31,20 +33,20 @@ const Header = () => {
                 to="/" 
                 className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
               >
-                Home
+                {t('nav.home')}
               </Link>
               <Link 
                 to="/browse" 
                 className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
               >
-                Browse Services
+                {t('nav.browse')}
               </Link>
               {user && (
                 <Link 
                   to="/profile" 
                   className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
                 >
-                  My Profile
+                  {t('nav.profile')}
                 </Link>
               )}
             </nav>
@@ -69,19 +71,19 @@ const Header = () => {
 
                   <Button variant="outline" size="sm" onClick={signOut}>
                     <LogOut className="h-4 w-4 mr-2" />
-                    Logout
+                    {t('nav.logout')}
                   </Button>
                 </>
               ) : (
                 <>
                   <Link to="/auth">
                     <Button variant="ghost" size="sm">
-                      Login
+                      {t('nav.login')}
                     </Button>
                   </Link>
                   <Link to="/auth">
                     <Button className="btn-sunset">
-                      Get Started
+                      {t('nav.getStarted')}
                     </Button>
                   </Link>
                 </>
@@ -108,14 +110,14 @@ const Header = () => {
                   className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Home
+                  {t('nav.home')}
                 </Link>
                 <Link 
                   to="/browse" 
                   className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Browse Services
+                  {t('nav.browse')}
                 </Link>
                 {user && (
                   <Link 
@@ -123,7 +125,7 @@ const Header = () => {
                     className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    My Profile
+                    {t('nav.profile')}
                   </Link>
                 )}
                 
@@ -139,19 +141,19 @@ const Header = () => {
                       </div>
                       <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
                         <LogOut className="h-4 w-4 mr-2" />
-                        Logout
+                        {t('nav.logout')}
                       </Button>
                     </div>
                   ) : (
                     <div className="space-y-3">
                       <Link to="/auth" className="block">
                         <Button variant="ghost" size="sm" className="w-full">
-                          Login
+                          {t('nav.login')}
                         </Button>
                       </Link>
                       <Link to="/auth" className="block">
                         <Button className="btn-sunset w-full">
-                          Get Started
+                          {t('nav.getStarted')}
                         </Button>
                       </Link>
                     </div>
