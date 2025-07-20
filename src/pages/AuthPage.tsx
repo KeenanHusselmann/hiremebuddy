@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Upload, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AuthPage = () => {
@@ -19,6 +21,13 @@ const AuthPage = () => {
   const [userType, setUserType] = useState<'client' | 'labourer'>('client');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Additional fields for providers and clients
+  const [contactNumber, setContactNumber] = useState('');
+  const [location, setLocation] = useState('');
+  const [experience, setExperience] = useState('');
+  const [idDocument, setIdDocument] = useState<File | null>(null);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -50,8 +59,47 @@ const AuthPage = () => {
       return;
     }
 
+    // Validation for providers
+    if (userType === 'labourer') {
+      if (!idDocument) {
+        toast({
+          title: "Error",
+          description: "Identity document is required for service providers",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!agreeToTerms) {
+        toast({
+          title: "Error",
+          description: "You must agree to terms and conditions",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
+      // First, upload ID document if provider
+      let idDocumentUrl = null;
+      if (userType === 'labourer' && idDocument) {
+        const fileExt = idDocument.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('profile-images')
+          .upload(`id-documents/${fileName}`, idDocument);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('profile-images')
+          .getPublicUrl(`id-documents/${fileName}`);
+        
+        idDocumentUrl = urlData.publicUrl;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -59,6 +107,10 @@ const AuthPage = () => {
           data: {
             full_name: fullName,
             user_type: userType,
+            contact_number: contactNumber,
+            location_text: location,
+            experience: userType === 'labourer' ? experience : undefined,
+            id_document_url: idDocumentUrl,
           },
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -118,6 +170,18 @@ const AuthPage = () => {
     setConfirmPassword('');
     setFullName('');
     setUserType('client');
+    setContactNumber('');
+    setLocation('');
+    setExperience('');
+    setIdDocument(null);
+    setAgreeToTerms(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIdDocument(file);
+    }
   };
 
   const toggleMode = () => {
@@ -242,6 +306,101 @@ const AuthPage = () => {
                         <Label htmlFor="labourer">Service Provider (Offering services)</Label>
                       </div>
                     </RadioGroup>
+                  </div>
+
+                  {/* Additional fields for both clients and providers */}
+                  <div className="space-y-4 pt-4 border-t border-glass-border/30">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactNumber">Contact Number *</Label>
+                      <Input
+                        id="contactNumber"
+                        type="tel"
+                        value={contactNumber}
+                        onChange={(e) => setContactNumber(e.target.value)}
+                        placeholder="Enter your contact number"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location *</Label>
+                      <Input
+                        id="location"
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Enter your location"
+                        required
+                      />
+                    </div>
+
+                    {/* Provider-specific fields */}
+                    {userType === 'labourer' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="experience">Experience *</Label>
+                          <Textarea
+                            id="experience"
+                            value={experience}
+                            onChange={(e) => setExperience(e.target.value)}
+                            placeholder="Describe your experience and skills"
+                            required
+                            className="min-h-[80px]"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="idDocument">Identity Document *</Label>
+                          <div className="flex items-center space-x-3">
+                            <input
+                              id="idDocument"
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={handleFileChange}
+                              className="hidden"
+                              required
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => document.getElementById('idDocument')?.click()}
+                              className="flex items-center space-x-2"
+                            >
+                              <Upload className="h-4 w-4" />
+                              <span>Upload ID Document</span>
+                            </Button>
+                            {idDocument && (
+                              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                                <FileText className="h-4 w-4" />
+                                <span>{idDocument.name}</span>
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Upload your ID document or driver's license for verification
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="agreeToTerms"
+                            checked={agreeToTerms}
+                            onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                            required
+                          />
+                          <Label htmlFor="agreeToTerms" className="text-sm">
+                            I agree to the{' '}
+                            <Link to="/terms" className="text-primary hover:underline">
+                              Terms and Conditions
+                            </Link>{' '}
+                            and{' '}
+                            <Link to="/privacy" className="text-primary hover:underline">
+                              Privacy Policy
+                            </Link>
+                          </Label>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </>
               )}

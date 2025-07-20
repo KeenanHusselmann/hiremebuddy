@@ -41,44 +41,48 @@ const Footer = () => {
             <div className="space-y-4">
               <h4 className="font-semibold text-foreground">Quick Links</h4>
               <nav className="flex flex-col space-y-2">
-                 <button
+                 <Link 
+                   to="/" 
                    onClick={scrollToTop}
                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
                  >
                    Home
-                 </button>
-                 <button
+                 </Link>
+                 <Link 
+                   to="/browse" 
                    onClick={scrollToTop}
                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
                  >
                    Browse Services
-                 </button>
-                 <button
+                 </Link>
+                 <Link 
+                   to="/how-it-works" 
                    onClick={scrollToTop}
                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
                  >
                    How It Works
-                 </button>
-                 <button
+                 </Link>
+                 <Link 
+                   to="/contact" 
                    onClick={scrollToTop}
                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
                  >
                    Contact Us
-                 </button>
+                 </Link>
               </nav>
             </div>
 
             {/* Services */}
             <div className="space-y-4">
               <h4 className="font-semibold text-foreground">Popular Services</h4>
-              <nav className="flex flex-col space-y-2">
-                <Link to="/services/plumbing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Plumbing</Link>
-                <Link to="/services/electrical" className="text-sm text-muted-foreground hover:text-primary transition-colors">Electrical Work</Link>
-                <Link to="/services/carpentry" className="text-sm text-muted-foreground hover:text-primary transition-colors">Carpentry</Link>
-                <Link to="/services/home-repairs" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home Repairs</Link>
-                <Link to="/services/gardening" className="text-sm text-muted-foreground hover:text-primary transition-colors">Gardening</Link>
-                <Link to="/services/painting" className="text-sm text-muted-foreground hover:text-primary transition-colors">Painting</Link>
-              </nav>
+               <nav className="flex flex-col space-y-2">
+                <Link to="/services/plumbing" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Plumbing</Link>
+                <Link to="/services/electrical" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Electrical Work</Link>
+                <Link to="/services/carpentry" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Carpentry</Link>
+                <Link to="/services/home-repairs" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Home Repairs</Link>
+                <Link to="/services/gardening" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Gardening</Link>
+                <Link to="/services/painting" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Painting</Link>
+               </nav>
             </div>
 
             {/* Contact Info */}
@@ -114,26 +118,29 @@ const Footer = () => {
               <p className="text-sm text-muted-foreground text-center md:text-left">
                 ©2025 HireMeBuddy - Connecting Namibian Skills with Opportunities
               </p>
-              <nav className="flex flex-wrap items-center justify-center space-x-6">
+               <nav className="flex flex-wrap items-center justify-center space-x-6">
                 <Link 
                   to="/terms" 
+                  onClick={scrollToTop}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
                 >
                   Terms and Conditions
                 </Link>
                 <Link 
                   to="/privacy" 
+                  onClick={scrollToTop}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
                 >
                   Privacy Policy
                 </Link>
                 <Link 
                   to="/support" 
+                  onClick={scrollToTop}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
                 >
                   Support
                 </Link>
-              </nav>
+               </nav>
             </div>
           </div>
         </div>

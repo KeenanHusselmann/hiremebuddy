@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { 
   Wrench, 
   Zap, 
@@ -12,80 +13,99 @@ import {
   Scissors,
   Building
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const ServiceCategories = () => {
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_categories')
+          .select(`
+            name,
+            services(count)
+          `);
+
+        if (error) {
+          console.error('Error fetching category counts:', error);
+          return;
+        }
+
+        const counts: Record<string, number> = {};
+        data?.forEach((category: any) => {
+          counts[category.name.toLowerCase()] = category.services?.[0]?.count || 0;
+        });
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error('Error fetching category counts:', error);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
+
   const categories = [
     {
       icon: Wrench,
       title: 'Plumbing',
       description: 'Pipe repairs, installations, and maintenance',
-      count: '50+ Providers'
     },
     {
       icon: Zap,
       title: 'Electrical',
       description: 'Wiring, installations, and electrical repairs',
-      count: '35+ Providers'
     },
     {
       icon: Hammer,
       title: 'Carpentry',
       description: 'Furniture, cabinets, and woodwork',
-      count: '40+ Providers'
     },
     {
       icon: Paintbrush,
       title: 'Painting',
       description: 'Interior and exterior painting services',
-      count: '25+ Providers'
     },
     {
       icon: Trees,
       title: 'Gardening',
       description: 'Landscaping, maintenance, and design',
-      count: '30+ Providers'
     },
     {
       icon: Home,
       title: 'Home Repairs',
       description: 'General maintenance and repair services',
-      count: '45+ Providers'
     },
     {
       icon: Car,
       title: 'Automotive',
       description: 'Vehicle repairs and maintenance',
-      count: '20+ Providers'
     },
     {
       icon: Laptop,
       title: 'Tech Support',
       description: 'Computer and device repairs',
-      count: '15+ Providers'
     },
     {
       icon: Camera,
       title: 'Photography',
       description: 'Event and portrait photography',
-      count: '12+ Providers'
     },
     {
       icon: ChefHat,
       title: 'Catering',
       description: 'Food preparation and catering services',
-      count: '18+ Providers'
     },
     {
       icon: Scissors,
       title: 'Tailoring',
       description: 'Clothing alterations and custom tailoring',
-      count: '10+ Providers'
     },
     {
       icon: Building,
       title: 'Construction',
       description: 'Building and renovation services',
-      count: '25+ Providers'
     }
   ];
 
@@ -129,7 +149,10 @@ const ServiceCategories = () => {
                 
                 <div className="pt-3 border-t border-glass-border/30">
                   <span className="text-xs text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
-                    {category.count}
+                    {(() => {
+                      const count = categoryCounts[category.title.toLowerCase()] || 0;
+                      return count === 0 ? '0 Providers' : `${count} Provider${count === 1 ? '' : 's'}`;
+                    })()}
                   </span>
                 </div>
               </div>
