@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import PageLoader from "@/components/PageLoader";
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -27,6 +28,17 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CreateServicePage from "./pages/CreateServicePage";
 import NotFound from "./pages/NotFound";
+
+// Component to handle scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const queryClient = new QueryClient();
 
@@ -51,6 +63,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <ScrollToTop />
                 <AccessibilityProvider>
                   <Routes>
                     <Route path="/" element={<Index />} />

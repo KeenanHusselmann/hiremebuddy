@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { AccessibilityPanel } from '@/components/AccessibilityPanel';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,7 +17,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3 } from 'lucide-react';
+import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 import TicTacToe from '@/components/TicTacToe';
@@ -42,7 +43,8 @@ const ProfilePage = () => {
     user_type: 'client' as 'client' | 'labourer' | 'both',
   });
   const [namibianTowns, setNamibianTowns] = useState<Array<{id: string, name: string, region: string}>>([]);
-  // Remove the separate language state - use the one from context
+  const [userServices, setUserServices] = useState<any[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
 
   useEffect(() => {
     // Redirect to auth if not logged in
@@ -53,6 +55,11 @@ const ProfilePage = () => {
 
     // Load Namibian towns
     loadNamibianTowns();
+
+    // Load user services if they are a provider
+    if (profile && (profile.user_type === 'labourer' || profile.user_type === 'both')) {
+      loadUserServices();
+    }
 
     // Initialize form data with profile data
     if (profile) {
@@ -81,6 +88,33 @@ const ProfilePage = () => {
     } catch (error: any) {
       console.error('Error loading towns:', error);
     }
+  };
+
+  const loadUserServices = async () => {
+    if (!profile) return;
+    
+    setLoadingServices(true);
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select(`
+          *,
+          service_categories(name)
+        `)
+        .eq('labourer_id', profile.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setUserServices(data || []);
+    } catch (error: any) {
+      console.error('Error loading services:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your services",
+        variant: "destructive",
+      });
+    }
+    setLoadingServices(false);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -194,11 +228,17 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 {t('profile.title')}
               </TabsTrigger>
+              {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
+                <TabsTrigger value="services" className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Services
+                </TabsTrigger>
+              )}
               <TabsTrigger value="stats" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 Stats
@@ -360,7 +400,119 @@ const ProfilePage = () => {
                    </CardContent>
                  </Card>
                )}
-             </TabsContent>
+              </TabsContent>
+
+            {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
+              <TabsContent value="services" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      My Services
+                      <Button 
+                        onClick={() => navigate('/create-service')} 
+                        className="btn-sunset"
+                        size="sm"
+                      >
+                        Add Service
+                      </Button>
+                    </CardTitle>
+                    <CardDescription>
+                      Manage your registered services and portfolio
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {loadingServices ? (
+                      <div className="text-center py-8">
+                        <p>Loading services...</p>
+                      </div>
+                    ) : userServices.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No Services Yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Start by creating your first service to attract clients
+                        </p>
+                        <Button 
+                          onClick={() => navigate('/create-service')} 
+                          className="btn-sunset"
+                        >
+                          Create Your First Service
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4">
+                        {userServices.map((service) => (
+                          <Card key={service.id} className="border">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h3 className="font-semibold">{service.service_name}</h3>
+                                    <Badge variant={service.is_active ? "default" : "secondary"}>
+                                      {service.is_active ? "Active" : "Inactive"}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                    {service.description}
+                                  </p>
+                                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    {service.service_categories && (
+                                      <span className="flex items-center gap-1">
+                                        <MapPin className="h-3 w-3" />
+                                        {service.service_categories.name}
+                                      </span>
+                                    )}
+                                    {service.hourly_rate && (
+                                      <span className="flex items-center gap-1">
+                                        <DollarSign className="h-3 w-3" />
+                                        N${service.hourly_rate}/hour
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 ml-4">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => navigate(`/services/category/${service.id}`)}
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => navigate('/create-service', { state: { editService: service } })}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              {service.portfolio_images && service.portfolio_images.length > 0 && (
+                                <div className="mt-3 flex gap-2 overflow-x-auto">
+                                  {service.portfolio_images.slice(0, 3).map((image: string, index: number) => (
+                                    <img
+                                      key={index}
+                                      src={image}
+                                      alt={`Portfolio ${index + 1}`}
+                                      className="h-16 w-16 rounded object-cover flex-shrink-0"
+                                    />
+                                  ))}
+                                  {service.portfolio_images.length > 3 && (
+                                    <div className="h-16 w-16 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground flex-shrink-0">
+                                      +{service.portfolio_images.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
 
             <TabsContent value="stats" className="space-y-6">
               <ProfileStats 
