@@ -122,6 +122,9 @@ const AuthPage = () => {
         title: "Success!",
         description: "Please check your email to verify your account.",
       });
+      
+      // Reset form after successful signup
+      resetForm();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -143,17 +146,7 @@ const AuthPage = () => {
 
       if (error) throw error;
 
-      // Get user profile for personalized welcome
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('user_id', data.user?.id)
-        .single();
-
-      toast({
-        title: `Welcome back${profile?.full_name ? `, ${profile.full_name}` : ''}!`,
-        description: "You've been successfully logged in.",
-      });
+      // Welcome toast will be handled by useAuth hook
     } catch (error: any) {
       toast({
         title: "Error",

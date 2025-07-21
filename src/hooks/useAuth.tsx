@@ -16,6 +16,7 @@ interface Profile {
   bio?: string;
   created_at: string;
   is_verified?: boolean;
+  first_login_completed?: boolean;
 }
 
 interface AuthContextType {
@@ -66,6 +67,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const showWelcomeToast = async (profile: Profile | null) => {
+    if (!profile) return;
+
+    const isFirstLogin = !profile.first_login_completed;
+
+    if (isFirstLogin) {
+      // Update first_login_completed flag
+      await supabase
+        .from('profiles')
+        .update({ first_login_completed: true })
+        .eq('user_id', profile.user_id);
+
+      toast({
+        title: `Welcome ${profile.full_name}!`,
+        description: "Welcome to Hire.Me.Bra! Start exploring services or offer your own.",
+      });
+    } else {
+      toast({
+        title: `Welcome back ${profile.full_name}!`,
+        description: "You've been successfully logged in.",
+      });
+    }
+  };
+
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
@@ -95,6 +120,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
+            // Show welcome toast after profile is loaded
+            if (profileData) {
+              showWelcomeToast(profileData);
+            }
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);

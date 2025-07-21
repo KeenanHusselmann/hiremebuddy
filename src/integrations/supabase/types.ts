@@ -199,6 +199,7 @@ export type Database = {
           contact_number: string | null
           created_at: string
           facebook_link: string | null
+          first_login_completed: boolean | null
           full_name: string
           id: string
           is_active: boolean | null
@@ -218,6 +219,7 @@ export type Database = {
           contact_number?: string | null
           created_at?: string
           facebook_link?: string | null
+          first_login_completed?: boolean | null
           full_name: string
           id?: string
           is_active?: boolean | null
@@ -237,6 +239,7 @@ export type Database = {
           contact_number?: string | null
           created_at?: string
           facebook_link?: string | null
+          first_login_completed?: boolean | null
           full_name?: string
           id?: string
           is_active?: boolean | null
