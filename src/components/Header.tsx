@@ -53,7 +53,7 @@ const Header = () => {
                   <span className="hidden sm:block text-sm font-medium truncate max-w-[120px]">{profile?.full_name || 'User'}</span>
                 </Link>
               ) : (
-                <Link to="/auth" className="hidden sm:block">
+                <Link to="/auth">
                   <Button variant="ghost" size="sm">
                     {t('nav.login')}
                   </Button>
