@@ -36,6 +36,7 @@ const AdminUsers: React.FC = () => {
   }, [selectedUserType, verificationFilter]);
 
   const fetchUserManagement = async () => {
+    console.log('Fetching user management data...');
     try {
       let query = supabase
         .from('profiles')
@@ -53,6 +54,8 @@ const AdminUsers: React.FC = () => {
       }
 
       const { data: users, error, count } = await query;
+      
+      console.log('Fetched users data:', users?.length, 'users');
 
       if (error) throw error;
 
@@ -61,6 +64,7 @@ const AdminUsers: React.FC = () => {
         totalCount: count || 0
       });
     } catch (error) {
+      console.error('Error fetching user management:', error);
       toast({
         title: "Error",
         description: "Failed to load user data",
@@ -96,11 +100,29 @@ const AdminUsers: React.FC = () => {
   };
 
   const handleVerifyProvider = async (userId: string, isVerified: boolean) => {
+    console.log('Starting verification update for user:', userId, 'isVerified:', isVerified);
+    
     try {
-      const { error } = await supabase
+      // First, update the local state immediately for better UX
+      setUserManagement(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          users: prev.users.map(user => 
+            user.id === userId 
+              ? { ...user, is_verified: isVerified }
+              : user
+          )
+        };
+      });
+
+      const { data, error } = await supabase
         .from('profiles')
         .update({ is_verified: isVerified })
-        .eq('id', userId);
+        .eq('id', userId)
+        .select();
+
+      console.log('Database update result:', { data, error });
 
       if (error) throw error;
 
@@ -126,12 +148,29 @@ const AdminUsers: React.FC = () => {
         description: `Provider ${isVerified ? 'verified' : 'rejected'} successfully`,
       });
 
-      fetchUserManagement();
+      // Refresh data from server to ensure consistency
+      console.log('Refreshing user management data...');
+      await fetchUserManagement();
+      
     } catch (error: any) {
       console.error('Error updating verification status:', error);
+      
+      // Revert the optimistic update on error
+      setUserManagement(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          users: prev.users.map(user => 
+            user.id === userId 
+              ? { ...user, is_verified: !isVerified } // Revert
+              : user
+          )
+        };
+      });
+      
       toast({
         title: "Error",
-        description: "Failed to update verification status",
+        description: `Failed to update verification status: ${error.message}`,
         variant: "destructive",
       });
     }
