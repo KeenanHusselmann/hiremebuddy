@@ -53,7 +53,7 @@ const Header = () => {
                   <span className="hidden sm:block text-sm font-medium truncate max-w-[120px]">{profile?.full_name || 'User'}</span>
                 </Link>
               ) : (
-                <Link to="/auth">
+                <Link to="/auth" onClick={() => console.log('Desktop login clicked')}>
                   <Button variant="ghost" size="sm">
                     {t('nav.login')}
                   </Button>
@@ -148,13 +148,19 @@ const Header = () => {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <Link to="/auth" className="block">
-                        <Button variant="ghost" size="sm" className="w-full tap-target btn-touch" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Link to="/auth" className="block" onClick={() => {
+                        console.log('Mobile login clicked');
+                        setIsMobileMenuOpen(false);
+                      }}>
+                        <Button variant="ghost" size="sm" className="w-full tap-target btn-touch">
                           {t('nav.login')}
                         </Button>
                       </Link>
-                      <Link to="/auth" className="block">
-                        <Button className="btn-sunset w-full tap-target btn-touch" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Link to="/auth" className="block" onClick={() => {
+                        console.log('Mobile get started clicked');
+                        setIsMobileMenuOpen(false);
+                      }}>
+                        <Button className="btn-sunset w-full tap-target btn-touch">
                           {t('nav.getStarted')}
                         </Button>
                       </Link>
