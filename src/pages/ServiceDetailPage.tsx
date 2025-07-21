@@ -164,6 +164,62 @@ const ServiceDetailPage = () => {
     }
   };
 
+  const handleRequestQuote = async () => {
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to request quotes",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      // Get user profile
+      const { data: clientProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profileError || !clientProfile) {
+        toast({
+          title: "Profile not found",
+          description: "Please complete your profile first",
+          variant: "destructive"
+        });
+        navigate('/profile');
+        return;
+      }
+
+      // Create a quote request notification
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: service.labourer_id,
+          type: 'quote_request',
+          message: `You have a new quote request for ${service.service_name}`,
+          category: 'quote',
+          target_url: `/services/${service.id}`
+        });
+
+      if (notificationError) throw notificationError;
+
+      toast({
+        title: "Quote Request Sent!",
+        description: "The provider will contact you with a custom quote soon.",
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to send quote request. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -321,14 +377,23 @@ const ServiceDetailPage = () => {
                   </div>
                 )}
 
-                <Button 
-                  onClick={handleBookService}
-                  className="w-full btn-sunset"
-                  size="lg"
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book Now
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    onClick={handleBookService}
+                    className="btn-sunset"
+                    size="lg"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Book Now
+                  </Button>
+                  <Button 
+                    onClick={handleRequestQuote}
+                    variant="outline"
+                    size="lg"
+                  >
+                    Request Quote
+                  </Button>
+                </div>
 
                 {(service.provider?.contact_number || service.provider?.whatsapp_link || service.provider?.facebook_link) && (
                   <div className="mb-4">

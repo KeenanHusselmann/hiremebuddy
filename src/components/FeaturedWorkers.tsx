@@ -17,6 +17,9 @@ interface Worker {
   isVerified: boolean;
   responseTime: string;
   completedJobs: number;
+  contactNumber?: string;
+  whatsappLink?: string;
+  facebookLink?: string;
 }
 
 const FeaturedWorkers = () => {
@@ -39,7 +42,11 @@ const FeaturedWorkers = () => {
               full_name,
               avatar_url,
               location_text,
-              town
+              town,
+              contact_number,
+              whatsapp_link,
+              facebook_link,
+              is_verified
             )
           `)
           .eq('is_active', true)
@@ -59,9 +66,12 @@ const FeaturedWorkers = () => {
           description: service.description,
           specialties: [service.service_name],
           avatar: service.profiles.avatar_url,
-          isVerified: true,
+          isVerified: service.profiles.is_verified,
           responseTime: '< 2 hours',
-          completedJobs: 0
+          completedJobs: 0,
+          contactNumber: service.profiles.contact_number,
+          whatsappLink: service.profiles.whatsapp_link,
+          facebookLink: service.profiles.facebook_link
         })) || [];
 
         setWorkers(workersData);
@@ -225,30 +235,76 @@ const FeaturedWorkers = () => {
 
                   {/* Contact Options */}
                   <div className="space-y-3">
-                    <Button className="w-full btn-sunset">
-                      Book Service
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        className="btn-sunset"
+                        onClick={() => window.location.href = `/service/${worker.id}`}
+                      >
+                        Book Service
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => window.location.href = `/service/${worker.id}?action=quote`}
+                      >
+                        Request Quote
+                      </Button>
+                    </div>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground text-center">Or contact us using</p>
+                      <p className="text-sm text-muted-foreground text-center">Or contact me using</p>
                       <div className="grid grid-cols-3 gap-3">
-                        <Button 
-                          size="sm" 
-                          className="bg-blue-600 hover:bg-blue-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                        >
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className="bg-green-600 hover:bg-green-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className="bg-blue-800 hover:bg-blue-900 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                        >
-                          <Facebook className="h-4 w-4" />
-                        </Button>
+                        {worker.contactNumber && (
+                          <Button 
+                            size="sm" 
+                            className="bg-blue-600 hover:bg-blue-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                            onClick={() => window.open(`tel:${worker.contactNumber}`, '_self')}
+                          >
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {worker.whatsappLink && (
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                            onClick={() => window.open(`https://wa.me/${worker.whatsappLink.replace(/[^\d+]/g, '')}`, '_blank')}
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {worker.facebookLink && (
+                          <Button 
+                            size="sm" 
+                            className="bg-blue-800 hover:bg-blue-900 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                            onClick={() => window.open(worker.facebookLink, '_blank')}
+                          >
+                            <Facebook className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {/* Show placeholders if no contact info */}
+                        {!worker.contactNumber && !worker.whatsappLink && !worker.facebookLink && (
+                          <>
+                            <Button 
+                              size="sm" 
+                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
+                              disabled
+                            >
+                              <Phone className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
+                              disabled
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
+                              disabled
+                            >
+                              <Facebook className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

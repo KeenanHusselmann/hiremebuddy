@@ -104,6 +104,23 @@ const AdminUsers: React.FC = () => {
 
       if (error) throw error;
 
+      // Send notification to the provider
+      if (isVerified) {
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: userId,
+            type: 'profile_verified',
+            message: 'Congratulations! Your profile has been verified. You can now offer your services.',
+            category: 'system',
+            target_url: '/profile'
+          });
+
+        if (notificationError) {
+          console.error('Error creating notification:', notificationError);
+        }
+      }
+
       toast({
         title: "Success",
         description: `Provider ${isVerified ? 'verified' : 'rejected'} successfully`,

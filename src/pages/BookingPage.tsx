@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const BookingPage = () => {
   const location = useLocation();
@@ -76,15 +77,70 @@ const BookingPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate booking submission
-    setTimeout(() => {
+    try {
+      // Get user profile first
+      const { data: clientProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profileError || !clientProfile) {
+        toast({
+          title: "Profile Error",
+          description: "Could not find your profile. Please complete your profile first.",
+          variant: "destructive"
+        });
+        navigate('/profile');
+        return;
+      }
+
+      // Create booking
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .insert({
+          client_id: clientProfile.id,
+          labourer_id: location.state?.labourerId,
+          service_id: location.state?.serviceId,
+          booking_date: bookingData.date,
+          booking_time: bookingData.time,
+          message: `${bookingData.message}\n\nAddress: ${bookingData.address}\nPhone: ${bookingData.phone}\nDuration: ${bookingData.duration} hours\nUrgency: ${bookingData.urgency}`
+        })
+        .select()
+        .single();
+
+      if (bookingError) throw bookingError;
+
+      // Send notification to provider
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: location.state?.labourerId,
+          type: 'new_booking_request',
+          message: `You have a new booking request for ${service.title || service.service_name}`,
+          category: 'booking',
+          target_url: `/bookings/${booking.id}`
+        });
+
+      if (notificationError) {
+        console.error('Error creating notification:', notificationError);
+      }
+
       toast({
         title: "Booking Confirmed!",
         description: "Your service has been booked. The provider will contact you shortly.",
       });
-      navigate('/profile'); // Redirect to profile where bookings would be listed
+      navigate('/profile');
+    } catch (error: any) {
+      console.error('Booking error:', error);
+      toast({
+        title: "Booking Failed",
+        description: "There was an error creating your booking. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const timeSlots = [
