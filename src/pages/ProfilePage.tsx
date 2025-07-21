@@ -266,12 +266,12 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 {t('profile.title')}
               </TabsTrigger>
-              {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
+              {(profile.user_type === 'labourer' || profile.user_type === 'both') && profile.is_verified && (
                 <TabsTrigger value="services" className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
                   Services
@@ -459,7 +459,7 @@ const ProfilePage = () => {
                 )}
               </TabsContent>
 
-            {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
+            {(profile.user_type === 'labourer' || profile.user_type === 'both') && profile.is_verified && (
               <TabsContent value="services" className="space-y-6">
                 <Card>
                   <CardHeader>

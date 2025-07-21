@@ -72,8 +72,8 @@ const App = () => {
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/create-service" element={<CreateServicePage />} />
-                    <Route path="/insights" element={<InsightsPage />} />
                     <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/insights" element={<InsightsPage />} />
                     <Route path="/browse" element={<BrowseServicesPage />} />
                     <Route path="/services/:category" element={<ServiceCategoryPage />} />
                     <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
