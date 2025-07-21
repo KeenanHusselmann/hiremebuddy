@@ -22,8 +22,12 @@ import HowItWorksPage from "./pages/HowItWorksPage";
 import ContactPage from "./pages/ContactPage";
 import BookingDetailPage from "./pages/BookingDetailPage";
 import InsightsPage from "./pages/InsightsPage";
-import AdminDashboard from "./pages/AdminDashboard";
 import SupportPage from "./pages/SupportPage";
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminSettings from "./pages/admin/AdminSettings";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CreateServicePage from "./pages/CreateServicePage";
@@ -72,7 +76,6 @@ const App = () => {
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/create-service" element={<CreateServicePage />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/insights" element={<InsightsPage />} />
                     <Route path="/browse" element={<BrowseServicesPage />} />
                     <Route path="/services/:category" element={<ServiceCategoryPage />} />
@@ -83,6 +86,15 @@ const App = () => {
                     <Route path="/support" element={<SupportPage />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
+                    
+                    {/* Admin Routes - Separate Layout */}
+                    <Route path="/admin/*" element={<AdminLayout />}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="users" element={<AdminUsers />} />
+                      <Route path="bookings" element={<AdminBookings />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                    </Route>
+                    
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
