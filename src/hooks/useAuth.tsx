@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasShownWelcomeForSession, setHasShownWelcomeForSession] = useState(false);
   const { toast } = useToast();
 
   const fetchProfile = async (userId: string) => {
@@ -68,8 +67,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const showWelcomeToast = async (profile: Profile | null, isActualSignIn = false) => {
-    if (!profile || !isActualSignIn) return;
+  const showWelcomeToast = async (profile: Profile | null, sessionId: string) => {
+    if (!profile || !sessionId) return;
+
+    // Check if we've already shown welcome for this session
+    const welcomeKey = `welcome_shown_${sessionId}`;
+    const alreadyShown = sessionStorage.getItem(welcomeKey);
+    
+    if (alreadyShown) return;
 
     const isFirstLogin = !profile.first_login_completed;
 
@@ -90,6 +95,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "You've been successfully logged in.",
       });
     }
+
+    // Mark welcome as shown for this session
+    sessionStorage.setItem(welcomeKey, 'true');
   };
 
   const refreshProfile = async () => {
@@ -117,22 +125,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          // Check if this is a fresh sign-in (not a page refresh)
-          const isActualSignIn = !hasShownWelcomeForSession;
-          setHasShownWelcomeForSession(true);
-          
           // Defer profile fetching to prevent deadlocks
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
-            // Show welcome toast only for actual sign-ins
-            if (profileData && isActualSignIn) {
-              showWelcomeToast(profileData, true);
+            // Show welcome toast only for actual sign-in events
+            if (profileData && session.access_token) {
+              showWelcomeToast(profileData, session.access_token);
             }
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
-          setHasShownWelcomeForSession(false);
+          // Clear all welcome session storage on logout
+          Object.keys(sessionStorage).forEach(key => {
+            if (key.startsWith('welcome_shown_')) {
+              sessionStorage.removeItem(key);
+            }
+          });
         }
         
         setIsLoading(false);
