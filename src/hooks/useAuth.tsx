@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasShownWelcomeForSession, setHasShownWelcomeForSession] = useState(false);
   const { toast } = useToast();
 
   const fetchProfile = async (userId: string) => {
@@ -67,8 +68,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const showWelcomeToast = async (profile: Profile | null) => {
-    if (!profile) return;
+  const showWelcomeToast = async (profile: Profile | null, isActualSignIn = false) => {
+    if (!profile || !isActualSignIn) return;
 
     const isFirstLogin = !profile.first_login_completed;
 
@@ -116,17 +117,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is a fresh sign-in (not a page refresh)
+          const isActualSignIn = !hasShownWelcomeForSession;
+          setHasShownWelcomeForSession(true);
+          
           // Defer profile fetching to prevent deadlocks
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
-            // Show welcome toast after profile is loaded
-            if (profileData) {
-              showWelcomeToast(profileData);
+            // Show welcome toast only for actual sign-ins
+            if (profileData && isActualSignIn) {
+              showWelcomeToast(profileData, true);
             }
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
+          setHasShownWelcomeForSession(false);
         }
         
         setIsLoading(false);

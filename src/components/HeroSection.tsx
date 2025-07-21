@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.jpg';
 
 const HeroSection = () => {
   const { t } = useLanguage();
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({
     providers: 0,
@@ -114,7 +116,7 @@ const HeroSection = () => {
               {(!profile || profile.user_type === 'labourer' || profile.user_type === 'both') && (
                 <Button 
                   className="btn-glass px-8 py-4 text-lg min-w-[200px]"
-                  onClick={() => window.location.href = '/create-service'}
+                  onClick={() => navigate('/create-service')}
                 >
                   {t('hero.offerSkills')}
                 </Button>
