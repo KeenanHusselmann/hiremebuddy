@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, ArrowLeft, Upload, FileText } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AuthPage = () => {
@@ -125,6 +125,9 @@ const AuthPage = () => {
       
       // Reset form after successful signup
       resetForm();
+      
+      // Redirect to home page
+      navigate('/');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -359,12 +362,10 @@ const AuthPage = () => {
                               onClick={() => document.getElementById('idDocument')?.click()}
                               className="flex items-center space-x-2"
                             >
-                              <Upload className="h-4 w-4" />
                               <span>Upload ID Document</span>
                             </Button>
                             {idDocument && (
                               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                <FileText className="h-4 w-4" />
                                 <span>{idDocument.name}</span>
                               </div>
                             )}
