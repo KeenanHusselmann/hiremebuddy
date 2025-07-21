@@ -190,15 +190,7 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -209,6 +201,8 @@ export type Database = {
           facebook_link: string | null
           full_name: string
           id: string
+          is_active: boolean | null
+          is_verified: boolean | null
           latitude: number | null
           location_text: string | null
           longitude: number | null
@@ -226,6 +220,8 @@ export type Database = {
           facebook_link?: string | null
           full_name: string
           id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
@@ -243,6 +239,8 @@ export type Database = {
           facebook_link?: string | null
           full_name?: string
           id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
