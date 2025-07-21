@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Star, MapPin, Phone, MessageCircle, Facebook, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Worker {
@@ -250,61 +251,14 @@ const FeaturedWorkers = () => {
                       </Button>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground text-center">Or contact me using</p>
-                      <div className="grid grid-cols-3 gap-3">
-                        {worker.contactNumber && (
-                          <Button 
-                            size="sm" 
-                            className="bg-blue-600 hover:bg-blue-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                            onClick={() => window.open(`tel:${worker.contactNumber}`, '_self')}
-                          >
-                            <Phone className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {worker.whatsappLink && (
-                          <Button 
-                            size="sm" 
-                            className="bg-green-600 hover:bg-green-700 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                            onClick={() => window.open(`https://wa.me/${worker.whatsappLink.replace(/[^\d+]/g, '')}`, '_blank')}
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {worker.facebookLink && (
-                          <Button 
-                            size="sm" 
-                            className="bg-blue-800 hover:bg-blue-900 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                            onClick={() => window.open(worker.facebookLink, '_blank')}
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {/* Show placeholders if no contact info */}
-                        {!worker.contactNumber && !worker.whatsappLink && !worker.facebookLink && (
-                          <>
-                            <Button 
-                              size="sm" 
-                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
-                              disabled
-                            >
-                              <Phone className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
-                              disabled
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              className="bg-gray-400 text-white p-3 cursor-not-allowed"
-                              disabled
-                            >
-                              <Facebook className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                      <p className="text-sm text-muted-foreground text-center">Or contact me using:</p>
+                      <div className="flex justify-center">
+                        <CommunicationButtons 
+                          phoneNumber={worker.contactNumber}
+                          whatsappNumber={worker.whatsappLink}
+                          facebookUrl={worker.facebookLink}
+                          className="justify-center"
+                        />
                       </div>
                     </div>
                   </div>

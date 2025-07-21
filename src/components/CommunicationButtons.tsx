@@ -13,18 +13,31 @@ export const CommunicationButtons: React.FC<CommunicationButtonsProps> = ({
   phoneNumber,
   whatsappNumber,
   facebookUrl,
-  className = ""
+  className = ''
 }) => {
   const handleCall = () => {
     if (phoneNumber) {
-      window.open(`tel:${phoneNumber}`, '_self');
+      // Clean the phone number and make the call
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      window.location.href = `tel:+${cleanNumber.startsWith('264') ? cleanNumber : '264' + cleanNumber}`;
     }
   };
 
   const handleWhatsApp = () => {
     if (whatsappNumber) {
-      const cleanNumber = whatsappNumber.replace(/[^\d+]/g, '');
-      window.open(`https://wa.me/${cleanNumber}`, '_blank');
+      // If it's already a WhatsApp link, use it directly
+      if (whatsappNumber.startsWith('https://wa.me/')) {
+        window.open(whatsappNumber, '_blank');
+      } else if (whatsappNumber.startsWith('https://')) {
+        // If it's another type of URL, use it directly
+        window.open(whatsappNumber, '_blank');
+      } else {
+        // Extract numbers and create WhatsApp link
+        const cleanNumber = whatsappNumber.replace(/\D/g, '');
+        const formattedNumber = cleanNumber.startsWith('264') ? cleanNumber : '264' + cleanNumber;
+        const waLink = `https://wa.me/${formattedNumber}`;
+        window.open(waLink, '_blank');
+      }
     }
   };
 

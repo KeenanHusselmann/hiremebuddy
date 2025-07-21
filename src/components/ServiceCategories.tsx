@@ -19,24 +19,37 @@ const ServiceCategories = () => {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const fetchCategoryCounts = async () => {
+  const fetchCategoryCounts = async () => {
       try {
-        const { data, error } = await supabase
+        // Get counts by category
+        const { data: categoryData, error: categoryError } = await supabase
           .from('service_categories')
           .select(`
             name,
-            services(count)
+            services(count),
+            service_subcategories(
+              services(count)
+            )
           `);
 
-        if (error) {
-          console.error('Error fetching category counts:', error);
+        if (categoryError) {
+          console.error('Error fetching category counts:', categoryError);
           return;
         }
 
         const counts: Record<string, number> = {};
-        data?.forEach((category: any) => {
-          counts[category.name.toLowerCase()] = category.services?.[0]?.count || 0;
+        categoryData?.forEach((category: any) => {
+          // Count services directly in category
+          const directServices = category.services?.[0]?.count || 0;
+          
+          // Count services in subcategories
+          const subcategoryServices = category.service_subcategories?.reduce((total: number, sub: any) => {
+            return total + (sub.services?.[0]?.count || 0);
+          }, 0) || 0;
+          
+          counts[category.name.toLowerCase()] = directServices + subcategoryServices;
         });
+        
         setCategoryCounts(counts);
       } catch (error) {
         console.error('Error fetching category counts:', error);

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { AccessibilityPanel } from '@/components/AccessibilityPanel';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
@@ -17,7 +18,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase } from 'lucide-react';
+import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase, MoreVertical, Trash } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 import TicTacToe from '@/components/TicTacToe';
@@ -140,6 +141,66 @@ const ProfilePage = () => {
       });
     }
     setLoadingServices(false);
+  };
+
+  const handleDeleteService = async (serviceId: string, serviceName: string) => {
+    if (!confirm(`Are you sure you want to delete "${serviceName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', serviceId);
+      
+      if (error) throw error;
+
+      // Remove from local state
+      setUserServices(prev => prev.filter(service => service.id !== serviceId));
+      
+      toast({
+        title: "Service Deleted",
+        description: "Your service has been successfully deleted.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to delete service. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleServiceStatus = async (serviceId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('services')
+        .update({ is_active: !currentStatus })
+        .eq('id', serviceId);
+      
+      if (error) throw error;
+
+      // Update local state
+      setUserServices(prev => 
+        prev.map(service => 
+          service.id === serviceId 
+            ? { ...service, is_active: !currentStatus }
+            : service
+        )
+      );
+      
+      toast({
+        title: "Service Updated",
+        description: `Service ${!currentStatus ? 'activated' : 'deactivated'} successfully.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update service status. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -527,22 +588,41 @@ const ProfilePage = () => {
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 ml-4">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => navigate(`/services/category/${service.id}`)}
-                                  >
-                                    <Eye className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => navigate('/create-service', { state: { editService: service } })}
-                                  >
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                </div>
+                                 <div className="flex items-center gap-2 ml-4">
+                                   <Button
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => navigate(`/services/category/${service.id}`)}
+                                   >
+                                     <Eye className="h-3 w-3" />
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => navigate('/create-service', { state: { editService: service } })}
+                                   >
+                                     <Edit className="h-3 w-3" />
+                                   </Button>
+                                   <DropdownMenu>
+                                     <DropdownMenuTrigger asChild>
+                                       <Button size="sm" variant="outline">
+                                         <MoreVertical className="h-3 w-3" />
+                                       </Button>
+                                     </DropdownMenuTrigger>
+                                     <DropdownMenuContent align="end">
+                                       <DropdownMenuItem onClick={() => handleToggleServiceStatus(service.id, service.is_active)}>
+                                         {service.is_active ? 'Deactivate' : 'Activate'} Service
+                                       </DropdownMenuItem>
+                                       <DropdownMenuItem 
+                                         onClick={() => handleDeleteService(service.id, service.service_name)}
+                                         className="text-destructive"
+                                       >
+                                         <Trash className="h-3 w-3 mr-2" />
+                                         Delete Service
+                                       </DropdownMenuItem>
+                                     </DropdownMenuContent>
+                                   </DropdownMenu>
+                                 </div>
                               </div>
                               {service.portfolio_images && service.portfolio_images.length > 0 && (
                                 <div className="mt-3 flex gap-2 overflow-x-auto">

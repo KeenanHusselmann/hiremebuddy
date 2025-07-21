@@ -17,6 +17,7 @@ interface ServiceForm {
   description: string;
   hourly_rate: number;
   category_id: string;
+  subcategory_id: string;
 }
 
 interface ServiceCategory {
@@ -26,10 +27,19 @@ interface ServiceCategory {
   icon_name: string;
 }
 
+interface ServiceSubcategory {
+  id: string;
+  name: string;
+  description: string;
+  category_id: string;
+}
+
 export const ServiceCreationForm = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [subcategories, setSubcategories] = useState<ServiceSubcategory[]>([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState<ServiceSubcategory[]>([]);
   const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -37,6 +47,7 @@ export const ServiceCreationForm = () => {
 
   useEffect(() => {
     loadCategories();
+    loadSubcategories();
   }, []);
 
   const loadCategories = async () => {
@@ -54,6 +65,32 @@ export const ServiceCreationForm = () => {
     } else {
       setCategories(data || []);
     }
+  };
+
+  const loadSubcategories = async () => {
+    const { data, error } = await supabase
+      .from('service_subcategories')
+      .select('*')
+      .order('name');
+    
+    if (error) {
+      toast({
+        title: "Error loading subcategories",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      setSubcategories(data || []);
+    }
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    setValue('category_id', categoryId);
+    setValue('subcategory_id', ''); // Reset subcategory when category changes
+    
+    // Filter subcategories based on selected category
+    const filtered = subcategories.filter(sub => sub.category_id === categoryId);
+    setFilteredSubcategories(filtered);
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,6 +168,7 @@ export const ServiceCreationForm = () => {
           description: data.description,
           hourly_rate: data.hourly_rate,
           category_id: data.category_id,
+          subcategory_id: data.subcategory_id || null,
           labourer_id: profile.id,
           portfolio_images: []
         }])
@@ -167,7 +205,9 @@ export const ServiceCreationForm = () => {
       setValue('description', '');
       setValue('hourly_rate', 0);
       setValue('category_id', '');
+      setValue('subcategory_id', '');
       setPortfolioImages([]);
+      setFilteredSubcategories([]);
       
     } catch (error: any) {
       toast({
@@ -204,7 +244,7 @@ export const ServiceCreationForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="category_id">Service Category</Label>
-            <Select onValueChange={(value) => setValue('category_id', value)}>
+            <Select onValueChange={(value) => handleCategoryChange(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -220,6 +260,24 @@ export const ServiceCreationForm = () => {
               <p className="text-sm text-destructive">Please select a category</p>
             )}
           </div>
+
+          {filteredSubcategories.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="subcategory_id">Service Subcategory (Optional)</Label>
+              <Select onValueChange={(value) => setValue('subcategory_id', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a subcategory" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredSubcategories.map((subcategory) => (
+                    <SelectItem key={subcategory.id} value={subcategory.id}>
+                      {subcategory.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="description">Service Description</Label>

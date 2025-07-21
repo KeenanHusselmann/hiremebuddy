@@ -334,6 +334,41 @@ export type Database = {
         }
         Relationships: []
       }
+      service_subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           category_id: string | null
@@ -345,6 +380,7 @@ export type Database = {
           labourer_id: string
           portfolio_images: string[] | null
           service_name: string
+          subcategory_id: string | null
           updated_at: string
         }
         Insert: {
@@ -357,6 +393,7 @@ export type Database = {
           labourer_id: string
           portfolio_images?: string[] | null
           service_name: string
+          subcategory_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -369,6 +406,7 @@ export type Database = {
           labourer_id?: string
           portfolio_images?: string[] | null
           service_name?: string
+          subcategory_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -384,6 +422,13 @@ export type Database = {
             columns: ["labourer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "service_subcategories"
             referencedColumns: ["id"]
           },
         ]

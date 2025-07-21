@@ -175,49 +175,14 @@ const ServiceDetailPage = () => {
       return;
     }
 
-    try {
-      // Get user profile
-      const { data: clientProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (profileError || !clientProfile) {
-        toast({
-          title: "Profile not found",
-          description: "Please complete your profile first",
-          variant: "destructive"
-        });
-        navigate('/profile');
-        return;
-      }
-
-      // Create a quote request notification
-      const { error: notificationError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: service.labourer_id,
-          type: 'quote_request',
-          message: `You have a new quote request for ${service.service_name}`,
-          category: 'quote',
-          target_url: `/services/${service.id}`
-        });
-
-      if (notificationError) throw notificationError;
-
-      toast({
-        title: "Quote Request Sent!",
-        description: "The provider will contact you with a custom quote soon.",
-      });
-      
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to send quote request. Please try again.",
-        variant: "destructive"
-      });
-    }
+    // Navigate to quote request page with service data
+    navigate('/request-quote', { 
+      state: { 
+        service,
+        serviceId: service.id,
+        labourerId: service.labourer_id
+      } 
+    });
   };
 
   return (
