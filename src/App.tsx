@@ -31,6 +31,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CreateServicePage from "./pages/CreateServicePage";
+import BookingPage from "./pages/BookingPage";
+import RequestQuotePage from "./pages/RequestQuotePage";
 import NotFound from "./pages/NotFound";
 
 // Component to handle scroll to top on route change
@@ -76,6 +78,8 @@ const App = () => {
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/create-service" element={<CreateServicePage />} />
+                    <Route path="/booking" element={<BookingPage />} />
+                    <Route path="/request-quote" element={<RequestQuotePage />} />
                     <Route path="/insights" element={<InsightsPage />} />
                     <Route path="/browse" element={<BrowseServicesPage />} />
                     <Route path="/services/:category" element={<ServiceCategoryPage />} />
