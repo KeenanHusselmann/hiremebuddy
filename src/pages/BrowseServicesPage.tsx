@@ -64,7 +64,8 @@ const BrowseServicesPage = () => {
             id,
             full_name,
             town,
-            contact_number
+            contact_number,
+            is_verified
           ),
           category:service_categories (
             name
@@ -77,8 +78,11 @@ const BrowseServicesPage = () => {
         return;
       }
 
+      // Filter out services from unverified providers
+      const verifiedServices = (data || []).filter(service => service.labourer?.is_verified === true);
+      
       // Transform data to match the interface
-      const transformedServices: Service[] = (data || []).map(service => ({
+      const transformedServices: Service[] = verifiedServices.map(service => ({
         id: service.id,
         title: service.service_name,
         provider: service.labourer?.full_name || 'Unknown Provider',

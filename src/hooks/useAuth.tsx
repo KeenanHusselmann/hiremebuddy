@@ -15,6 +15,7 @@ interface Profile {
   avatar_url?: string;
   bio?: string;
   created_at: string;
+  is_verified?: boolean;
 }
 
 interface AuthContextType {

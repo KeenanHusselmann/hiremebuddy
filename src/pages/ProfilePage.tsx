@@ -74,7 +74,32 @@ const ProfilePage = () => {
         user_type: profile.user_type === 'admin' ? 'client' : profile.user_type || 'client',
       });
     }
-  }, [user, profile, navigate]);
+
+    // Set up real-time profile updates for verification status
+    if (profile?.id) {
+      const channel = supabase
+        .channel('profile-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${profile.id}`
+          },
+          (payload) => {
+            console.log('Profile updated:', payload);
+            // Refresh profile data when verification status changes
+            refreshProfile();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, profile, navigate, refreshProfile]);
 
   const loadNamibianTowns = async () => {
     try {
@@ -221,7 +246,20 @@ const ProfilePage = () => {
               size="large"
             />
             <h1 className="text-3xl font-bold mt-4">{profile.full_name}</h1>
-            <p className="text-muted-foreground capitalize">{profile.user_type}</p>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <p className="text-muted-foreground capitalize">{profile.user_type}</p>
+              {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
+                profile.is_verified ? (
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    ✓ Verified Provider
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                    ⏳ Pending Verification
+                  </Badge>
+                )
+              )}
+            </div>
             <p className="text-sm text-muted-foreground mt-2">
               User since {new Date(profile.created_at).toLocaleDateString()}
             </p>
@@ -369,37 +407,56 @@ const ProfilePage = () => {
                  </CardContent>
                </Card>
 
-               {/* Service Management for Labourers */}
-               {(formData.user_type === 'labourer' || formData.user_type === 'both') && (
-                 <Card>
-                   <CardHeader>
-                     <CardTitle>Service Management</CardTitle>
-                     <CardDescription>
-                       Manage your professional services and connect with clients
-                     </CardDescription>
-                   </CardHeader>
-                   <CardContent className="space-y-4">
-                     <div className="flex flex-col sm:flex-row gap-4">
-                       <Button 
-                         onClick={() => navigate('/create-service')} 
-                         className="btn-sunset flex-1"
-                       >
-                         Create New Service
-                       </Button>
-                       <Button 
-                         onClick={() => navigate('/browse')} 
-                         variant="outline"
-                         className="flex-1"
-                       >
-                         View All Services
-                       </Button>
-                     </div>
-                     <p className="text-sm text-muted-foreground">
-                       Add your services to reach clients across Namibia. Upload portfolio images and set competitive rates.
-                     </p>
-                   </CardContent>
-                 </Card>
-               )}
+                {/* Service Management for Labourers - Only show if client type */}
+                {(formData.user_type === 'labourer' || formData.user_type === 'both') && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Service Management</CardTitle>
+                      <CardDescription>
+                        {profile.is_verified 
+                          ? "Manage your professional services and connect with clients"
+                          : "Complete verification to start offering services"
+                        }
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {profile.is_verified ? (
+                        <>
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <Button 
+                              onClick={() => navigate('/create-service')} 
+                              className="btn-sunset flex-1"
+                            >
+                              Create New Service
+                            </Button>
+                            <Button 
+                              onClick={() => navigate('/browse')} 
+                              variant="outline"
+                              className="flex-1"
+                            >
+                              View All Services
+                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Add your services to reach clients across Namibia. Upload portfolio images and set competitive rates.
+                          </p>
+                        </>
+                      ) : (
+                        <div className="text-center py-4">
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h3 className="font-medium text-yellow-800 mb-2">Verification Required</h3>
+                            <p className="text-sm text-yellow-700 mb-3">
+                              Your profile is currently under review. Once verified by our admin team, you'll be able to create and offer services to clients.
+                            </p>
+                            <p className="text-xs text-yellow-600">
+                              This typically takes 24-48 hours. You'll receive a notification once approved.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
             {(profile.user_type === 'labourer' || profile.user_type === 'both') && (

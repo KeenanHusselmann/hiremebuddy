@@ -183,6 +183,32 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleVerifyProvider = async (userId: string, isVerified: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_verified: isVerified })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Provider ${isVerified ? 'verified' : 'rejected'} successfully`,
+      });
+
+      // Refresh the user management data
+      fetchUserManagement();
+    } catch (error: any) {
+      console.error('Error updating verification status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update verification status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NA', { 
       style: 'currency', 
@@ -411,6 +437,35 @@ const AdminDashboard: React.FC = () => {
                               <SelectItem value="both">Both</SelectItem>
                             </SelectContent>
                           </Select>
+                          {(user.user_type === 'labourer' || user.user_type === 'both') && (
+                            <div className="flex items-center space-x-1">
+                              {user.is_verified ? (
+                                <Badge variant="outline" className="text-green-600 border-green-600">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              ) : (
+                                <div className="flex space-x-1">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-green-600 border-green-600 hover:bg-green-50"
+                                    onClick={() => handleVerifyProvider(user.id, true)}
+                                  >
+                                    <CheckCircle className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-red-600 border-red-600 hover:bg-red-50"
+                                    onClick={() => handleVerifyProvider(user.id, false)}
+                                  >
+                                    <AlertTriangle className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
