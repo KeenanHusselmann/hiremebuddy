@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AuthPage = () => {
@@ -28,6 +30,14 @@ const AuthPage = () => {
   const [experience, setExperience] = useState('');
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  
+  // Provider categories state
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<{categoryId: string, subcategoryIds: string[]}[]>([]);
+  const [currentCategory, setCurrentCategory] = useState('');
+  const [currentSubcategory, setCurrentSubcategory] = useState('');
+  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -45,8 +55,40 @@ const AuthPage = () => {
       }
     });
 
+    // Load categories and subcategories
+    loadCategories();
+    loadSubcategories();
+
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('service_categories')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadSubcategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('service_subcategories')
+        .select('*, service_categories(name)')
+        .order('name');
+      
+      if (error) throw error;
+      setSubcategories(data || []);
+    } catch (error) {
+      console.error('Error loading subcategories:', error);
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +165,14 @@ const AuthPage = () => {
         description: "Please check your email to verify your account.",
       });
       
+      // If successful signup and user is a provider with selected categories, save them
+      if (userType === 'labourer' && selectedCategories.length > 0) {
+        // Wait for profile to be created by the trigger, then save categories
+        setTimeout(async () => {
+          await saveProviderCategories();
+        }, 2000);
+      }
+      
       // Reset form after successful signup
       resetForm();
       
@@ -160,6 +210,50 @@ const AuthPage = () => {
     setIsLoading(false);
   };
 
+  const saveProviderCategories = async () => {
+    try {
+      // Get the current user to find their profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get the profile ID
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (!profile) return;
+
+      // Insert provider categories
+      for (const categorySelection of selectedCategories) {
+        if (categorySelection.subcategoryIds.length > 0) {
+          // Insert with subcategories
+          for (const subcategoryId of categorySelection.subcategoryIds) {
+            await supabase
+              .from('provider_categories')
+              .insert({
+                provider_id: profile.id,
+                category_id: categorySelection.categoryId,
+                subcategory_id: subcategoryId
+              });
+          }
+        } else {
+          // Insert just the category
+          await supabase
+            .from('provider_categories')
+            .insert({
+              provider_id: profile.id,
+              category_id: categorySelection.categoryId,
+              subcategory_id: null
+            });
+        }
+      }
+    } catch (error) {
+      console.error('Error saving provider categories:', error);
+    }
+  };
+
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -171,6 +265,9 @@ const AuthPage = () => {
     setExperience('');
     setIdDocument(null);
     setAgreeToTerms(false);
+    setSelectedCategories([]);
+    setCurrentCategory('');
+    setCurrentSubcategory('');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,6 +275,47 @@ const AuthPage = () => {
     if (file) {
       setIdDocument(file);
     }
+  };
+
+  const addCategory = () => {
+    if (!currentCategory) return;
+    
+    const categoryExists = selectedCategories.find(c => c.categoryId === currentCategory);
+    if (categoryExists) {
+      // Add subcategory to existing category
+      if (currentSubcategory && !categoryExists.subcategoryIds.includes(currentSubcategory)) {
+        setSelectedCategories(prev => 
+          prev.map(c => 
+            c.categoryId === currentCategory 
+              ? { ...c, subcategoryIds: [...c.subcategoryIds, currentSubcategory] }
+              : c
+          )
+        );
+      }
+    } else {
+      // Add new category
+      setSelectedCategories(prev => [...prev, {
+        categoryId: currentCategory,
+        subcategoryIds: currentSubcategory ? [currentSubcategory] : []
+      }]);
+    }
+    
+    setCurrentCategory('');
+    setCurrentSubcategory('');
+  };
+
+  const removeCategory = (categoryId: string) => {
+    setSelectedCategories(prev => prev.filter(c => c.categoryId !== categoryId));
+  };
+
+  const removeSubcategory = (categoryId: string, subcategoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.map(c => 
+        c.categoryId === categoryId 
+          ? { ...c, subcategoryIds: c.subcategoryIds.filter(s => s !== subcategoryId) }
+          : c
+      )
+    );
   };
 
   const toggleMode = () => {
@@ -373,6 +511,106 @@ const AuthPage = () => {
                           <p className="text-xs text-muted-foreground">
                             Upload your ID document or driver's license for verification
                           </p>
+                        </div>
+
+                        {/* Service Categories Selection */}
+                        <div className="space-y-4 pt-4 border-t border-glass-border/30">
+                          <Label className="text-base font-medium">Service Categories</Label>
+                          <p className="text-sm text-muted-foreground">Select the service categories you specialize in</p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Category</Label>
+                              <Select value={currentCategory} onValueChange={setCurrentCategory}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((category) => (
+                                    <SelectItem key={category.id} value={category.id}>
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Subcategory (Optional)</Label>
+                              <Select 
+                                value={currentSubcategory} 
+                                onValueChange={setCurrentSubcategory}
+                                disabled={!currentCategory}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a subcategory" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {subcategories
+                                    .filter(sub => sub.category_id === currentCategory)
+                                    .map((subcategory) => (
+                                      <SelectItem key={subcategory.id} value={subcategory.id}>
+                                        {subcategory.name}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <Button 
+                            type="button" 
+                            onClick={addCategory} 
+                            variant="outline"
+                            disabled={!currentCategory}
+                            className="w-full"
+                          >
+                            Add Category
+                          </Button>
+
+                          {/* Selected Categories Display */}
+                          {selectedCategories.length > 0 && (
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Selected Categories:</Label>
+                              <div className="space-y-2">
+                                {selectedCategories.map((categorySelection) => {
+                                  const category = categories.find(c => c.id === categorySelection.categoryId);
+                                  return (
+                                    <div key={categorySelection.categoryId} className="p-3 border rounded-lg space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-medium">{category?.name}</span>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => removeCategory(categorySelection.categoryId)}
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                      {categorySelection.subcategoryIds.length > 0 && (
+                                        <div className="flex flex-wrap gap-1">
+                                          {categorySelection.subcategoryIds.map((subId) => {
+                                            const subcategory = subcategories.find(s => s.id === subId);
+                                            return (
+                                              <Badge 
+                                                key={subId} 
+                                                variant="secondary"
+                                                className="text-xs cursor-pointer"
+                                                onClick={() => removeSubcategory(categorySelection.categoryId, subId)}
+                                              >
+                                                {subcategory?.name} <X className="h-3 w-3 ml-1" />
+                                              </Badge>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center space-x-2">

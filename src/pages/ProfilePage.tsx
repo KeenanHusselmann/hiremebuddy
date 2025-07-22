@@ -24,6 +24,7 @@ import ProfileImageUpload from '@/components/ProfileImageUpload';
 import TicTacToe from '@/components/TicTacToe';
 import MiniSudoku from '@/components/MiniSudoku';
 import ProfileStats from '@/components/ProfileStats';
+import ProviderCategories from '@/components/ProviderCategories';
 import QuickActions from '@/components/QuickActions';
 
 const ProfilePage = () => {
@@ -467,6 +468,14 @@ const ProfilePage = () => {
                   </form>
                  </CardContent>
                </Card>
+
+                {/* Provider Categories for Labourers */}
+                {(formData.user_type === 'labourer' || formData.user_type === 'both') && (
+                  <ProviderCategories 
+                    providerId={profile.id}
+                    showTitle={true}
+                  />
+                )}
 
                 {/* Service Management for Labourers - Only show if client type */}
                 {(formData.user_type === 'labourer' || formData.user_type === 'both') && (

@@ -255,6 +255,55 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          provider_id: string
+          subcategory_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          provider_id: string
+          subcategory_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          provider_id?: string
+          subcategory_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "service_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           booking_id: string
