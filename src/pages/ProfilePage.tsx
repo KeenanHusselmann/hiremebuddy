@@ -18,7 +18,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase, MoreVertical, Trash } from 'lucide-react';
+import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase, MoreVertical, Trash, Calendar, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
 import TicTacToe from '@/components/TicTacToe';
@@ -328,10 +328,14 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 {t('profile.title')}
+              </TabsTrigger>
+              <TabsTrigger value="bookings" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Bookings
               </TabsTrigger>
               {(profile.user_type === 'labourer' || profile.user_type === 'both') && profile.is_verified && (
                 <TabsTrigger value="services" className="flex items-center gap-2">
@@ -659,6 +663,60 @@ const ProfilePage = () => {
                 </Card>
               </TabsContent>
             )}
+
+            <TabsContent value="bookings" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Booking & Quote Management</CardTitle>
+                  <CardDescription>
+                    Manage your service bookings and quote requests
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button 
+                      onClick={() => navigate('/bookings')} 
+                      className="btn-sunset h-auto py-4"
+                    >
+                      <div className="flex flex-col items-center">
+                        <Calendar className="h-6 w-6 mb-2" />
+                        <span className="font-semibold">View Bookings</span>
+                        <span className="text-xs opacity-80">
+                          {profile.user_type === 'labourer' 
+                            ? 'Manage booking requests' 
+                            : 'Track your bookings'
+                          }
+                        </span>
+                      </div>
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => navigate('/quotes')} 
+                      variant="outline" 
+                      className="h-auto py-4"
+                    >
+                      <div className="flex flex-col items-center">
+                        <MessageSquare className="h-6 w-6 mb-2" />
+                        <span className="font-semibold">Quote Requests</span>
+                        <span className="text-xs opacity-80">
+                          {profile.user_type === 'labourer' 
+                            ? 'Respond to quote requests' 
+                            : 'Track your quote requests'
+                          }
+                        </span>
+                      </div>
+                    </Button>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground text-center pt-4">
+                    {profile.user_type === 'labourer' 
+                      ? "Manage all your client interactions and service requests in one place."
+                      : "Keep track of all your service bookings and quote requests from providers."
+                    }
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="stats" className="space-y-6">
               <ProfileStats 

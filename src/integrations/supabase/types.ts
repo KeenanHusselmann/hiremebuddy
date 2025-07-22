@@ -304,6 +304,85 @@ export type Database = {
           },
         ]
       }
+      quote_requests: {
+        Row: {
+          address: string
+          budget: string | null
+          client_id: string
+          created_at: string
+          id: string
+          labourer_id: string
+          phone: string
+          preferred_contact: string
+          project_description: string
+          quote_amount: number | null
+          quote_message: string | null
+          service_id: string | null
+          status: string
+          timeline: string | null
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          address: string
+          budget?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          labourer_id: string
+          phone: string
+          preferred_contact?: string
+          project_description: string
+          quote_amount?: number | null
+          quote_message?: string | null
+          service_id?: string | null
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          address?: string
+          budget?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          labourer_id?: string
+          phone?: string
+          preferred_contact?: string
+          project_description?: string
+          quote_amount?: number | null
+          quote_message?: string | null
+          service_id?: string | null
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_requests_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_requests_labourer_id_fkey"
+            columns: ["labourer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           booking_id: string

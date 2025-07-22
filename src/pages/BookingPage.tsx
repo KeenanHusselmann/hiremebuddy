@@ -95,47 +95,58 @@ const BookingPage = () => {
         return;
       }
 
+      // Validate required location data
+      if (!location.state?.labourerId || !location.state?.serviceId) {
+        toast({
+          title: "Missing Information",
+          description: "Service information is missing. Please select a service first.",
+          variant: "destructive"
+        });
+        navigate('/browse');
+        return;
+      }
+
+      // Validate booking data
+      if (!bookingData.date || !bookingData.time || !bookingData.duration) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required booking details.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Create booking
       const { data: booking, error: bookingError } = await supabase
         .from('bookings')
         .insert({
           client_id: clientProfile.id,
-          labourer_id: location.state?.labourerId,
-          service_id: location.state?.serviceId,
+          labourer_id: location.state.labourerId,
+          service_id: location.state.serviceId,
           booking_date: bookingData.date,
           booking_time: bookingData.time,
-          message: `${bookingData.message}\n\nAddress: ${bookingData.address}\nPhone: ${bookingData.phone}\nDuration: ${bookingData.duration} hours\nUrgency: ${bookingData.urgency}`
+          message: `Project Details: ${bookingData.message}\n\nAddress: ${bookingData.address}\nPhone: ${bookingData.phone}\nDuration: ${bookingData.duration} hours\nUrgency: ${bookingData.urgency}`,
+          status: 'pending'
         })
         .select()
         .single();
 
-      if (bookingError) throw bookingError;
-
-      // Send notification to provider
-      const { error: notificationError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: location.state?.labourerId,
-          type: 'new_booking_request',
-          message: `You have a new booking request for ${service.title || service.service_name}`,
-          category: 'booking',
-          target_url: `/bookings/${booking.id}`
-        });
-
-      if (notificationError) {
-        console.error('Error creating notification:', notificationError);
+      if (bookingError) {
+        console.error('Booking creation error:', bookingError);
+        throw new Error('Failed to create booking');
       }
 
       toast({
         title: "Booking Confirmed!",
-        description: "Your service has been booked. The provider will contact you shortly.",
+        description: "Your service has been booked successfully. The provider will contact you within 2 hours to confirm details.",
       });
+      
       navigate('/profile');
     } catch (error: any) {
       console.error('Booking error:', error);
       toast({
         title: "Booking Failed",
-        description: "There was an error creating your booking. Please try again.",
+        description: error.message || "There was an error creating your booking. Please try again.",
         variant: "destructive"
       });
     } finally {

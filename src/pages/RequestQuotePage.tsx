@@ -87,31 +87,52 @@ const RequestQuotePage = () => {
         return;
       }
 
-      // Send notification to provider
-      const { error: notificationError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: location.state?.labourerId,
-          type: 'quote_request',
-          message: `You have a new quote request for ${service.title || service.service_name}`,
-          category: 'quote',
-          target_url: `/services/${location.state?.serviceId}`
+      // Validate required location data
+      if (!location.state?.labourerId || !location.state?.serviceId) {
+        toast({
+          title: "Missing Information",
+          description: "Service information is missing. Please select a service first.",
+          variant: "destructive"
         });
+        navigate('/browse');
+        return;
+      }
 
-      if (notificationError) {
-        console.error('Error creating notification:', notificationError);
+      // Create quote request in the database
+      const { data: quoteRequest, error: quoteError } = await supabase
+        .from('quote_requests')
+        .insert({
+          client_id: clientProfile.id,
+          labourer_id: location.state.labourerId,
+          service_id: location.state.serviceId,
+          project_description: quoteData.projectDescription,
+          budget: quoteData.budget || null,
+          timeline: quoteData.timeline || null,
+          address: quoteData.address,
+          phone: quoteData.phone,
+          urgency: quoteData.urgency,
+          preferred_contact: quoteData.preferredContact,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (quoteError) {
+        console.error('Quote request creation error:', quoteError);
+        throw new Error('Failed to create quote request');
       }
 
       toast({
         title: "Quote Request Sent!",
-        description: "The provider will contact you with a custom quote soon.",
+        description: "The provider will contact you with a custom quote within 24-48 hours.",
       });
+      
       navigate('/profile');
     } catch (error: any) {
       console.error('Quote request error:', error);
       toast({
         title: "Request Failed",
-        description: "There was an error sending your quote request. Please try again.",
+        description: error.message || "There was an error sending your quote request. Please try again.",
         variant: "destructive"
       });
     } finally {

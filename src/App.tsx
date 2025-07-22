@@ -21,6 +21,8 @@ import ServiceDetailPage from "./pages/ServiceDetailPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import ContactPage from "./pages/ContactPage";
 import BookingDetailPage from "./pages/BookingDetailPage";
+import QuoteRequestDetailPage from "./pages/QuoteRequestDetailPage";
+import BookingManagementPage from "./pages/BookingManagementPage";
 import InsightsPage from "./pages/InsightsPage";
 import SupportPage from "./pages/SupportPage";
 import AdminLayout from "./components/AdminLayout";
@@ -86,7 +88,11 @@ const App = () => {
                     <Route path="/services/:category/:serviceId" element={<ServiceDetailPage />} />
                     <Route path="/how-it-works" element={<HowItWorksPage />} />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/booking/:id" element={<BookingDetailPage />} />
                     <Route path="/bookings/:bookingId" element={<BookingDetailPage />} />
+                    <Route path="/quote-requests/:id" element={<QuoteRequestDetailPage />} />
+                    <Route path="/bookings" element={<BookingManagementPage />} />
+                    <Route path="/quotes" element={<BookingManagementPage />} />
                     <Route path="/support" element={<SupportPage />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
