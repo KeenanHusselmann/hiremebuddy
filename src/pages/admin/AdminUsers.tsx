@@ -33,6 +33,38 @@ const AdminUsers: React.FC = () => {
 
   useEffect(() => {
     fetchUserManagement();
+    
+    // Set up real-time subscription for profile changes
+    const channel = supabase
+      .channel('admin-profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('Real-time profile update received:', payload);
+          // Update the specific user in the state
+          setUserManagement(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              users: prev.users.map(user => 
+                user.id === payload.new.id 
+                  ? { ...user, ...payload.new }
+                  : user
+              )
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [selectedUserType, verificationFilter]);
 
   const fetchUserManagement = async () => {
