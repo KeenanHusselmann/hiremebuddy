@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,17 +18,20 @@ import { supabase } from '@/integrations/supabase/client';
 const BookingPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Get service data passed from service detail page
-  const service = location.state?.service || {
-    title: 'Professional Plumbing Services',
-    provider: 'Johannes Mwandingi',
-    price: 'N$300/hour',
-    rating: 4.8,
-    category: 'plumbing'
-  };
+  const [service, setService] = useState({
+    id: '',
+    title: 'Loading...',
+    provider: 'Loading...',
+    price: 'N$0/hour',
+    rating: 0,
+    category: '',
+    labourerId: ''
+  });
+  const [isLoadingService, setIsLoadingService] = useState(true);
 
   const [bookingData, setBookingData] = useState({
     date: '',
@@ -41,6 +44,76 @@ const BookingPage = () => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch service data on component mount
+  useEffect(() => {
+    const fetchServiceData = async () => {
+      try {
+        const serviceId = searchParams.get('serviceId') || location.state?.serviceId;
+        if (!serviceId) {
+          toast({
+            title: "Missing Information",
+            description: "Service information is missing. Please select a service first.",
+            variant: "destructive"
+          });
+          navigate('/browse');
+          return;
+        }
+
+        const { data: serviceData, error } = await supabase
+          .from('services')
+          .select(`
+            id,
+            service_name,
+            description,
+            hourly_rate,
+            labourer_id,
+            profiles!inner (
+              full_name,
+              avatar_url,
+              location_text,
+              town,
+              is_verified
+            )
+          `)
+          .eq('id', serviceId)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !serviceData) {
+          toast({
+            title: "Service Not Found",
+            description: "The requested service could not be found.",
+            variant: "destructive"
+          });
+          navigate('/browse');
+          return;
+        }
+
+        setService({
+          id: serviceData.id,
+          title: serviceData.service_name,
+          provider: serviceData.profiles.full_name,
+          price: serviceData.hourly_rate ? `N$${serviceData.hourly_rate}/hour` : 'N$0/hour',
+          rating: 4.8, // Default rating for now
+          category: serviceData.service_name.toLowerCase(),
+          labourerId: serviceData.labourer_id
+        });
+      } catch (error) {
+        console.error('Error fetching service:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load service information.",
+          variant: "destructive"
+        });
+        navigate('/browse');
+      } finally {
+        setIsLoadingService(false);
+      }
+    };
+
+    fetchServiceData();
+  }, [searchParams, location.state, navigate, toast]);
 
   // Redirect if not authenticated
   if (!user) {
@@ -95,14 +168,13 @@ const BookingPage = () => {
         return;
       }
 
-      // Validate required location data
-      if (!location.state?.labourerId || !location.state?.serviceId) {
+      // Validate service data is loaded
+      if (!service.id || !service.labourerId) {
         toast({
           title: "Missing Information",
-          description: "Service information is missing. Please select a service first.",
+          description: "Service information is not loaded. Please try again.",
           variant: "destructive"
         });
-        navigate('/browse');
         return;
       }
 
@@ -121,8 +193,8 @@ const BookingPage = () => {
         .from('bookings')
         .insert({
           client_id: clientProfile.id,
-          labourer_id: location.state.labourerId,
-          service_id: location.state.serviceId,
+          labourer_id: service.labourerId,
+          service_id: service.id,
           booking_date: bookingData.date,
           booking_time: bookingData.time,
           message: `Project Details: ${bookingData.message}\n\nAddress: ${bookingData.address}\nPhone: ${bookingData.phone}\nDuration: ${bookingData.duration} hours\nUrgency: ${bookingData.urgency}`,
