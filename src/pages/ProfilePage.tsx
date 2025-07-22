@@ -48,6 +48,31 @@ const ProfilePage = () => {
   const [loadingServices, setLoadingServices] = useState(false);
 
   useEffect(() => {
+    // Set up real-time subscription for profile changes (verification status)
+    const channel = supabase
+      .channel('profile-verification-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('Profile verification update received:', payload);
+          // Refresh the profile data when verification status changes
+          refreshProfile();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, refreshProfile]);
+
+  useEffect(() => {
     // Redirect to auth if not logged in
     if (!user) {
       navigate('/auth');
@@ -75,32 +100,7 @@ const ProfilePage = () => {
         user_type: profile.user_type === 'admin' ? 'client' : profile.user_type || 'client',
       });
     }
-
-    // Set up real-time profile updates for verification status
-    if (profile?.id) {
-      const channel = supabase
-        .channel('profile-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles',
-            filter: `id=eq.${profile.id}`
-          },
-          (payload) => {
-            console.log('Profile updated:', payload);
-            // Refresh profile data when verification status changes
-            refreshProfile();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user, profile, navigate, refreshProfile]);
+  }, [user, profile, navigate]);
 
   const loadNamibianTowns = async () => {
     try {
