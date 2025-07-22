@@ -236,16 +236,16 @@ const FeaturedWorkers = () => {
 
                   {/* Contact Options */}
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
+                     <div className="grid grid-cols-2 gap-2">
                       <Button 
                         className="btn-sunset"
-                        onClick={() => window.location.href = `/service/${worker.id}`}
+                        onClick={() => window.location.href = `/booking?serviceId=${worker.id}`}
                       >
                         Book Service
                       </Button>
                       <Button 
                         variant="outline"
-                        onClick={() => window.location.href = `/service/${worker.id}?action=quote`}
+                        onClick={() => window.location.href = `/request-quote?serviceId=${worker.id}`}
                       >
                         Request Quote
                       </Button>
