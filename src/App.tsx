@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
+import { MessageNotificationToast } from "@/components/MessageNotificationToast";
 import PageLoader from "@/components/PageLoader";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -70,6 +71,7 @@ const App = () => {
               <PageLoader isLoading={isLoading} />
               <Toaster />
               <Sonner />
+              <MessageNotificationToast />
               <BrowserRouter>
                 <ScrollToTop />
                 <AccessibilityProvider>

@@ -129,10 +129,16 @@ export const useMessages = (bookingId?: string) => {
         },
         (payload) => {
           const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => {
+            // Avoid duplicates
+            if (prev.some(msg => msg.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
           
-          // Mark as read if user is the receiver
-          if (newMessage.receiver_id === profile.id) {
+          // Mark as read if user is the receiver and window is focused
+          if (newMessage.receiver_id === profile.id && document.hasFocus()) {
             setTimeout(() => markMessagesAsRead(), 1000);
           }
         }

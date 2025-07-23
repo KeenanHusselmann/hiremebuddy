@@ -179,6 +179,29 @@ export const ServiceCreationForm = () => {
         throw serviceError;
       }
 
+      // Update provider categories if not already exists
+      const { data: existingCategory } = await supabase
+        .from('provider_categories')
+        .select('id')
+        .eq('provider_id', profile.id)
+        .eq('category_id', data.category_id)
+        .eq('subcategory_id', data.subcategory_id || null)
+        .single();
+
+      if (!existingCategory) {
+        const { error: categoryError } = await supabase
+          .from('provider_categories')
+          .insert({
+            provider_id: profile.id,
+            category_id: data.category_id,
+            subcategory_id: data.subcategory_id || null
+          });
+
+        if (categoryError) {
+          console.error('Error updating provider categories:', categoryError);
+        }
+      }
+
       // Upload portfolio images if any
       let portfolioUrls: string[] = [];
       if (portfolioImages.length > 0) {
@@ -263,8 +286,8 @@ export const ServiceCreationForm = () => {
 
           {filteredSubcategories.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="subcategory_id">Service Subcategory (Optional)</Label>
-              <Select onValueChange={(value) => setValue('subcategory_id', value)}>
+              <Label htmlFor="subcategory_id">Service Subcategory</Label>
+              <Select onValueChange={(value) => setValue('subcategory_id', value)} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a subcategory" />
                 </SelectTrigger>
@@ -276,6 +299,9 @@ export const ServiceCreationForm = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-sm text-muted-foreground">
+                Selecting a specific subcategory helps clients find your services more easily
+              </p>
             </div>
           )}
 
