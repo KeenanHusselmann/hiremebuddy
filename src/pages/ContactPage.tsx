@@ -58,22 +58,22 @@ const ContactPage = () => {
       icon: Mail,
       title: 'Email Us',
       description: 'Send us an email and we\'ll respond within 24 hours',
-      value: 'hello@hiremebuddy.na',
-      action: 'mailto:hello@hiremebuddy.na'
+      value: 'hiremebuddy061@gmail.com',
+      action: 'mailto:hiremebuddy061@gmail.com'
     },
     {
       icon: Phone,
       title: 'Call Us',
       description: 'Speak with our support team during business hours',
-      value: '+264 61 123 456',
-      action: 'tel:+26461123456'
+      value: '+264 81 853 6789',
+      action: 'tel:+264818536789'
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
       description: 'Quick support via WhatsApp messaging',
-      value: '+264 81 123 4567',
-      action: 'https://wa.me/264811234567'
+      value: '+264 81 853 6789',
+      action: 'https://wa.me/264818536789'
     },
     {
       icon: MapPin,
@@ -346,13 +346,13 @@ const ContactPage = () => {
                           <Phone className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="font-medium">Phone</p>
-                            <p className="text-muted-foreground">+264 61 123 456</p>
+                            <p className="text-muted-foreground">+264 81 853 6789</p>
                           </div>
                         </div>
                         
                         <CommunicationButtons
-                          phoneNumber="+264611234567"
-                          whatsappNumber="+264611234567"
+                          phoneNumber="+264818536789"
+                          whatsappNumber="+264818536789"
                           facebookUrl="https://facebook.com/hiremebuddy"
                           className="mt-4"
                         />
@@ -361,7 +361,7 @@ const ContactPage = () => {
                           <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="font-medium">Email</p>
-                            <p className="text-muted-foreground">hello@hiremebuddy.na</p>
+                            <p className="text-muted-foreground">hiremebuddy061@gmail.com</p>
                           </div>
                         </div>
                       </div>

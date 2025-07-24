@@ -24,7 +24,7 @@ const Header = () => {
             <Link to="/" className="flex items-center space-x-2 sm:space-x-3 hover:scale-105 transition-transform duration-200 tap-target">
               <img src={logo} alt="Hire.Me.Bra Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
               <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl font-bold text-foreground">Hire.Me.Bra</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-foreground">HireMeBuddy</h1>
                 <p className="text-xs text-muted-foreground">Connect • Create • Collaborate</p>
               </div>
             </Link>
@@ -143,7 +143,7 @@ const Header = () => {
                       </Link>
                       <Button variant="outline" size="sm" className="w-full tap-target btn-touch" onClick={signOut}>
                         <LogOut className="h-4 w-4 mr-2" />
-                        {t('nav.logout')}
+                        Logout
                       </Button>
                     </div>
                   ) : (
@@ -155,7 +155,7 @@ const Header = () => {
                       </Link>
                       <Link to="/auth" className="block">
                         <Button className="btn-sunset w-full tap-target btn-touch" onClick={() => setIsMobileMenuOpen(false)}>
-                          {t('nav.getStarted')}
+                          Get Started
                         </Button>
                       </Link>
                     </div>

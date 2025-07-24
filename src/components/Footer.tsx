@@ -16,7 +16,7 @@ const Footer = () => {
               <div className="flex items-center space-x-3">
                 <img src={logo} alt="Hire.Me.Bra Logo" className="h-8 w-8" />
                 <div>
-                  <h3 className="font-bold text-foreground">Hire.Me.Bra</h3>
+                  <h3 className="font-bold text-foreground">HireMeBuddy</h3>
                   <p className="text-xs text-muted-foreground">Empowering Namibian Skills</p>
                 </div>
               </div>
@@ -99,13 +99,13 @@ const Footer = () => {
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">
-                    hello@hiremebuddy.na
+                    hiremebuddy061@gmail.com
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-primary flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">
-                    +264 61 123 456
+                    +264 81 853 6789
                   </span>
                 </div>
               </div>

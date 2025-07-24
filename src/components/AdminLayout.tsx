@@ -47,7 +47,7 @@ const AdminLayout: React.FC = () => {
     <div className="min-h-screen bg-background">
       {/* Admin Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
@@ -123,7 +123,7 @@ const AdminLayout: React.FC = () => {
       {/* Admin Sidebar for mobile */}
       <div className="md:hidden border-b bg-background">
         <div className="container py-2">
-          <div className="flex space-x-4 overflow-x-auto">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -131,14 +131,14 @@ const AdminLayout: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 text-sm font-medium whitespace-nowrap px-3 py-2 rounded-md transition-colors ${
+                  className={`flex items-center space-x-1 text-xs font-medium whitespace-nowrap px-2 py-2 rounded-md transition-colors min-w-fit ${
                     isActive 
                       ? 'bg-primary text-primary-foreground' 
                       : 'text-muted-foreground hover:text-primary hover:bg-accent'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
+                  <Icon className="h-3 w-3" />
+                  <span className="hidden sm:inline">{item.label}</span>
                 </Link>
               );
             })}
@@ -147,7 +147,7 @@ const AdminLayout: React.FC = () => {
       </div>
 
       {/* Admin Content */}
-      <main className="container mx-auto py-6">
+      <main className="container mx-auto py-4 px-4">
         <Outlet />
       </main>
     </div>

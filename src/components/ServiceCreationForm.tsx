@@ -286,7 +286,7 @@ export const ServiceCreationForm = () => {
 
           {filteredSubcategories.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="subcategory_id">Service Subcategory</Label>
+              <Label htmlFor="subcategory_id">Service Subcategory *</Label>
               <Select onValueChange={(value) => setValue('subcategory_id', value)} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a subcategory" />
@@ -300,8 +300,11 @@ export const ServiceCreationForm = () => {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                Selecting a specific subcategory helps clients find your services more easily
+                Required: Selecting a specific subcategory helps clients find your services more easily
               </p>
+              {errors.subcategory_id && (
+                <p className="text-sm text-destructive">Please select a subcategory</p>
+              )}
             </div>
           )}
 
