@@ -284,12 +284,23 @@ export const ServiceCreationForm = () => {
             )}
           </div>
 
-          {filteredSubcategories.length > 0 && (
+          {watch('category_id') && (
             <div className="space-y-2">
-              <Label htmlFor="subcategory_id">Service Subcategory *</Label>
-              <Select onValueChange={(value) => setValue('subcategory_id', value)} required>
+              <Label htmlFor="subcategory_id">
+                Service Subcategory {filteredSubcategories.length > 0 ? '*' : '(Optional)'}
+              </Label>
+              <Select 
+                onValueChange={(value) => setValue('subcategory_id', value)} 
+                disabled={filteredSubcategories.length === 0}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a subcategory" />
+                  <SelectValue 
+                    placeholder={
+                      filteredSubcategories.length === 0 
+                        ? "No subcategories available" 
+                        : "Select a subcategory"
+                    } 
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {filteredSubcategories.map((subcategory) => (
@@ -299,9 +310,15 @@ export const ServiceCreationForm = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground">
-                Required: Selecting a specific subcategory helps clients find your services more easily
-              </p>
+              {filteredSubcategories.length > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Required: Selecting a specific subcategory helps clients find your services more easily
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No subcategories available for this category
+                </p>
+              )}
               {errors.subcategory_id && (
                 <p className="text-sm text-destructive">Please select a subcategory</p>
               )}
