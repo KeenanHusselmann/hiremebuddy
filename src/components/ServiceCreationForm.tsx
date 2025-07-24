@@ -42,7 +42,9 @@ export const ServiceCreationForm = () => {
   const [filteredSubcategories, setFilteredSubcategories] = useState<ServiceSubcategory[]>([]);
   const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [showAddSubcategory, setShowAddSubcategory] = useState(false);
+  const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
 
   useEffect(() => {
@@ -91,6 +93,63 @@ export const ServiceCreationForm = () => {
     // Filter subcategories based on selected category
     const filtered = subcategories.filter(sub => sub.category_id === categoryId);
     setFilteredSubcategories(filtered);
+    setShowAddSubcategory(false);
+    setNewSubcategoryName('');
+  };
+
+  const handleAddSubcategory = async () => {
+    if (!newSubcategoryName.trim() || !watch('category_id')) {
+      toast({
+        title: "Invalid input",
+        description: "Please provide a subcategory name and select a category first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAddingSubcategory(true);
+
+    try {
+      const { data: newSubcategory, error } = await supabase
+        .from('service_subcategories')
+        .insert([{
+          name: newSubcategoryName.trim(),
+          description: `Custom subcategory: ${newSubcategoryName.trim()}`,
+          category_id: watch('category_id'),
+          created_by: user?.id
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Add the new subcategory to our local state
+      setSubcategories(prev => [...prev, newSubcategory]);
+      setFilteredSubcategories(prev => [...prev, newSubcategory]);
+      
+      // Select the newly created subcategory
+      setValue('subcategory_id', newSubcategory.id);
+      
+      // Reset the form
+      setShowAddSubcategory(false);
+      setNewSubcategoryName('');
+
+      toast({
+        title: "Subcategory added successfully!",
+        description: `"${newSubcategory.name}" has been added and selected`
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Error adding subcategory",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingSubcategory(false);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,7 +350,7 @@ export const ServiceCreationForm = () => {
               </Label>
               <Select 
                 onValueChange={(value) => setValue('subcategory_id', value)} 
-                disabled={filteredSubcategories.length === 0}
+                disabled={filteredSubcategories.length === 0 && !showAddSubcategory}
               >
                 <SelectTrigger>
                   <SelectValue 
@@ -310,15 +369,68 @@ export const ServiceCreationForm = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {filteredSubcategories.length > 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Required: Selecting a specific subcategory helps clients find your services more easily
-                </p>
+
+              {!showAddSubcategory ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    {filteredSubcategories.length > 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Required: Selecting a specific subcategory helps clients find your services more easily
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No subcategories available for this category
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddSubcategory(true)}
+                    className="ml-2"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Custom
+                  </Button>
+                </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  No subcategories available for this category
-                </p>
+                <div className="space-y-2 p-3 border rounded-lg bg-muted/20">
+                  <Label htmlFor="new-subcategory">Create New Subcategory</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="new-subcategory"
+                      value={newSubcategoryName}
+                      onChange={(e) => setNewSubcategoryName(e.target.value)}
+                      placeholder="e.g., Leak Detection, Emergency Repairs"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleAddSubcategory}
+                      disabled={isAddingSubcategory || !newSubcategoryName.trim()}
+                      size="sm"
+                    >
+                      {isAddingSubcategory ? 'Adding...' : 'Add'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddSubcategory(false);
+                        setNewSubcategoryName('');
+                      }}
+                      size="sm"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This will create a new subcategory for the selected category that other providers can also use.
+                  </p>
+                </div>
               )}
+
               {errors.subcategory_id && (
                 <p className="text-sm text-destructive">Please select a subcategory</p>
               )}
