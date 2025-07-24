@@ -71,9 +71,9 @@ const App = () => {
               <PageLoader isLoading={isLoading} />
               <Toaster />
               <Sonner />
-              <MessageNotificationToast />
               <BrowserRouter>
                 <ScrollToTop />
+                <MessageNotificationToast />
                 <AccessibilityProvider>
                   <Routes>
                     <Route path="/" element={<Index />} />
