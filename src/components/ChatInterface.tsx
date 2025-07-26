@@ -121,9 +121,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-4">
-          <div className="space-y-4 py-4">
+      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+        <ScrollArea className="flex-1 px-4 overflow-hidden">
+          <div className="space-y-4 py-4 max-w-full overflow-hidden">
             {messages.length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -136,9 +136,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 return (
                   <div
                     key={message.id}
-                    className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${isOwn ? 'justify-end' : 'justify-start'} w-full`}
                   >
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg overflow-hidden ${
+                    <div className={`min-w-0 max-w-[75%] sm:max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                       isOwn 
                         ? 'bg-primary text-primary-foreground' 
                         : 'bg-muted text-muted-foreground'
@@ -149,9 +149,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         </Badge>
                       )}
                       
-                      <p className="text-sm whitespace-pre-wrap break-words break-all overflow-hidden">
-                        {message.content}
-                      </p>
+                      <div className="min-w-0 overflow-hidden">
+                        <p className="text-sm whitespace-pre-wrap break-words hyphens-auto leading-relaxed">
+                          {message.content}
+                        </p>
+                      </div>
                       
                       <div className={`flex items-center justify-between mt-2 text-xs ${
                         isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
