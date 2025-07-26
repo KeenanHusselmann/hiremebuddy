@@ -138,7 +138,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     key={message.id}
                     className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg overflow-hidden ${
                       isOwn 
                         ? 'bg-primary text-primary-foreground' 
                         : 'bg-muted text-muted-foreground'
@@ -149,7 +149,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         </Badge>
                       )}
                       
-                      <p className="text-sm whitespace-pre-wrap break-words">
+                      <p className="text-sm whitespace-pre-wrap break-words break-all overflow-hidden">
                         {message.content}
                       </p>
                       
