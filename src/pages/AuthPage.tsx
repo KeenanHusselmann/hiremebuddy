@@ -13,6 +13,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TermsModal } from '@/components/TermsModal';
+import { PrivacyModal } from '@/components/PrivacyModal';
+import logo from '@/assets/hiremebuddy-logo.png';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,6 +33,12 @@ const AuthPage = () => {
   const [experience, setExperience] = useState('');
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  
+  // Modal states
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(false);
   
   // Provider categories state
   const [categories, setCategories] = useState<any[]>([]);
@@ -111,10 +120,10 @@ const AuthPage = () => {
         });
         return;
       }
-      if (!agreeToTerms) {
+      if (!hasAcceptedTerms || !hasAcceptedPrivacy) {
         toast({
           title: "Error",
-          description: "You must agree to terms and conditions",
+          description: "You must read and accept both Terms and Privacy Policy",
           variant: "destructive",
         });
         return;
@@ -268,6 +277,8 @@ const AuthPage = () => {
     setSelectedCategories([]);
     setCurrentCategory('');
     setCurrentSubcategory('');
+    setHasAcceptedTerms(false);
+    setHasAcceptedPrivacy(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -340,8 +351,11 @@ const AuthPage = () => {
 
         <Card className="glass-card border-glass-border/30 shadow-2xl">
           <CardHeader className="text-center pb-6">
+            <div className="flex justify-center mb-4">
+              <img src={logo} alt="HireMeBuddy" className="h-16 w-auto" />
+            </div>
             <CardTitle className="text-3xl font-bold text-foreground mb-2">
-              {isLogin ? 'Welcome Back!' : 'Join Hire.Me.Bra'}
+              {isLogin ? 'Welcome Back!' : 'Join HireMeBuddy'}
             </CardTitle>
             <CardDescription className="text-lg">
               {isLogin 
@@ -352,9 +366,9 @@ const AuthPage = () => {
             {!isLogin && (
               <div className="mt-4 p-4 bg-primary/10 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  ✨ Connect with trusted service providers<br/>
-                  🔒 Secure and verified professionals<br/>
-                  📱 Direct communication tools
+                  Connect with trusted service providers<br/>
+                  Secure and verified professionals<br/>
+                  Direct communication tools
                 </p>
               </div>
             )}
@@ -621,14 +635,25 @@ const AuthPage = () => {
                             required
                           />
                           <Label htmlFor="agreeToTerms" className="text-sm">
-                            I agree to the{' '}
-                            <Link to="/terms" className="text-primary hover:underline">
+                            I have read and agree to the{' '}
+                            <button
+                              type="button"
+                              onClick={() => setShowTermsModal(true)}
+                              className="text-primary hover:underline font-medium"
+                            >
                               Terms and Conditions
-                            </Link>{' '}
+                            </button>{' '}
                             and{' '}
-                            <Link to="/privacy" className="text-primary hover:underline">
+                            <button
+                              type="button"
+                              onClick={() => setShowPrivacyModal(true)}
+                              className="text-primary hover:underline font-medium"
+                            >
                               Privacy Policy
-                            </Link>
+                            </button>
+                            {hasAcceptedTerms && hasAcceptedPrivacy && (
+                              <span className="text-green-600 ml-2">✓</span>
+                            )}
                           </Label>
                         </div>
                       </>
@@ -674,6 +699,20 @@ const AuthPage = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Terms Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onAccept={() => setHasAcceptedTerms(true)}
+      />
+      
+      {/* Privacy Modal */}
+      <PrivacyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        onAccept={() => setHasAcceptedPrivacy(true)}
+      />
     </div>
   );
 };

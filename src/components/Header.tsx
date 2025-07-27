@@ -143,7 +143,7 @@ const Header = () => {
                       </Link>
                       <Button variant="outline" size="sm" className="w-full tap-target btn-touch" onClick={signOut}>
                         <LogOut className="h-4 w-4 mr-2" />
-                        Logout
+                        Sign out
                       </Button>
                     </div>
                   ) : (
