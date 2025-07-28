@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useMessages } from '@/hooks/useMessages';
 import { useUserPresence } from '@/hooks/useUserPresence';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ChatInterfaceProps {
@@ -27,6 +28,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const { messages, isLoading, isSending, sendMessage } = useMessages(bookingId);
   const { getUserStatus, isUserAvailable } = useUserPresence();
+  const { toast } = useToast();
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,6 +55,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (success) {
       setNewMessage('');
       inputRef.current?.focus();
+      toast({
+        title: "Message sent",
+        description: "Your message has been delivered successfully.",
+      });
+    } else {
+      toast({
+        title: "Failed to send message",
+        description: "There was an error sending your message. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
