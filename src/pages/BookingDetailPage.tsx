@@ -26,6 +26,7 @@ import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface Booking {
   id: string;
@@ -54,6 +55,7 @@ const BookingDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile: currentProfile } = useAuth();
   const { getUserStatus, isUserAvailable } = useUserPresence();
+  const { toast } = useToast();
   
   const [booking, setBooking] = useState<Booking | null>(null);
   const [clientProfile, setClientProfile] = useState<Profile | null>(null);
@@ -148,13 +150,37 @@ const BookingDetailPage: React.FC = () => {
 
       if (error) {
         console.error('Error updating booking status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update booking status. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
 
       // Update local state immediately
       setBooking(prev => prev ? { ...prev, status: newStatus as any } : null);
+
+      // Show success message
+      const statusMessages = {
+        accepted: "Booking accepted successfully! The client has been notified.",
+        rejected: "Booking declined. The client has been notified.",
+        completed: "Booking marked as completed!",
+        cancelled: "Booking cancelled successfully."
+      };
+
+      toast({
+        title: "Success",
+        description: statusMessages[newStatus as keyof typeof statusMessages] || "Booking status updated successfully!",
+      });
+
     } catch (error) {
       console.error('Error in updateBookingStatus:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsUpdating(false);
     }
