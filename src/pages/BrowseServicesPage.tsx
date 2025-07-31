@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
-import { MapWithWorkers } from '@/components/MapWithWorkers';
+import ServiceProviderMap from '@/components/ServiceProviderMap';
 import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -338,10 +338,10 @@ const BrowseServicesPage = () => {
           </TabsContent>
 
           <TabsContent value="map">
-            <MapWithWorkers 
-              onWorkerSelect={(worker) => {
-                // Navigate to worker profile or service detail
-                navigate(`/services/${worker.service.toLowerCase()}/${worker.id}`);
+            <ServiceProviderMap 
+              onProviderSelect={(provider) => {
+                // Navigate to provider profile
+                navigate(`/profile/${provider.id}`);
               }}
             />
           </TabsContent>
