@@ -295,71 +295,95 @@ const ServiceCategoryPage = () => {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading services...</p>
-          </div>
-        ) : services.length === 0 ? (
-          <div className="text-center py-16">
-            <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-4">No Providers Currently</h3>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Be the first to offer {currentCategory.title.toLowerCase()} on our platform! Register as a service provider and start connecting with clients.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                className="btn-sunset px-8 py-3"
-                onClick={() => navigate('/auth')}
-              >
-                Register as Provider
-              </Button>
-              <Button 
-                className="btn-glass px-8 py-3"
-                onClick={() => navigate('/browse')}
-              >
-                Browse Other Categories
-              </Button>
-            </div>
+            <p className="mt-4 text-muted-foreground">Loading providers...</p>
           </div>
         ) : (
           <>
-            {/* Services Grid */}
+            {/* Service Providers Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {filteredServices.map((service, index) => (
-                <Card 
-                  key={service}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
-                  onClick={() => navigate(`/browse?category=${category}&search=${encodeURIComponent(service)}`)}
-                >
-                  <CardHeader>
-                    <CardTitle className="text-lg">{service}</CardTitle>
-                    <CardDescription>
-                      Find qualified providers for {service.toLowerCase()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          0 providers
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">0.0</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {services.length === 0 ? (
+                <div className="col-span-full text-center py-16">
+                  <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-2xl font-semibold mb-4">No Providers Currently</h3>
+                  <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                    Be the first to offer {currentCategory.title.toLowerCase()} on our platform! Register as a service provider and start connecting with clients.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button 
+                      className="btn-sunset px-8 py-3"
+                      onClick={() => navigate('/auth')}
+                    >
+                      Register as Provider
+                    </Button>
+                    <Button 
+                      className="btn-glass px-8 py-3"
+                      onClick={() => navigate('/browse')}
+                    >
+                      Browse Other Categories
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                services
+                  .filter(service => 
+                    searchQuery === '' || 
+                    service.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    service.labourer?.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((service) => (
+                    <Card 
+                      key={service.id}
+                      className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                      onClick={() => navigate(`/service/${service.id}`)}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-lg">{service.service_name}</CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {service.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">{service.labourer?.full_name}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm text-muted-foreground">📍 {service.labourer?.town}</span>
+                            </div>
+                            {service.hourly_rate && (
+                              <div className="text-right">
+                                <span className="text-sm font-semibold text-primary">
+                                  N${service.hourly_rate}/hr
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm">4.8 (24 reviews)</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+              )}
             </div>
 
-            {/* No Results */}
-            {filteredServices.length === 0 && (
+            {/* No Search Results */}
+            {services.length > 0 && services.filter(service => 
+              searchQuery === '' || 
+              service.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              service.labourer?.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+            ).length === 0 && (
               <div className="text-center py-12">
                 <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                <h3 className="text-xl font-semibold mb-2">No providers found</h3>
                 <p className="text-muted-foreground mb-4">
-                  Try a different search term or browse all {category} services
+                  Try a different search term or browse all {category} providers
                 </p>
                 <Button onClick={() => setSearchQuery('')}>
                   Clear Search
@@ -368,26 +392,28 @@ const ServiceCategoryPage = () => {
             )}
 
             {/* Call to Action */}
-            <div className="text-center bg-gradient-to-r from-primary/10 to-sunset-accent/10 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold mb-4">Ready to find a provider?</h2>
-              <p className="text-muted-foreground mb-6">
-                Browse available {category} specialists in your area
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={() => navigate(`/browse?category=${category}`)}
-                  className="btn-sunset"
-                >
-                  View All {currentCategory.title}
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate('/browse')}
-                >
-                  Browse Other Categories
-                </Button>
+            {services.length > 0 && (
+              <div className="text-center bg-gradient-to-r from-primary/10 to-sunset-accent/10 rounded-2xl p-8">
+                <h2 className="text-2xl font-bold mb-4">Ready to book a provider?</h2>
+                <p className="text-muted-foreground mb-6">
+                  Connect with {currentCategory.title.toLowerCase()} specialists in your area
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    onClick={() => navigate(`/browse?category=${category}`)}
+                    className="btn-sunset"
+                  >
+                    View All {currentCategory.title}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/browse')}
+                  >
+                    Browse Other Categories
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </main>

@@ -532,7 +532,7 @@ const AuthPage = () => {
                           <Label className="text-base font-medium">Service Categories</Label>
                           <p className="text-sm text-muted-foreground">Select the service categories you specialize in</p>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-4">
                             <div className="space-y-2">
                               <Label>Category</Label>
                               <Select value={currentCategory} onValueChange={setCurrentCategory}>
@@ -540,36 +540,15 @@ const AuthPage = () => {
                                   <SelectValue placeholder="Select a category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {categories.map((category) => (
-                                    <SelectItem key={category.id} value={category.id}>
-                                      {category.name}
-                                    </SelectItem>
-                                  ))}
+                                   {categories.map((category) => (
+                                     <SelectItem key={category.id} value={category.id}>
+                                       {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                                     </SelectItem>
+                                   ))}
                                 </SelectContent>
                               </Select>
                             </div>
 
-                            <div className="space-y-2">
-                              <Label>Subcategory (Optional)</Label>
-                              <Select 
-                                value={currentSubcategory} 
-                                onValueChange={setCurrentSubcategory}
-                                disabled={!currentCategory}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a subcategory" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {subcategories
-                                    .filter(sub => sub.category_id === currentCategory)
-                                    .map((subcategory) => (
-                                      <SelectItem key={subcategory.id} value={subcategory.id}>
-                                        {subcategory.name}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
                           </div>
 
                           <Button 
