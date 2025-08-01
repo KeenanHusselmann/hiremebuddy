@@ -176,7 +176,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
     };
   }, [userLocation, center, zoom]);
 
-  // Add provider markers
+  // Add provider markers - Only run when providers or map changes, not when selectedProvider changes
   useEffect(() => {
     if (!map.current || providers.length === 0) {
       console.log('Map or providers not ready:', { mapReady: !!map.current, providersCount: providers.length });
@@ -184,6 +184,10 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
     }
 
     console.log('Adding markers for providers:', providers.length);
+    
+    // Clear existing markers before adding new ones
+    const existingMarkers = document.querySelectorAll('.provider-marker');
+    existingMarkers.forEach(marker => marker.remove());
     
     providers.forEach((provider, index) => {
       // Prioritize providers with actual coordinates, fallback for those without
@@ -295,22 +299,15 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
       // Add click handler for marker
       markerElement.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         console.log('Provider marker clicked:', provider.full_name);
+        
+        // Set selected provider without causing map refresh
         setSelectedProvider(provider);
         
-        // Close all other popups first
-        document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
-        
-        // Show this popup
+        // Show popup without map movement to prevent refresh
         popup.addTo(map.current!);
-        
-        // Center map on the clicked marker
-        map.current!.flyTo({
-          center: [lng, lat],
-          zoom: 15,
-          duration: 1000
-        });
       });
     });
 
@@ -330,7 +327,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
       window.open(`tel:${phoneNumber}`, '_self');
     };
 
-  }, [providers, navigate, onProviderSelect]);
+  }, [providers, map.current]); // Removed navigate and onProviderSelect to prevent re-renders
 
   if (loading) {
     return (
