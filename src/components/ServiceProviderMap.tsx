@@ -197,10 +197,15 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
         lat = Number(provider.latitude);
         console.log(`Adding marker for ${provider.full_name} at actual coordinates [${lng}, ${lat}]`);
       } else {
-        // Use fallback coordinates (Windhoek center) with small random offset
-        lng = 17.0658 + (Math.random() - 0.5) * 0.02;
-        lat = -22.5609 + (Math.random() - 0.5) * 0.02;
-        console.log(`Adding marker for ${provider.full_name} at fallback coordinates [${lng}, ${lat}] - no actual location set`);
+        // Use deterministic fallback coordinates based on provider ID to prevent movement on re-render
+        const hash = provider.id.split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0);
+        
+        lng = 17.0658 + ((hash % 100) - 50) * 0.0004; // Deterministic offset
+        lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.0004; // Different pattern for lat
+        console.log(`Adding marker for ${provider.full_name} at deterministic fallback coordinates [${lng}, ${lat}] - no actual location set`);
       }
 
       // Create custom marker element
