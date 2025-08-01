@@ -186,21 +186,34 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
     console.log('Adding markers for providers:', providers.length);
     
     providers.forEach((provider, index) => {
-      // Use default coordinates (Windhoek center) if provider doesn't have coordinates
-      const lng = provider.longitude || (17.0658 + (Math.random() - 0.5) * 0.02); // Small random offset
-      const lat = provider.latitude || (-22.5609 + (Math.random() - 0.5) * 0.02);
-      
-      console.log(`Adding marker for ${provider.full_name} at [${lng}, ${lat}]`);
+      // Prioritize providers with actual coordinates, fallback for those without
+      let lng, lat;
+      if (provider.longitude && provider.latitude) {
+        lng = Number(provider.longitude);
+        lat = Number(provider.latitude);
+        console.log(`Adding marker for ${provider.full_name} at actual coordinates [${lng}, ${lat}]`);
+      } else {
+        // Use fallback coordinates (Windhoek center) with small random offset
+        lng = 17.0658 + (Math.random() - 0.5) * 0.02;
+        lat = -22.5609 + (Math.random() - 0.5) * 0.02;
+        console.log(`Adding marker for ${provider.full_name} at fallback coordinates [${lng}, ${lat}] - no actual location set`);
+      }
 
       // Create custom marker element
       const markerElement = document.createElement('div');
       markerElement.className = 'provider-marker';
+      
+      // Different styling for providers with actual vs fallback coordinates
+      const hasActualLocation = provider.longitude && provider.latitude;
+      const markerColor = hasActualLocation ? 'hsl(var(--primary))' : '#6b7280'; // Gray for fallback locations
+      const borderColor = hasActualLocation ? 'white' : '#e5e7eb';
+      
       markerElement.style.cssText = `
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: hsl(var(--primary));
-        border: 3px solid white;
+        background: ${markerColor};
+        border: 3px solid ${borderColor};
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         cursor: pointer;
         display: flex;
@@ -209,8 +222,17 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
         color: white;
         font-weight: bold;
         font-size: 12px;
+        transition: transform 0.2s ease;
       `;
       markerElement.textContent = provider.full_name.charAt(0);
+      
+      // Add hover effect
+      markerElement.addEventListener('mouseenter', () => {
+        markerElement.style.transform = 'scale(1.1)';
+      });
+      markerElement.addEventListener('mouseleave', () => {
+        markerElement.style.transform = 'scale(1)';
+      });
 
       // Create popup content
       const popupContent = document.createElement('div');
@@ -272,14 +294,23 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
         .addTo(map.current!);
 
       // Add click handler for marker
-      markerElement.addEventListener('click', () => {
+      markerElement.addEventListener('click', (e) => {
+        e.stopPropagation();
         console.log('Provider marker clicked:', provider.full_name);
         setSelectedProvider(provider);
-        if (popup.isOpen()) {
-          popup.remove();
-        } else {
-          popup.addTo(map.current!);
-        }
+        
+        // Close all other popups first
+        document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
+        
+        // Show this popup
+        popup.addTo(map.current!);
+        
+        // Center map on the clicked marker
+        map.current!.flyTo({
+          center: [lng, lat],
+          zoom: 15,
+          duration: 1000
+        });
       });
     });
 
@@ -323,6 +354,20 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
           <p className="text-sm font-medium">
             {providers.length} verified providers nearby
           </p>
+        </div>
+        
+        {/* Legend */}
+        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full" style={{background: 'hsl(var(--primary))'}}></div>
+              <span>Exact location</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+              <span>Approx. location</span>
+            </div>
+          </div>
         </div>
       </div>
 
