@@ -173,10 +173,18 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
   // Add provider markers
   useEffect(() => {
-    if (!map.current || providers.length === 0) return;
+    if (!map.current || providers.length === 0) {
+      console.log('Map or providers not ready:', { mapReady: !!map.current, providersCount: providers.length });
+      return;
+    }
 
+    console.log('Adding markers for providers:', providers.length);
+    
     providers.forEach(provider => {
-      if (!provider.latitude || !provider.longitude) return;
+      if (!provider.latitude || !provider.longitude) {
+        console.log('Provider missing coordinates:', provider.full_name);
+        return;
+      }
 
       // Create custom marker element
       const markerElement = document.createElement('div');
@@ -259,8 +267,13 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
       // Add click handler for marker
       markerElement.addEventListener('click', () => {
+        console.log('Provider marker clicked:', provider.full_name);
         setSelectedProvider(provider);
-        popup.addTo(map.current!);
+        if (popup.isOpen()) {
+          popup.remove();
+        } else {
+          popup.addTo(map.current!);
+        }
       });
     });
 
