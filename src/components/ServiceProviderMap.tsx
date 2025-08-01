@@ -82,6 +82,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
   const fetchServiceProviders = async () => {
     try {
+      console.log('Fetching service providers...');
       const { data, error } = await supabase
         .from('profiles')
         .select(`
@@ -94,6 +95,8 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
           bio,
           is_verified,
           avatar_url,
+          user_type,
+          is_active,
           services:services!labourer_id (
             id,
             service_name,
@@ -102,22 +105,24 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
             category:service_categories (name)
           )
         `)
-        .eq('user_type', 'labourer')
-        .eq('is_verified', true)
-        .eq('is_active', true)
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
+        .in('user_type', ['labourer', 'both'])
+        .eq('is_verified', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
-      // Filter providers that have services and valid coordinates
-      const validProviders = (data || []).filter(provider => 
-        provider.services && 
-        provider.services.length > 0 &&
-        provider.latitude && 
-        provider.longitude
-      );
+      console.log('Raw data from Supabase:', data);
 
+      // Filter providers that have services (coordinates are optional for now)
+      const validProviders = (data || []).filter(provider => {
+        const hasServices = provider.services && provider.services.length > 0;
+        console.log(`Provider ${provider.full_name}: has services=${hasServices}, lat=${provider.latitude}, lng=${provider.longitude}, active=${provider.is_active}`);
+        return hasServices;
+      });
+
+      console.log('Valid providers after filtering:', validProviders.length);
       setProviders(validProviders);
     } catch (error) {
       console.error('Error fetching service providers:', error);
@@ -162,7 +167,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
     if (userLocation) {
       new mapboxgl.Marker({ color: '#3b82f6' })
         .setLngLat(userLocation)
-        .setPopup(new mapboxgl.Popup().setHTML('<h3>Your Location</h3>'))
+        .setPopup(new mapboxgl.Popup().setHTML('<div style="color: #1f2937; font-weight: 600; padding: 4px;"><h3>Your Location</h3></div>'))
         .addTo(map.current);
     }
 
@@ -180,11 +185,12 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
     console.log('Adding markers for providers:', providers.length);
     
-    providers.forEach(provider => {
-      if (!provider.latitude || !provider.longitude) {
-        console.log('Provider missing coordinates:', provider.full_name);
-        return;
-      }
+    providers.forEach((provider, index) => {
+      // Use default coordinates (Windhoek center) if provider doesn't have coordinates
+      const lng = provider.longitude || (17.0658 + (Math.random() - 0.5) * 0.02); // Small random offset
+      const lat = provider.latitude || (-22.5609 + (Math.random() - 0.5) * 0.02);
+      
+      console.log(`Adding marker for ${provider.full_name} at [${lng}, ${lat}]`);
 
       // Create custom marker element
       const markerElement = document.createElement('div');
@@ -261,7 +267,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
       }).setDOMContent(popupContent);
 
       const marker = new mapboxgl.Marker(markerElement)
-        .setLngLat([provider.longitude, provider.latitude])
+        .setLngLat([lng, lat])
         .setPopup(popup)
         .addTo(map.current!);
 
