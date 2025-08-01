@@ -9,8 +9,8 @@ import { Star, MapPin, Phone, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
-// You need to add your Mapbox token to Supabase Edge Function Secrets
-const MAPBOX_TOKEN = 'MAPBOX_PUBLIC_TOKEN_HERE'; // This will be replaced with actual token
+// Mapbox public token
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoia2VlbmFuMzkiLCJhIjoiY21kcnA4azRsMGZwZzJrczZnZWd1M3J5dCJ9.i9rdFZ0L6k_OolcptO5vrQ';
 
 interface ServiceProvider {
   id: string;
@@ -133,14 +133,7 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN || MAPBOX_TOKEN === 'MAPBOX_PUBLIC_TOKEN_HERE') {
-      if (MAPBOX_TOKEN === 'MAPBOX_PUBLIC_TOKEN_HERE') {
-        toast({
-          title: "Map Setup Required",
-          description: "Please add your Mapbox token to Supabase Edge Function Secrets",
-          variant: "destructive",
-        });
-      }
+    if (!mapContainer.current || !MAPBOX_TOKEN) {
       return;
     }
 
@@ -300,25 +293,6 @@ const ServiceProviderMap: React.FC<ServiceProviderMapProps> = ({
     );
   }
 
-  if (MAPBOX_TOKEN === 'MAPBOX_PUBLIC_TOKEN_HERE') {
-    return (
-      <div className={`${className} flex items-center justify-center bg-gray-100 rounded-lg`}>
-        <div className="text-center p-8">
-          <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Map Setup Required</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            To display the map, please add your Mapbox public token to Supabase Edge Function Secrets.
-          </p>
-          <Button 
-            onClick={() => window.open('https://supabase.com/dashboard/project/vjpaolkqlumpyuxxmmvr/settings/functions', '_blank')}
-            variant="outline"
-          >
-            Configure Mapbox Token
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
