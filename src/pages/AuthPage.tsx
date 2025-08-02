@@ -121,9 +121,25 @@ const AuthPage = () => {
         return;
       }
       if (!hasAcceptedTerms || !hasAcceptedPrivacy) {
+        // Show terms modal first if not accepted
+        if (!hasAcceptedTerms) {
+          setShowTermsModal(true);
+        } else if (!hasAcceptedPrivacy) {
+          setShowPrivacyModal(true);
+        }
         toast({
-          title: "Error",
-          description: "You must read and accept both Terms and Privacy Policy",
+          title: "Terms and Privacy Required",
+          description: "Please read and accept both Terms and Privacy Policy to continue",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // For clients, still require terms acceptance but less strict
+      if (!agreeToTerms) {
+        toast({
+          title: "Terms Required",
+          description: "Please agree to the Terms and Conditions to continue",
           variant: "destructive",
         });
         return;
@@ -606,36 +622,82 @@ const AuthPage = () => {
                           )}
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="agreeToTerms"
-                            checked={agreeToTerms}
-                            onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
-                            required
-                          />
-                          <Label htmlFor="agreeToTerms" className="text-sm">
-                            I have read and agree to the{' '}
-                            <button
-                              type="button"
-                              onClick={() => setShowTermsModal(true)}
-                              className="text-primary hover:underline font-medium"
-                            >
-                              Terms and Conditions
-                            </button>{' '}
-                            and{' '}
-                            <button
-                              type="button"
-                              onClick={() => setShowPrivacyModal(true)}
-                              className="text-primary hover:underline font-medium"
-                            >
-                              Privacy Policy
-                            </button>
-                            {hasAcceptedTerms && hasAcceptedPrivacy && (
-                              <span className="text-green-600 ml-2">✓</span>
-                            )}
-                          </Label>
+                        {/* Terms and Privacy Acceptance for Providers */}
+                        <div className="space-y-4 pt-4 border-t border-glass-border/30">
+                          <Label className="text-base font-medium">Terms and Privacy Agreement</Label>
+                          <p className="text-sm text-muted-foreground">
+                            As a service provider, you must read and accept our terms to ensure platform compliance
+                          </p>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  checked={hasAcceptedTerms}
+                                  disabled={true}
+                                  className={hasAcceptedTerms ? 'border-green-500 bg-green-500' : ''}
+                                />
+                                <span className="text-sm">Terms and Conditions</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowTermsModal(true)}
+                              >
+                                {hasAcceptedTerms ? 'Accepted ✓' : 'Read & Accept'}
+                              </Button>
+                            </div>
+                            
+                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  checked={hasAcceptedPrivacy}
+                                  disabled={true}
+                                  className={hasAcceptedPrivacy ? 'border-green-500 bg-green-500' : ''}
+                                />
+                                <span className="text-sm">Privacy Policy</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowPrivacyModal(true)}
+                              >
+                                {hasAcceptedPrivacy ? 'Accepted ✓' : 'Read & Accept'}
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {hasAcceptedTerms && hasAcceptedPrivacy && (
+                            <p className="text-sm text-green-600 font-medium">
+                              ✓ All requirements completed. You can now register as a service provider.
+                            </p>
+                          )}
                         </div>
                       </>
+                    )}
+                    
+                    {/* Simple terms checkbox for clients */}
+                    {!isLogin && userType === 'client' && (
+                      <div className="flex items-center space-x-2 pt-4 border-t border-glass-border/30">
+                        <Checkbox
+                          id="agreeToTerms"
+                          checked={agreeToTerms}
+                          onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                          required
+                        />
+                        <Label htmlFor="agreeToTerms" className="text-sm">
+                          I agree to the{' '}
+                          <Link to="/terms" className="text-primary hover:underline font-medium">
+                            Terms and Conditions
+                          </Link>{' '}
+                          and{' '}
+                          <Link to="/privacy" className="text-primary hover:underline font-medium">
+                            Privacy Policy
+                          </Link>
+                        </Label>
+                      </div>
                     )}
                   </div>
                 </>
