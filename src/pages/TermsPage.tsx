@@ -1,7 +1,25 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const TermsPage = () => {
+  const [hasRead, setHasRead] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleConfirmRead = () => {
+    setHasRead(true);
+    toast({
+      title: "Terms Acknowledged",
+      description: "Thank you for reading our Terms and Conditions"
+    });
+    // Store in localStorage for persistence
+    localStorage.setItem('terms_acknowledged', 'true');
+  };
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -138,6 +156,21 @@ const TermsPage = () => {
                       <p className="text-muted-foreground">Address: Windhoek, Namibia</p>
                     </div>
                   </section>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <div className="text-center space-y-4">
+                    <p className="text-muted-foreground">
+                      By clicking the button below, you acknowledge that you have read and understood our Terms and Conditions.
+                    </p>
+                    <Button 
+                      onClick={handleConfirmRead}
+                      disabled={hasRead}
+                      className="min-w-48"
+                    >
+                      {hasRead ? 'Terms Acknowledged ✓' : 'I Have Read and Agree to the Terms'}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

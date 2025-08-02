@@ -18,6 +18,9 @@ interface ServiceForm {
   hourly_rate: number;
   category_id: string;
   subcategory_id: string;
+  location_text: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface ServiceCategory {
@@ -45,6 +48,7 @@ export const ServiceCreationForm = () => {
   const [showAddSubcategory, setShowAddSubcategory] = useState(false);
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
 
   useEffect(() => {
@@ -150,6 +154,40 @@ export const ServiceCreationForm = () => {
     } finally {
       setIsAddingSubcategory(false);
     }
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Location not supported",
+        description: "Your browser doesn't support location services",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setValue('latitude', latitude);
+        setValue('longitude', longitude);
+        setValue('location_text', `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        setIsGettingLocation(false);
+        toast({
+          title: "Location added!",
+          description: "Your current location has been set for this service"
+        });
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        toast({
+          title: "Location error",
+          description: "Could not get your current location. Please enter it manually.",
+          variant: "destructive"
+        });
+      }
+    );
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,6 +315,22 @@ export const ServiceCreationForm = () => {
         }
       }
 
+      // Update provider location if coordinates provided
+      if (data.latitude && data.longitude) {
+        const { error: locationError } = await supabase
+          .from('profiles')
+          .update({ 
+            latitude: data.latitude, 
+            longitude: data.longitude,
+            location_text: data.location_text 
+          })
+          .eq('id', profile.id);
+        
+        if (locationError) {
+          console.error('Error updating location:', locationError);
+        }
+      }
+
       toast({
         title: "Service created successfully!",
         description: "Your service is now live and available to clients"
@@ -288,6 +342,9 @@ export const ServiceCreationForm = () => {
       setValue('hourly_rate', 0);
       setValue('category_id', '');
       setValue('subcategory_id', '');
+      setValue('location_text', '');
+      setValue('latitude', undefined);
+      setValue('longitude', undefined);
       setPortfolioImages([]);
       setFilteredSubcategories([]);
       
@@ -463,6 +520,32 @@ export const ServiceCreationForm = () => {
             />
             {errors.hourly_rate && (
               <p className="text-sm text-destructive">{errors.hourly_rate.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location_text">Service Location</Label>
+            <div className="flex gap-2">
+              <Input
+                id="location_text"
+                {...register('location_text', { required: 'Location is required for map display' })}
+                placeholder="e.g., Windhoek Central, Klein Windhoek"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={getCurrentLocation}
+                disabled={isGettingLocation}
+              >
+                {isGettingLocation ? 'Getting...' : 'Use Current'}
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              This location will be displayed on the map to help clients find you
+            </p>
+            {errors.location_text && (
+              <p className="text-sm text-destructive">{errors.location_text.message}</p>
             )}
           </div>
 
