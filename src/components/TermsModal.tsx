@@ -230,9 +230,6 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
         </ScrollArea>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
           <Button 
             onClick={handleAccept} 
             disabled={!hasScrolledToBottom}

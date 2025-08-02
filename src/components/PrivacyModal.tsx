@@ -234,9 +234,6 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onA
         </ScrollArea>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
           <Button 
             onClick={handleAccept} 
             disabled={!hasScrolledToBottom}
