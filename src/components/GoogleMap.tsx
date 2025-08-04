@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper } from '@googlemaps/react-wrapper';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDTgFxj8GM0Sa8du_EBBX1jMbNJCwP022w';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC0qcSxvBv534pnfD5YvNimZlw8RbzTBCI';
 
 // Windhoek coordinates
 const WINDHOEK_CENTER = { lat: -22.5609, lng: 17.0658 };
