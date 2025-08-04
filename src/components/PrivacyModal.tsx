@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,20 +10,6 @@ interface PrivacyModalProps {
 }
 
 export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onAccept }) => {
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setHasScrolledToBottom(false);
-    }
-  }, [isOpen]);
-
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-    setHasScrolledToBottom(isAtBottom);
-  };
 
   const handleAccept = () => {
     onAccept();
@@ -37,7 +23,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onA
           <DialogTitle>Privacy Policy</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4" onScrollCapture={handleScroll}>
+        <ScrollArea className="flex-1 pr-4">
           <div className="space-y-6 text-sm">
             <section>
               <h3 className="text-lg font-semibold mb-3">Introduction to Our Privacy Commitment</h3>
@@ -234,12 +220,8 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onA
         </ScrollArea>
 
         <DialogFooter className="gap-2">
-          <Button 
-            onClick={handleAccept} 
-            disabled={!hasScrolledToBottom}
-            className={!hasScrolledToBottom ? 'opacity-50 cursor-not-allowed' : ''}
-          >
-            {!hasScrolledToBottom ? 'Scroll to bottom to accept' : 'Accept Privacy Policy'}
+          <Button onClick={handleAccept}>
+            Accept Privacy Policy
           </Button>
         </DialogFooter>
       </DialogContent>
