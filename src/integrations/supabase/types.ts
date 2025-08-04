@@ -207,6 +207,10 @@ export type Database = {
           latitude: number | null
           location_text: string | null
           longitude: number | null
+          privacy_accepted_at: string | null
+          privacy_version: string | null
+          terms_accepted_at: string | null
+          terms_version: string | null
           town: string | null
           updated_at: string
           user_id: string
@@ -227,6 +231,10 @@ export type Database = {
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           town?: string | null
           updated_at?: string
           user_id: string
@@ -247,6 +255,10 @@ export type Database = {
           latitude?: number | null
           location_text?: string | null
           longitude?: number | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           town?: string | null
           updated_at?: string
           user_id?: string
