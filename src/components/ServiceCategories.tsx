@@ -47,7 +47,9 @@ const ServiceCategories = () => {
             return total + (sub.services?.[0]?.count || 0);
           }, 0) || 0;
           
-          counts[category.name.toLowerCase()] = directServices + subcategoryServices;
+          // Use only the higher count (avoid double counting when services exist in both)
+          // If there are subcategory services, use that count, otherwise use direct services
+          counts[category.name.toLowerCase()] = subcategoryServices > 0 ? subcategoryServices : directServices;
         });
         
         setCategoryCounts(counts);

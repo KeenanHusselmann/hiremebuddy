@@ -52,6 +52,41 @@ const MapComponent: React.FC<GoogleMapProps> = ({
           }
         ]
       });
+      
+      // Add user location marker
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            
+            new google.maps.Marker({
+              position: userLocation,
+              map: googleMap,
+              title: "Your Location",
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="12" fill="#3b82f6" stroke="white" stroke-width="3"/>
+                    <circle cx="16" cy="16" r="4" fill="white"/>
+                  </svg>
+                `),
+                scaledSize: new google.maps.Size(32, 32),
+                anchor: new google.maps.Point(16, 16)
+              }
+            });
+            
+            // Center map on user location
+            googleMap.setCenter(userLocation);
+          },
+          (error) => {
+            console.warn('Could not get user location:', error);
+          }
+        );
+      }
+      
       setMap(googleMap);
     }
   }, [mapRef, map, center, zoom]);
