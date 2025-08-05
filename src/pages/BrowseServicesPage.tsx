@@ -37,6 +37,7 @@ const BrowseServicesPage = () => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [sortBy, setSortBy] = useState('rating');
   const [services, setServices] = useState<Service[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const categories = [
@@ -65,7 +66,11 @@ const BrowseServicesPage = () => {
             full_name,
             town,
             contact_number,
-            is_verified
+            is_verified,
+            avatar_url,
+            latitude,
+            longitude,
+            location_text
           ),
           category:service_categories (
             name
@@ -97,6 +102,51 @@ const BrowseServicesPage = () => {
       }));
 
       setServices(transformedServices);
+
+      // Group providers and transform for map
+      const uniqueProviders = verifiedServices.reduce((acc, service) => {
+        const providerId = service.labourer?.id;
+        if (!providerId || acc.find(p => p.id === providerId)) return acc;
+        
+        const provider = service.labourer;
+        const providerServices = verifiedServices.filter(s => s.labourer?.id === providerId);
+        
+        // Generate deterministic coordinates for providers without exact location
+        let lat, lng;
+        if (provider.latitude && provider.longitude) {
+          lat = Number(provider.latitude);
+          lng = Number(provider.longitude);
+        } else {
+          // Use deterministic fallback coordinates around Windhoek
+          const hash = providerId.split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+          }, 0);
+          
+          lng = 17.0658 + ((hash % 100) - 50) * 0.002; // Spread around Windhoek
+          lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.002;
+        }
+
+        acc.push({
+          id: providerId,
+          name: provider.full_name,
+          service: providerServices.map(s => s.service_name).join(', '),
+          rating: 5.0, // Default rating
+          location: {
+            lat,
+            lng,
+            address: provider.location_text || provider.town || 'Windhoek, Namibia'
+          },
+          profileImage: provider.avatar_url,
+          services: providerServices,
+          contactNumber: provider.contact_number,
+          isVerified: provider.is_verified
+        });
+        
+        return acc;
+      }, []);
+
+      setProviders(uniqueProviders);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -339,7 +389,7 @@ const BrowseServicesPage = () => {
 
           <TabsContent value="map">
             <GoogleMap 
-              workers={[]} 
+              workers={providers} 
               onWorkerSelect={(worker) => {
                 // Navigate to worker profile
                 navigate(`/profile/${worker.id}`);
