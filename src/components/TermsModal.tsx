@@ -18,13 +18,13 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Terms and Conditions</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 text-sm">
+        <ScrollArea className="flex-1 h-[60vh] pr-4">
+          <div className="space-y-6 text-sm pb-4">
             <section>
               <h3 className="text-lg font-semibold mb-3">Introduction</h3>
               <p className="mb-4">
@@ -215,8 +215,8 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
           </div>
         </ScrollArea>
 
-        <DialogFooter className="gap-2">
-          <Button onClick={handleAccept}>
+        <DialogFooter className="gap-2 flex-shrink-0 pt-4">
+          <Button onClick={handleAccept} className="w-full">
             Accept Terms
           </Button>
         </DialogFooter>
