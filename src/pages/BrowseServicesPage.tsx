@@ -406,8 +406,17 @@ const BrowseServicesPage = () => {
             <GoogleMap 
               workers={providers} 
               onWorkerSelect={(worker) => {
-                // Navigate to worker profile
-                navigate(`/profile/${worker.id}`);
+                // Find the first service for this worker to navigate to
+                const workerService = services.find(service => 
+                  service.provider === worker.name
+                );
+                if (workerService) {
+                  navigate(`/services/${workerService.category}/${workerService.id}`);
+                } else {
+                  // If no service found, navigate to browse with the worker's service category
+                  const category = worker.service.toLowerCase().replace(/\s+/g, '-');
+                  navigate(`/services/${category}`);
+                }
               }}
               className="w-full h-[600px]"
             />
