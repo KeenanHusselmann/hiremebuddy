@@ -39,6 +39,30 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
+  // Geocode address to get accurate coordinates
+  const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+    return new Promise((resolve) => {
+      if (!window.google?.maps?.Geocoder) {
+        resolve(null);
+        return;
+      }
+      
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: `${address}, Windhoek, Namibia` }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          const location = results[0].geometry.location;
+          resolve({
+            lat: location.lat(),
+            lng: location.lng()
+          });
+        } else {
+          console.warn('Geocoding failed for address:', address, status);
+          resolve(null);
+        }
+      });
+    });
+  };
+
   useEffect(() => {
     if (mapRef.current && !map) {
       const googleMap = new google.maps.Map(mapRef.current, {
@@ -53,7 +77,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
         ]
       });
       
-      // Add user location marker
+      // Add user location marker with info window
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -62,20 +86,43 @@ const MapComponent: React.FC<GoogleMapProps> = ({
               lng: position.coords.longitude
             };
             
-            new google.maps.Marker({
+            const userMarker = new google.maps.Marker({
               position: userLocation,
               map: googleMap,
-              title: "Your Location",
+              title: "Your Current Location",
               icon: {
                 url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="16" cy="16" r="12" fill="#3b82f6" stroke="white" stroke-width="3"/>
                     <circle cx="16" cy="16" r="4" fill="white"/>
+                    <circle cx="16" cy="16" r="8" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.3"/>
                   </svg>
                 `),
                 scaledSize: new google.maps.Size(32, 32),
                 anchor: new google.maps.Point(16, 16)
               }
+            });
+
+            // Add info window for user location
+            const userInfoWindow = new google.maps.InfoWindow({
+              content: `
+                <div class="p-3 min-w-48">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                      📍
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-foreground">Your Location</h3>
+                      <p class="text-sm text-muted-foreground">Current Position</p>
+                    </div>
+                  </div>
+                  <p class="text-xs text-muted-foreground">Lat: ${userLocation.lat.toFixed(6)}, Lng: ${userLocation.lng.toFixed(6)}</p>
+                </div>
+              `
+            });
+
+            userMarker.addListener('click', () => {
+              userInfoWindow.open(googleMap, userMarker);
             });
             
             // Center map on user location
@@ -83,7 +130,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
           },
           (error) => {
             console.warn('Could not get user location:', error);
-          }
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
         );
       }
       
@@ -96,61 +144,102 @@ const MapComponent: React.FC<GoogleMapProps> = ({
       // Clear existing markers
       markers.forEach(marker => marker.setMap(null));
       
-      const newMarkers = workers.map(worker => {
-        const marker = new google.maps.Marker({
-          position: worker.location,
-          map,
-          title: `${worker.name} - ${worker.service}`,
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="18" fill="hsl(var(--primary))" stroke="white" stroke-width="4"/>
-                <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">★</text>
-              </svg>
-            `),
-            scaledSize: new google.maps.Size(40, 40),
-            anchor: new google.maps.Point(20, 20)
+      const createMarkersAsync = async () => {
+        const newMarkers: google.maps.Marker[] = [];
+        
+        for (const worker of workers) {
+          let position = worker.location;
+          
+          // If coordinates seem inaccurate (default values), try geocoding the address
+          if (worker.location.address && (
+            worker.location.lat === WINDHOEK_CENTER.lat || 
+            worker.location.lng === WINDHOEK_CENTER.lng ||
+            Math.abs(worker.location.lat) < 1 || 
+            Math.abs(worker.location.lng) < 1
+          )) {
+            const geocodedPosition = await geocodeAddress(worker.location.address);
+            if (geocodedPosition) {
+              position = {
+                lat: geocodedPosition.lat,
+                lng: geocodedPosition.lng,
+                address: worker.location.address
+              };
+            }
           }
-        });
+          
+          const marker = new google.maps.Marker({
+            position: { lat: position.lat, lng: position.lng },
+            map,
+            title: `${worker.name} - ${worker.service}`,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="40" height="50" viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 0C8.95 0 0 8.95 0 20C0 35 20 50 20 50C20 50 40 35 40 20C40 8.95 31.05 0 20 0Z" fill="#10b981"/>
+                  <circle cx="20" cy="20" r="12" fill="white"/>
+                  <text x="20" y="26" text-anchor="middle" fill="#10b981" font-size="16" font-weight="bold">★</text>
+                </svg>
+              `),
+              scaledSize: new google.maps.Size(40, 50),
+              anchor: new google.maps.Point(20, 50)
+            }
+          });
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div class="p-3 min-w-48">
-              <div class="flex items-center gap-3 mb-2">
-                ${worker.profileImage ? 
-                  `<img src="${worker.profileImage}" alt="${worker.name}" class="w-12 h-12 rounded-full object-cover"/>` :
-                  `<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">${worker.name[0]}</div>`
-                }
-                <div>
-                  <h3 class="font-semibold text-foreground">${worker.name}</h3>
-                  <p class="text-sm text-muted-foreground">${worker.service}</p>
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+              <div class="p-4 min-w-64 max-w-80">
+                <div class="flex items-center gap-3 mb-3">
+                  ${worker.profileImage ? 
+                    `<img src="${worker.profileImage}" alt="${worker.name}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
+                    `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${worker.name[0]}</div>`
+                  }
+                  <div class="flex-1">
+                    <h3 class="font-bold text-lg text-gray-800">${worker.name}</h3>
+                    <p class="text-sm text-gray-600 font-medium">${worker.service}</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1">
+                      <span class="text-yellow-400 text-lg">★</span>
+                      <span class="font-semibold text-gray-800">${worker.rating}</span>
+                      <span class="text-xs text-gray-500">/5</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button 
+                      onclick="window.selectWorker('${worker.id}')" 
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                      View Profile
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="border-t pt-2">
+                  <p class="text-xs text-gray-500 flex items-center gap-1">
+                    <span>📍</span>
+                    ${position.address}
+                  </p>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Coordinates: ${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}
+                  </p>
                 </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1">
-                  <span class="text-yellow-500">★</span>
-                  <span class="text-sm font-medium">${worker.rating}</span>
-                </div>
-                <button 
-                  onclick="window.selectWorker('${worker.id}')" 
-                  class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
-                >
-                  View Profile
-                </button>
-              </div>
-              <p class="text-xs text-muted-foreground mt-2">${worker.location.address}</p>
-            </div>
-          `
-        });
+            `
+          });
 
-        marker.addListener('click', () => {
-          infoWindow.open(map, marker);
-        });
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
 
-        return marker;
-      });
+          newMarkers.push(marker);
+        }
+        
+        setMarkers(newMarkers);
+      };
 
-      setMarkers(newMarkers);
+      createMarkersAsync();
 
       // Set up global worker selection handler
       (window as any).selectWorker = (workerId: string) => {
@@ -160,7 +249,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
         }
       };
     }
-  }, [map, workers, onWorkerSelect, markers]);
+  }, [map, workers, onWorkerSelect]);
 
   return <div ref={mapRef} className={className} />;
 };
