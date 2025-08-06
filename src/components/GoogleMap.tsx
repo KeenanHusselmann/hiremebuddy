@@ -43,20 +43,28 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
     return new Promise((resolve) => {
       if (!window.google?.maps?.Geocoder) {
+        console.error('Google Maps Geocoder not available');
         resolve(null);
         return;
       }
       
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: `${address}, Windhoek, Namibia` }, (results, status) => {
+      const fullAddress = `${address}, Windhoek, Namibia`;
+      console.log('Attempting to geocode address:', fullAddress);
+      
+      geocoder.geocode({ address: fullAddress }, (results, status) => {
+        console.log('Geocoding results for', address, ':', { status, results });
+        
         if (status === 'OK' && results && results[0]) {
           const location = results[0].geometry.location;
-          resolve({
+          const coordinates = {
             lat: location.lat(),
             lng: location.lng()
-          });
+          };
+          console.log('Geocoded coordinates for', address, ':', coordinates);
+          resolve(coordinates);
         } else {
-          console.warn('Geocoding failed for address:', address, status);
+          console.warn('Geocoding failed for address:', address, 'Status:', status);
           resolve(null);
         }
       });
@@ -146,17 +154,28 @@ const MapComponent: React.FC<GoogleMapProps> = ({
       
       const createMarkersAsync = async () => {
         const newMarkers: google.maps.Marker[] = [];
+        console.log('Creating markers for workers:', workers);
         
         for (const worker of workers) {
+          console.log('Processing worker:', worker.name, 'at address:', worker.location.address, 'coordinates:', worker.location);
           let position = worker.location;
           
-          // If coordinates seem inaccurate (default values), try geocoding the address
-          if (worker.location.address && (
+          // Try geocoding for addresses that contain specific street information or look inaccurate
+          const shouldGeocode = worker.location.address && (
+            // Has street number and name (like "55 Kenneth Mcarthur street")
+            /\d+\s+[A-Za-z\s]+\s+(street|avenue|road|lane|drive|close|way)/i.test(worker.location.address) ||
+            // Coordinates are default Windhoek center
             worker.location.lat === WINDHOEK_CENTER.lat || 
             worker.location.lng === WINDHOEK_CENTER.lng ||
+            // Coordinates seem invalid
             Math.abs(worker.location.lat) < 1 || 
-            Math.abs(worker.location.lng) < 1
-          )) {
+            Math.abs(worker.location.lng) < 1 ||
+            // Coordinates are too close to each other (suggests they're fallback values)
+            Math.abs(worker.location.lat + 22.5609) < 0.01
+          );
+          
+          if (shouldGeocode) {
+            console.log('Attempting to geocode address for accurate positioning:', worker.location.address);
             const geocodedPosition = await geocodeAddress(worker.location.address);
             if (geocodedPosition) {
               position = {
@@ -164,6 +183,9 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                 lng: geocodedPosition.lng,
                 address: worker.location.address
               };
+              console.log('Successfully geocoded', worker.name, 'to:', geocodedPosition);
+            } else {
+              console.log('Geocoding failed for', worker.name, ', using original coordinates');
             }
           }
           

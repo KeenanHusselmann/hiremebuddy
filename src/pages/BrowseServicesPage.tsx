@@ -111,13 +111,27 @@ const BrowseServicesPage = () => {
         const provider = service.labourer;
         const providerServices = verifiedServices.filter(s => s.labourer?.id === providerId);
         
-        // Generate deterministic coordinates for providers without exact location
+        // Check for coordinates and address - prefer geocoding real addresses
         let lat, lng;
-        if (provider.latitude && provider.longitude) {
+        const locationText = provider.location_text || provider.town || 'Windhoek, Namibia';
+        
+        console.log('Provider location data:', {
+          name: provider.full_name,
+          latitude: provider.latitude,
+          longitude: provider.longitude,
+          location_text: provider.location_text,
+          town: provider.town
+        });
+        
+        if (provider.latitude && provider.longitude && 
+            Number(provider.latitude) !== -22.5609 && Number(provider.longitude) !== 17.0658) {
+          // Use database coordinates only if they're not the default Windhoek center
           lat = Number(provider.latitude);
           lng = Number(provider.longitude);
+          console.log('Using database coordinates for', provider.full_name, ':', { lat, lng });
         } else {
           // Use deterministic fallback coordinates around Windhoek
+          // The GoogleMap component will handle geocoding the real address
           const hash = providerId.split('').reduce((a, b) => {
             a = ((a << 5) - a) + b.charCodeAt(0);
             return a & a;
@@ -125,6 +139,7 @@ const BrowseServicesPage = () => {
           
           lng = 17.0658 + ((hash % 100) - 50) * 0.002; // Spread around Windhoek
           lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.002;
+          console.log('Using fallback coordinates for', provider.full_name, ', will geocode:', locationText);
         }
 
         acc.push({
@@ -135,7 +150,7 @@ const BrowseServicesPage = () => {
           location: {
             lat,
             lng,
-            address: provider.location_text || provider.town || 'Windhoek, Namibia'
+            address: locationText
           },
           profileImage: provider.avatar_url,
           services: providerServices,
