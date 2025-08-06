@@ -114,17 +114,17 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Add info window for user location
             const userInfoWindow = new google.maps.InfoWindow({
               content: `
-                <div class="p-3 min-w-48">
+                <div class="p-4 min-w-48">
                   <div class="flex items-center gap-3 mb-2">
-                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                    <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                       📍
                     </div>
                     <div>
-                      <h3 class="font-semibold text-foreground">Your Location</h3>
-                      <p class="text-sm text-muted-foreground">Current Position</p>
+                      <h3 class="font-bold text-lg text-gray-800">Your Location</h3>
+                      <p class="text-sm text-gray-600 font-medium">Current Position</p>
                     </div>
                   </div>
-                  <p class="text-xs text-muted-foreground">Lat: ${userLocation.lat.toFixed(6)}, Lng: ${userLocation.lng.toFixed(6)}</p>
+                  <p class="text-sm text-gray-700 font-medium">You are here</p>
                 </div>
               `
             });
