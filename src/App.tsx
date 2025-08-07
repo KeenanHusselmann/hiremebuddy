@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +10,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { MessageNotificationToast } from "@/components/MessageNotificationToast";
 import PageLoader from "@/components/PageLoader";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
