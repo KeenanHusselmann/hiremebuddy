@@ -1,6 +1,7 @@
 /// <reference types="@types/google.maps" />
 import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper } from '@googlemaps/react-wrapper';
+import { useServiceRating, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC0qcSxvBv534pnfD5YvNimZlw8RbzTBCI';
 
@@ -11,7 +12,6 @@ interface Worker {
   id: string;
   name: string;
   service: string;
-  rating: number;
   location: {
     lat: number;
     lng: number;
@@ -228,10 +228,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                   
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <div class="flex items-center gap-1">
-                        <span class="text-yellow-400 text-lg">★</span>
-                        <span class="font-semibold text-gray-800">${worker.rating}</span>
-                        <span class="text-xs text-gray-500">/5</span>
+                      <div class="flex items-center gap-1" id="rating-${worker.id}">
+                        <!-- Rating will be populated by React -->
                       </div>
                     </div>
                     <div class="flex gap-2">

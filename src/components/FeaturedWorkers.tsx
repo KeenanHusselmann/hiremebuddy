@@ -3,6 +3,7 @@ import { Star, MapPin, Phone, MessageCircle, Facebook, Users } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { supabase } from '@/integrations/supabase/client';
+import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
 interface Worker {
   id: string;
@@ -26,6 +27,10 @@ interface Worker {
 const FeaturedWorkers = () => {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Get ratings for all workers
+  const serviceIds = workers.map(worker => worker.id);
+  const { ratings } = useServiceRatings(serviceIds);
 
   useEffect(() => {
     const fetchFeaturedWorkers = async () => {
@@ -86,20 +91,6 @@ const FeaturedWorkers = () => {
     fetchFeaturedWorkers();
   }, []);
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Star
-        key={index}
-        className={`h-4 w-4 ${
-          index < Math.floor(rating)
-            ? 'text-yellow-400 fill-current'
-            : index < rating
-            ? 'text-yellow-400 fill-current opacity-50'
-            : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
 
   return (
     <section className="py-16 bg-background/80">
@@ -189,19 +180,25 @@ const FeaturedWorkers = () => {
                     </div>
                   </div>
 
-                  {/* Rating and Stats */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center">
-                        {renderStars(worker.rating || 5)}
-                      </div>
-                      <span className="text-sm font-medium text-foreground">{worker.rating || 'New'}</span>
-                      <span className="text-sm text-muted-foreground">({worker.reviewCount})</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-primary">N${worker.hourlyRate}/hr</p>
-                    </div>
-                  </div>
+                   {/* Rating and Stats */}
+                   <div className="flex items-center justify-between mb-4">
+                     <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-1">
+                          {renderStars(ratings[worker.id]?.averageRating)}
+                          <span className="text-sm font-medium text-foreground">
+                            {formatRating(ratings[worker.id]?.averageRating, ratings[worker.id]?.reviewCount || 0)}
+                          </span>
+                          {ratings[worker.id]?.reviewCount > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              ({ratings[worker.id]?.reviewCount} review{ratings[worker.id]?.reviewCount !== 1 ? 's' : ''})
+                            </span>
+                          )}
+                        </div>
+                     </div>
+                     <div className="text-right">
+                       <p className="text-lg font-bold text-primary">N${worker.hourlyRate}/hr</p>
+                     </div>
+                   </div>
 
                   {/* Description */}
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed">

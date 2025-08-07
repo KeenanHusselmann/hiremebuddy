@@ -14,6 +14,7 @@ import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
+import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
 interface Service {
   id: string;
@@ -21,8 +22,6 @@ interface Service {
   provider: string;
   description: string;
   price: string;
-  rating: number;
-  reviewCount: number;
   location: string;
   category: string;
   availability: 'Available' | 'Busy' | 'Booked';
@@ -30,6 +29,7 @@ interface Service {
 }
 
 const BrowseServicesPage = () => {
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -39,6 +39,10 @@ const BrowseServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Get ratings for all services
+  const serviceIds = services.map(service => service.id);
+  const { ratings } = useServiceRatings(serviceIds);
 
   const categories = [
     'all', 'plumbing', 'electrical', 'carpentry', 'painting', 
@@ -93,8 +97,6 @@ const BrowseServicesPage = () => {
         provider: service.labourer?.full_name || 'Unknown Provider',
         description: service.description,
         price: service.hourly_rate ? `N$${service.hourly_rate}/hour` : 'Contact for pricing',
-        rating: 5.0, // Default for new services
-        reviewCount: 0, // Default for new services
         location: service.labourer?.town || 'Unknown Location',
         category: service.category?.name?.toLowerCase() || 'general',
         availability: 'Available',
@@ -146,7 +148,6 @@ const BrowseServicesPage = () => {
           id: providerId,
           name: provider.full_name,
           service: providerServices.map(s => s.service_name).join(', '),
-          rating: 5.0, // Default rating
           location: {
             lat,
             lng,
@@ -182,11 +183,16 @@ const BrowseServicesPage = () => {
   const sortedServices = filteredServices.sort((a, b) => {
     switch (sortBy) {
       case 'rating':
-        return b.rating - a.rating;
+        // Sort by rating using the ratings data
+        const ratingA = ratings[a.id]?.averageRating || 0;
+        const ratingB = ratings[b.id]?.averageRating || 0;
+        return ratingB - ratingA;
       case 'price':
         return parseInt(a.price.replace(/[^\d]/g, '')) - parseInt(b.price.replace(/[^\d]/g, ''));
       case 'reviews':
-        return b.reviewCount - a.reviewCount;
+        const reviewsA = ratings[a.id]?.reviewCount || 0;
+        const reviewsB = ratings[b.id]?.reviewCount || 0;
+        return reviewsB - reviewsA;
       default:
         return 0;
     }
@@ -320,9 +326,15 @@ const BrowseServicesPage = () => {
                               {service.availability}
                             </Badge>
                             <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{service.rating}</span>
-                              <span className="text-sm text-muted-foreground">({service.reviewCount})</span>
+                              {renderStars(ratings[service.id]?.averageRating, 'sm')}
+                              <span className="text-sm font-medium">
+                                {formatRating(ratings[service.id]?.averageRating, ratings[service.id]?.reviewCount || 0)}
+                              </span>
+                              {ratings[service.id]?.reviewCount > 0 && (
+                                <span className="text-sm text-muted-foreground">
+                                  ({ratings[service.id]?.reviewCount} review{ratings[service.id]?.reviewCount !== 1 ? 's' : ''})
+                                </span>
+                              )}
                             </div>
                           </div>
                           <CardTitle className="text-xl">{service.title}</CardTitle>
