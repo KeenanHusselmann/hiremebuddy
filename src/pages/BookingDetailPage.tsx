@@ -27,6 +27,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { ServiceRating } from '@/components/ServiceRating';
 
 interface Booking {
   id: string;
@@ -425,6 +426,15 @@ const BookingDetailPage: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Service Rating - Only show for clients after completion */}
+            {booking.status === 'completed' && isClient && otherUserId && otherProfile && (
+              <ServiceRating
+                bookingId={booking.id}
+                serviceProviderId={otherUserId}
+                serviceProviderName={otherProfile.full_name}
+              />
             )}
 
             {/* Real-time Chat */}
