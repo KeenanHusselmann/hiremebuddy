@@ -114,17 +114,23 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Add info window for user location
             const userInfoWindow = new google.maps.InfoWindow({
               content: `
-                <div class="p-4 min-w-48">
-                  <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                <div class="p-4 min-w-64 max-w-80">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                       📍
                     </div>
-                    <div>
+                    <div class="flex-1">
                       <h3 class="font-bold text-lg text-gray-800">Your Location</h3>
                       <p class="text-sm text-gray-600 font-medium">Current Position</p>
                     </div>
                   </div>
-                  <p class="text-sm text-gray-700 font-medium">You are here</p>
+                  
+                  <div class="border-t pt-2">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                      <span>📍</span>
+                      You are here
+                    </p>
+                  </div>
                 </div>
               `
             });
@@ -206,50 +212,47 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             }
           });
 
-          const infoWindow = new google.maps.InfoWindow({
-            content: `
-              <div class="p-4 min-w-64 max-w-80">
-                <div class="flex items-center gap-3 mb-3">
-                  ${worker.profileImage ? 
-                    `<img src="${worker.profileImage}" alt="${worker.name}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
-                    `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${worker.name[0]}</div>`
-                  }
-                  <div class="flex-1">
-                    <h3 class="font-bold text-lg text-gray-800">${worker.name}</h3>
-                    <p class="text-sm text-gray-600 font-medium">${worker.service}</p>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between mb-3">
-                  <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1">
-                      <span class="text-yellow-400 text-lg">★</span>
-                      <span class="font-semibold text-gray-800">${worker.rating}</span>
-                      <span class="text-xs text-gray-500">/5</span>
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+                <div class="p-4 min-w-64 max-w-80">
+                  <div class="flex items-center gap-3 mb-3">
+                    ${worker.profileImage ? 
+                      `<img src="${worker.profileImage}" alt="${worker.name}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
+                      `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${worker.name[0]}</div>`
+                    }
+                    <div class="flex-1">
+                      <h3 class="font-bold text-lg text-gray-800">${worker.name}</h3>
+                      <p class="text-sm text-gray-600 font-medium">${worker.service}</p>
                     </div>
                   </div>
-                  <div class="flex gap-2">
-                    <button 
-                      onclick="window.selectWorker('${worker.id}')" 
-                      class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                    >
-                      View Profile
-                    </button>
+                  
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-1">
+                        <span class="text-yellow-400 text-lg">★</span>
+                        <span class="font-semibold text-gray-800">${worker.rating}</span>
+                        <span class="text-xs text-gray-500">/5</span>
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <button 
+                        onclick="window.selectWorker('${worker.id}')" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                      >
+                        View Profile
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="border-t pt-2">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                      <span>📍</span>
+                      ${position.address}
+                    </p>
                   </div>
                 </div>
-                
-                <div class="border-t pt-2">
-                  <p class="text-xs text-gray-500 flex items-center gap-1">
-                    <span>📍</span>
-                    ${position.address}
-                  </p>
-                  <p class="text-xs text-gray-400 mt-1">
-                    Coordinates: ${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}
-                  </p>
-                </div>
-              </div>
-            `
-          });
+              `
+            });
 
           marker.addListener('click', () => {
             infoWindow.open(map, marker);
