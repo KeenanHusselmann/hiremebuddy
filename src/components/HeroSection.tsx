@@ -25,11 +25,19 @@ const HeroSection = () => {
 
   const fetchStats = async () => {
     try {
-      // Count active service providers
-      const { count: providersCount } = await supabase
+      // Count unique verified service providers
+      const { data: providersData } = await supabase
         .from('services')
-        .select('*', { count: 'exact', head: true })
+        .select('labourer_id, profiles!labourer_id(is_verified)')
         .eq('is_active', true);
+
+      // Filter for verified providers and get unique count
+      const verifiedProviderIds = new Set();
+      providersData?.forEach(service => {
+        if (service.profiles?.is_verified) {
+          verifiedProviderIds.add(service.labourer_id);
+        }
+      });
 
       // Count completed bookings
       const { count: jobsCount } = await supabase
@@ -38,7 +46,7 @@ const HeroSection = () => {
         .eq('status', 'completed');
 
       setStats({
-        providers: providersCount || 0,
+        providers: verifiedProviderIds.size,
         jobsCompleted: jobsCount || 0,
         regionsCovered: 14 // Static for now as it represents coverage areas
       });

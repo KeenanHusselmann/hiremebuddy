@@ -109,6 +109,17 @@ export const useNotifications = () => {
           const newNotification = payload.new as Notification;
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
+          
+          // Show toast notification for new messages
+          if (newNotification.type === 'new_message') {
+            // Use browser notification API if available
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('New Message', {
+                body: newNotification.message,
+                icon: '/favicon.ico'
+              });
+            }
+          }
         }
       )
       .on(

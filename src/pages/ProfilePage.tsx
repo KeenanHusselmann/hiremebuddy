@@ -328,32 +328,32 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-6 lg:grid-cols-5">
+              <TabsTrigger value="profile" className="flex items-center gap-2 text-xs lg:text-sm">
                 <User className="h-4 w-4" />
-                {t('profile.title')}
+                <span className="hidden sm:inline">{t('profile.title')}</span>
               </TabsTrigger>
-              <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <TabsTrigger value="bookings" className="flex items-center gap-2 text-xs lg:text-sm">
                 <Calendar className="h-4 w-4" />
-                Bookings
+                <span className="hidden sm:inline">Bookings</span>
               </TabsTrigger>
               {(profile.user_type === 'labourer' || profile.user_type === 'both') && profile.is_verified && (
-                <TabsTrigger value="services" className="flex items-center gap-2">
+                <TabsTrigger value="services" className="flex items-center gap-2 text-xs lg:text-sm">
                   <Briefcase className="h-4 w-4" />
-                  Services
+                  <span className="hidden sm:inline">Services</span>
                 </TabsTrigger>
               )}
-              <TabsTrigger value="stats" className="flex items-center gap-2">
+              <TabsTrigger value="stats" className="flex items-center gap-2 text-xs lg:text-sm">
                 <BarChart3 className="h-4 w-4" />
-                Stats
+                <span className="hidden sm:inline">Stats</span>
               </TabsTrigger>
-              <TabsTrigger value="games" className="flex items-center gap-2">
+              <TabsTrigger value="games" className="flex items-center gap-2 text-xs lg:text-sm">
                 <Gamepad2 className="h-4 w-4" />
-                Games
+                <span className="hidden sm:inline">Games</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
+              <TabsTrigger value="settings" className="flex items-center gap-2 text-xs lg:text-sm">
                 <Settings className="h-4 w-4" />
-                {t('profile.settings')}
+                <span className="hidden sm:inline">{t('profile.settings')}</span>
               </TabsTrigger>
             </TabsList>
 

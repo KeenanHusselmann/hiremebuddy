@@ -90,18 +90,35 @@ const BrowseServicesPage = () => {
       // Filter out services from unverified providers
       const verifiedServices = (data || []).filter(service => service.labourer?.is_verified === true);
       
-      // Transform data to match the interface
-      const transformedServices: Service[] = verifiedServices.map(service => ({
-        id: service.id,
-        title: service.service_name,
-        provider: service.labourer?.full_name || 'Unknown Provider',
-        description: service.description,
-        price: service.hourly_rate ? `N$${service.hourly_rate}/hour` : 'Contact for pricing',
-        location: service.labourer?.town || 'Unknown Location',
-        category: service.category?.name?.toLowerCase() || 'general',
-        availability: 'Available',
-        tags: ['professional', 'verified']
-      }));
+      // Group services by provider
+      const servicesByProvider = verifiedServices.reduce((acc, service) => {
+        const providerId = service.labourer?.id;
+        if (!acc[providerId]) {
+          acc[providerId] = [];
+        }
+        acc[providerId].push(service);
+        return acc;
+      }, {} as Record<string, any[]>);
+
+      // Transform data to show one service per provider with all their services listed
+      const transformedServices: Service[] = Object.values(servicesByProvider).map(providerServices => {
+        const primaryService = providerServices[0]; // Use first service as primary
+        const allServiceNames = providerServices.map(s => s.service_name).join(', ');
+        
+         return {
+           id: primaryService.id,
+           title: providerServices.length > 1 ? allServiceNames : primaryService.service_name,
+           provider: primaryService.labourer?.full_name || 'Unknown Provider',
+           description: providerServices.length > 1 
+             ? `Offers ${providerServices.length} services: ${allServiceNames}. ${primaryService.description}` 
+             : primaryService.description,
+           price: primaryService.hourly_rate ? `N$${primaryService.hourly_rate}/hour` : 'Contact for pricing',
+           location: primaryService.labourer?.town || 'Unknown Location',
+           category: primaryService.category?.name?.toLowerCase() || 'general',
+           availability: 'Available' as const,
+           tags: ['professional', 'verified']
+         };
+       });
 
       setServices(transformedServices);
 
