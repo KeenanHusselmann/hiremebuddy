@@ -86,6 +86,15 @@ export const useMessages = (bookingId?: string) => {
         return false;
       }
 
+      // Optimistically update local state so the UI reflects the new message immediately
+      if (data) {
+        setMessages(prev => {
+          // Avoid duplicates if realtime delivers the same message
+          if (prev.some(m => m.id === (data as any).id)) return prev;
+          return [...prev, data as Message];
+        });
+      }
+
       return true;
     } catch (error) {
       console.error('Error in sendMessage:', error);
