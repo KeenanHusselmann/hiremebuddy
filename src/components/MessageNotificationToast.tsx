@@ -25,7 +25,7 @@ export const MessageNotificationToast: React.FC = () => {
   useEffect(() => {
     if (!profile?.id) return;
 
-    // Subscribe to new messages where this user is the receiver
+    // Subscribe to notifications for new messages for this user
     const channel = supabase
       .channel('message-notifications')
       .on(
@@ -33,36 +33,72 @@ export const MessageNotificationToast: React.FC = () => {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'messages',
-          filter: `receiver_id=eq.${profile.id}`
+          table: 'notifications',
+          filter: `user_id=eq.${profile.id}`
         },
         async (payload) => {
-          const newMessage = payload.new;
-          
-          // Get sender profile information
-          const { data: senderProfile } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
-            .eq('id', newMessage.sender_id)
-            .single();
+          const newNotification = payload.new as any;
 
-          if (senderProfile) {
-            const notification: MessageNotification = {
-              id: newMessage.id,
-              sender_name: senderProfile.full_name,
-              sender_avatar: senderProfile.avatar_url,
-              message: newMessage.content,
-              booking_id: newMessage.booking_id,
-              created_at: newMessage.created_at
-            };
-
-            setNotifications(prev => [...prev, notification]);
-
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-              setNotifications(prev => prev.filter(n => n.id !== notification.id));
-            }, 5000);
+          // Only handle message-type notifications
+          if (newNotification.type !== 'new_message' && newNotification.category !== 'message') {
+            return;
           }
+
+          // Try to extract bookingId from target_url like '/bookings/{id}'
+          let bookingId: string | undefined;
+          try {
+            const url: string | null = newNotification.target_url;
+            if (url && url.includes('/bookings/')) {
+              bookingId = url.split('/bookings/')[1]?.split(/[/?#]/)[0];
+            }
+          } catch (e) {
+            // no-op
+          }
+
+          let senderName = 'Someone';
+          let senderAvatar: string | undefined;
+          let messagePreview = newNotification.message as string;
+
+          // If we have a booking id, try to get the latest message to show content and sender
+          if (bookingId) {
+            const { data: latestMsg } = await supabase
+              .from('messages')
+              .select('content, sender_id')
+              .eq('booking_id', bookingId)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+
+            if (latestMsg) {
+              messagePreview = latestMsg.content;
+              const { data: senderProfile } = await supabase
+                .from('profiles')
+                .select('full_name, avatar_url')
+                .eq('id', latestMsg.sender_id)
+                .single();
+
+              if (senderProfile) {
+                senderName = senderProfile.full_name;
+                senderAvatar = senderProfile.avatar_url;
+              }
+            }
+          }
+
+          const notification: MessageNotification = {
+            id: newNotification.id,
+            sender_name: senderName,
+            sender_avatar: senderAvatar,
+            message: messagePreview,
+            booking_id: bookingId || '',
+            created_at: newNotification.created_at
+          };
+
+          setNotifications(prev => [...prev, notification]);
+
+          // Auto-remove after 5 seconds
+          setTimeout(() => {
+            setNotifications(prev => prev.filter(n => n.id !== notification.id));
+          }, 5000);
         }
       )
       .subscribe();
