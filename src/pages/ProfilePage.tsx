@@ -378,22 +378,24 @@ const ProfilePage = () => {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="user_type">{t('profile.accountType')}</Label>
-                        <Select
-                          value={formData.user_type}
-                          onValueChange={(value) => handleInputChange('user_type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="client">{t('profile.client')}</SelectItem>
-                            <SelectItem value="labourer">{t('profile.provider')}</SelectItem>
-                            <SelectItem value="both">{t('profile.both')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {profile.user_type === 'client' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="user_type">{t('profile.accountType')}</Label>
+                          <Select
+                            value={formData.user_type}
+                            onValueChange={(value) => handleInputChange('user_type', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="client">{t('profile.client')}</SelectItem>
+                              <SelectItem value="labourer">{t('profile.provider')}</SelectItem>
+                              <SelectItem value="both">{t('profile.both')}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
 
                       <div className="space-y-2">
                         <Label htmlFor="contact_number">{t('profile.phone')}</Label>
@@ -434,25 +436,6 @@ const ProfilePage = () => {
                          />
                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="whatsapp_link">WhatsApp Link</Label>
-                        <Input
-                          id="whatsapp_link"
-                          value={formData.whatsapp_link}
-                          onChange={(e) => handleInputChange('whatsapp_link', e.target.value)}
-                          placeholder="https://wa.me/264XXXXXXXXX"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="facebook_link">Facebook Profile</Label>
-                        <Input
-                          id="facebook_link"
-                          value={formData.facebook_link}
-                          onChange={(e) => handleInputChange('facebook_link', e.target.value)}
-                          placeholder="https://facebook.com/username"
-                        />
-                      </div>
                     </div>
 
                     <div className="space-y-2">
