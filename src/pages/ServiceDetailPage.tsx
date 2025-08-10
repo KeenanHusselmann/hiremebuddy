@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, MapPin, Clock, Phone, MessageCircle, Calendar, Shield, Award } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, Calendar, Shield, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { ContactServiceProvider } from '@/components/ContactServiceProvider';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
@@ -422,13 +422,6 @@ const ServiceDetailPage = () => {
               </CardContent>
             </Card>
 
-            {/* Contact Form */}
-            <ContactServiceProvider
-              workerName={service.provider?.full_name || 'Service Provider'}
-              workerEmail={`${service.provider?.full_name?.toLowerCase().replace(/\s+/g, '.')}@email.com`}
-              workerPhone={service.provider?.contact_number || ''}
-              serviceName={service.service_name}
-            />
           </div>
         </div>
       </main>
