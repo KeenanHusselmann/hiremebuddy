@@ -309,7 +309,7 @@ const ProfilePage = () => {
             />
             <h1 className="text-3xl font-bold mt-4">{profile.full_name}</h1>
             <div className="flex items-center justify-center gap-2 mt-2">
-              <p className="text-muted-foreground capitalize">{profile.user_type}</p>
+              <p className="text-muted-foreground">{profile.user_type === 'labourer' ? 'Service Provider' : profile.user_type === 'both' ? 'Client & Service Provider' : profile.user_type === 'client' ? 'Client' : String(profile.user_type)}</p>
               {(profile.user_type === 'labourer' || profile.user_type === 'both') && (
                 profile.is_verified ? (
                   <Badge variant="outline" className="text-green-600 border-green-600">
