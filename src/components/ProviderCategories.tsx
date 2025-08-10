@@ -9,48 +9,44 @@ interface ProviderCategoriesProps {
   showTitle?: boolean;
 }
 
-interface CategoryData {
-  id: string;
-  category_id: string;
-  subcategory_id: string | null;
-  service_categories: {
+interface ServiceCategoryItem {
+  id: string; // service id
+  category: {
     id: string;
     name: string;
-    description: string;
-  };
-  service_subcategories?: {
+    description?: string | null;
+  } | null;
+  subcategory?: {
     id: string;
     name: string;
-    description: string;
+    description?: string | null;
   } | null;
 }
 
 const ProviderCategories = ({ providerId, showTitle = true }: ProviderCategoriesProps) => {
-  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [serviceItems, setServiceItems] = useState<ServiceCategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProviderCategories();
+    loadProviderServices();
   }, [providerId]);
 
-  const loadProviderCategories = async () => {
+  const loadProviderServices = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('provider_categories')
+        .from('services')
         .select(`
           id,
-          category_id,
-          subcategory_id,
-          service_categories(id, name, description),
-          service_subcategories(id, name, description)
+          category:service_categories(id, name, description),
+          subcategory:service_subcategories(id, name, description)
         `)
-        .eq('provider_id', providerId);
+        .eq('labourer_id', providerId);
 
       if (error) throw error;
-      setCategories(data || []);
+      setServiceItems((data as any) || []);
     } catch (error) {
-      console.error('Error loading provider categories:', error);
+      console.error('Error loading provider services:', error);
     } finally {
       setLoading(false);
     }
@@ -64,29 +60,31 @@ const ProviderCategories = ({ providerId, showTitle = true }: ProviderCategories
     );
   }
 
-  if (categories.length === 0) {
+  if (serviceItems.length === 0) {
     return (
       <div className="text-center py-4">
         <Briefcase className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground">No service categories selected</p>
+        <p className="text-sm text-muted-foreground">No services registered yet</p>
       </div>
     );
   }
 
-  // Group categories by main category
-  const groupedCategories = categories.reduce((acc, item) => {
-    const categoryName = item.service_categories.name;
+  // Group categories by main category derived from services
+  const groupedCategories = serviceItems.reduce((acc, item) => {
+    const categoryName = item.category?.name || 'Uncategorized';
     if (!acc[categoryName]) {
       acc[categoryName] = {
-        category: item.service_categories,
-        subcategories: []
+        category: item.category,
+        subcategories: [] as any[],
       };
     }
-    
-    if (item.service_subcategories) {
-      acc[categoryName].subcategories.push(item.service_subcategories);
+
+    if (item.subcategory) {
+      if (!acc[categoryName].subcategories.some((s: any) => s.id === item.subcategory?.id)) {
+        acc[categoryName].subcategories.push(item.subcategory);
+      }
     }
-    
+
     return acc;
   }, {} as Record<string, { category: any; subcategories: any[] }>);
 
@@ -96,7 +94,7 @@ const ProviderCategories = ({ providerId, showTitle = true }: ProviderCategories
         <div key={categoryName} className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="default" className="font-medium">
-              {data.category.name}
+              {(data.category?.name as string) || 'Uncategorized'}
             </Badge>
           </div>
           
