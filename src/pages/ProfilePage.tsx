@@ -328,30 +328,30 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 lg:grid-cols-5">
-              <TabsTrigger value="profile" className="flex items-center gap-2 text-xs lg:text-sm">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
+              <TabsTrigger value="profile" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('profile.title')}</span>
               </TabsTrigger>
-              <TabsTrigger value="bookings" className="flex items-center gap-2 text-xs lg:text-sm">
+              <TabsTrigger value="bookings" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">Bookings</span>
               </TabsTrigger>
               {(profile.user_type === 'labourer' || profile.user_type === 'both') && profile.is_verified && (
-                <TabsTrigger value="services" className="flex items-center gap-2 text-xs lg:text-sm">
+                <TabsTrigger value="services" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                   <Briefcase className="h-4 w-4" />
                   <span className="hidden sm:inline">Services</span>
                 </TabsTrigger>
               )}
-              <TabsTrigger value="stats" className="flex items-center gap-2 text-xs lg:text-sm">
+              <TabsTrigger value="stats" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Stats</span>
               </TabsTrigger>
-              <TabsTrigger value="games" className="flex items-center gap-2 text-xs lg:text-sm">
+              <TabsTrigger value="games" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                 <Gamepad2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Games</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2 text-xs lg:text-sm">
+              <TabsTrigger value="settings" className="flex items-center gap-1 text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('profile.settings')}</span>
               </TabsTrigger>
