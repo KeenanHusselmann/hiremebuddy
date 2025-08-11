@@ -24,7 +24,16 @@ const ServiceCategoryPage = () => {
 
   const fetchCategoryServices = async () => {
     try {
-      const { data, error } = await supabase
+      // Map common slugs to category name patterns in DB
+      const slug = (category || '').toLowerCase();
+      const namePatterns: string[] = [];
+      if (slug === 'tech-support') {
+        namePatterns.push('%it%','%tech%');
+      } else {
+        namePatterns.push(`%${slug}%`);
+      }
+
+      let query = supabase
         .from('services')
         .select(`
           *,
@@ -36,8 +45,11 @@ const ServiceCategoryPage = () => {
             name
           )
         `)
-        .eq('is_active', true)
-        .ilike('service_categories.name', `%${category}%`);
+        .eq('is_active', true);
+
+      // Apply OR filters for multiple patterns against joined category name
+      const orFilters = namePatterns.map(p => `service_categories.name.ilike.${p}`).join(',');
+      const { data, error } = await query.or(orFilters);
 
       if (error) throw error;
 

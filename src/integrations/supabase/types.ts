@@ -631,6 +631,13 @@ export type Database = {
         }
         Returns: string
       }
+      get_completed_jobs: {
+        Args: { provider_ids: string[] }
+        Returns: {
+          provider_id: string
+          completed_count: number
+        }[]
+      }
       get_service_ratings: {
         Args: { service_ids: string[] }
         Returns: {

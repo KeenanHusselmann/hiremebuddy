@@ -165,7 +165,10 @@ const ServiceCategories = () => {
                 <div className="pt-3 border-t border-glass-border/30">
                   <span className="text-xs text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
                     {(() => {
-                      const count = categoryCounts[category.title.toLowerCase()] || 0;
+                      const key = category.title.toLowerCase();
+                      // Map Tech Support card to include IT Services count
+                      const mappedKey = key === 'tech support' ? 'it services' : key;
+                      const count = categoryCounts[mappedKey] || categoryCounts[key] || 0;
                       return count === 0 ? '0 Providers' : `${count} Provider${count === 1 ? '' : 's'}`;
                     })()}
                   </span>

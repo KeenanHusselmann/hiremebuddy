@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -87,8 +87,27 @@ const RequestQuotePage = () => {
         return;
       }
 
-      // Validate required location data
-      if (!location.state?.labourerId || !location.state?.serviceId) {
+      // Resolve service and provider IDs from state or URL
+      let labourerId = location.state?.labourerId as string | undefined;
+      let serviceId = location.state?.serviceId as string | undefined;
+
+      if (!labourerId || !serviceId) {
+        const params = new URLSearchParams(window.location.search);
+        const serviceIdParam = params.get('serviceId');
+        if (serviceIdParam) {
+          const { data: svc, error: svcError } = await supabase
+            .from('services')
+            .select('id, labourer_id')
+            .eq('id', serviceIdParam)
+            .single();
+          if (!svcError && svc) {
+            serviceId = svc.id;
+            labourerId = svc.labourer_id;
+          }
+        }
+      }
+
+      if (!labourerId || !serviceId) {
         toast({
           title: "Missing Information",
           description: "Service information is missing. Please select a service first.",
@@ -103,8 +122,8 @@ const RequestQuotePage = () => {
         .from('quote_requests')
         .insert({
           client_id: clientProfile.id,
-          labourer_id: location.state.labourerId,
-          service_id: location.state.serviceId,
+          labourer_id: labourerId,
+          service_id: serviceId,
           project_description: quoteData.projectDescription,
           budget: quoteData.budget || null,
           timeline: quoteData.timeline || null,

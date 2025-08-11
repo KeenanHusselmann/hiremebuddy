@@ -187,10 +187,37 @@ const BrowseServicesPage = () => {
     }
   };
 
+  // NLP-style keyword expansion for search
+  const synonymMap: Record<string, string[]> = {
+    catering: ['food', 'cooking', 'chef', 'kitchen', 'cater'],
+    'tech support': ['it', 'computer', 'software', 'hardware', 'tech', 'pc', 'laptop', 'repairs'],
+    it: ['tech', 'computer', 'software', 'hardware', 'pc', 'laptop', 'repairs'],
+    plumbing: ['pipes', 'leak', 'toilet', 'bathroom', 'sink', 'drain'],
+    electrical: ['wiring', 'power', 'lights', 'electrician', 'circuit'],
+  };
+
+  const expandKeywords = (q: string): string[] => {
+    if (!q.trim()) return [];
+    const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+    const expanded = new Set<string>();
+    tokens.forEach((t) => {
+      expanded.add(t);
+      // include mapped synonyms
+      Object.entries(synonymMap).forEach(([key, synonyms]) => {
+        if (t.includes(key) || key.includes(t) || synonyms.some(s => t.includes(s) || s.includes(t))) {
+          expanded.add(key);
+          synonyms.forEach(s => expanded.add(s));
+        }
+      });
+    });
+    return Array.from(expanded);
+  };
+
+  const keywords = expandKeywords(searchQuery);
+
   const filteredServices = services.filter(service => {
-    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         service.provider.toLowerCase().includes(searchQuery.toLowerCase());
+    const haystack = `${service.title} ${service.description} ${service.provider} ${service.category}`.toLowerCase();
+    const matchesSearch = keywords.length === 0 || keywords.some(k => haystack.includes(k));
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     const matchesLocation = selectedLocation === 'all' || 
                            service.location.toLowerCase() === selectedLocation.replace('-', ' ');

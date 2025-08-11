@@ -6,7 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
 interface Worker {
-  id: string;
+  id: string; // service id
+  labourerId: string; // provider profile id
   name: string;
   profession: string;
   location: string;
@@ -63,6 +64,7 @@ const FeaturedWorkers = () => {
         // Transform services data to worker format
         const workersData = services?.map(service => ({
           id: service.id,
+          labourerId: service.labourer_id,
           name: service.profiles.full_name,
           profession: service.service_name,
           location: service.profiles.town || 'Windhoek',
@@ -90,6 +92,26 @@ const FeaturedWorkers = () => {
 
     fetchFeaturedWorkers();
   }, []);
+
+  // Load completed jobs counts per provider
+  useEffect(() => {
+    const loadCompletedJobs = async () => {
+      if (workers.length === 0) return;
+      try {
+        const providerIds = Array.from(new Set(workers.map(w => w.labourerId)));
+        const { data, error } = await supabase.rpc('get_completed_jobs', { provider_ids: providerIds });
+        if (error) throw error;
+        const countMap: Record<string, number> = {};
+        (data || []).forEach((row: any) => {
+          countMap[row.provider_id] = row.completed_count;
+        });
+        setWorkers(prev => prev.map(w => ({ ...w, completedJobs: countMap[w.labourerId] || 0 })));
+      } catch (err) {
+        console.error('Error loading completed jobs:', err);
+      }
+    };
+    loadCompletedJobs();
+  }, [workers.length]);
 
 
   return (
