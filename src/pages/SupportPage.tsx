@@ -84,7 +84,7 @@ const SupportPage = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Phone Support</h3>
-                        <p className="text-muted-foreground">+264 61 123 456</p>
+                        <p className="text-muted-foreground">+264 81 853 6789</p>
                         <p className="text-sm text-muted-foreground">Mon-Fri, 8AM-6PM</p>
                       </div>
                     </div>
@@ -95,7 +95,7 @@ const SupportPage = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Email Support</h3>
-                        <p className="text-muted-foreground">support@hiremebuddy.com</p>
+                        <p className="text-muted-foreground">hiremebuddy061@gmail.com</p>
                         <p className="text-sm text-muted-foreground">Response within 24 hours</p>
                       </div>
                     </div>
@@ -106,7 +106,7 @@ const SupportPage = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">WhatsApp</h3>
-                        <p className="text-muted-foreground">+264 81 234 567</p>
+                        <p className="text-muted-foreground">+264 81 853 6789</p>
                         <p className="text-sm text-muted-foreground">Quick responses</p>
                       </div>
                     </div>
@@ -118,7 +118,7 @@ const SupportPage = () => {
                       <div>
                         <h3 className="font-semibold text-foreground">Office Location</h3>
                         <p className="text-muted-foreground">
-                          Independence Avenue<br />
+                          55 Kenneth Mcarthur, Auasblick<br />
                           Windhoek, Namibia
                         </p>
                       </div>
