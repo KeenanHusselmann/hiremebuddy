@@ -28,7 +28,7 @@ import ProviderCategories from '@/components/ProviderCategories';
 import QuickActions from '@/components/QuickActions';
 
 const ProfilePage = () => {
-  const { user, profile, refreshProfile, signOut } = useAuth();
+  const { user, profile, refreshProfile, signOut, isLoading: authLoading } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -74,6 +74,9 @@ const ProfilePage = () => {
   }, [user?.id, refreshProfile]);
 
   useEffect(() => {
+    // Wait for auth to finish loading to avoid wrong redirects on refresh
+    if (authLoading) return;
+
     // Redirect to auth if not logged in
     if (!user) {
       navigate('/auth');
@@ -101,7 +104,7 @@ const ProfilePage = () => {
         user_type: profile.user_type === 'admin' ? 'client' : profile.user_type || 'client',
       });
     }
-  }, [user, profile, navigate]);
+  }, [authLoading, user, profile, navigate]);
 
   const loadNamibianTowns = async () => {
     try {
@@ -211,29 +214,64 @@ const ProfilePage = () => {
     }));
   };
 
+  // Geocode the user's address to update latitude/longitude for maps
+  const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC0qcSxvBv534pnfD5YvNimZlw8RbzTBCI';
+  const geocodeAddress = async (address: string, town?: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const fullAddress = [address, town, 'Namibia'].filter(Boolean).join(', ');
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${GOOGLE_MAPS_API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status === 'OK' && data.results && data.results[0]) {
+        const loc = data.results[0].geometry.location;
+        return { lat: loc.lat, lng: loc.lng };
+      }
+      return null;
+    } catch (e) {
+      console.warn('Geocoding failed:', e);
+      return null;
+    }
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !profile) return;
 
     setIsLoading(true);
     try {
+      // Build update payload
+      const updateData: any = { ...formData };
+
+      // If location or town changed, geocode to update map coordinates
+      const prevTown = (profile as any).town || '';
+      const prevAddress = profile.location_text || '';
+      const locationChanged = updateData.town !== prevTown || updateData.location_text !== prevAddress;
+
+      if (locationChanged && updateData.location_text) {
+        const coords = await geocodeAddress(updateData.location_text, updateData.town);
+        if (coords) {
+          updateData.latitude = coords.lat;
+          updateData.longitude = coords.lng;
+        }
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update(formData)
+        .update(updateData)
         .eq('user_id', user.id);
 
       if (error) throw error;
 
       await refreshProfile();
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
+        title: 'Profile Updated',
+        description: 'Your profile has been successfully updated.',
       });
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
     setIsLoading(false);
