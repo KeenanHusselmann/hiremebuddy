@@ -638,6 +638,18 @@ export type Database = {
           completed_count: number
         }[]
       }
+      get_safe_profiles: {
+        Args: { profile_ids: string[] }
+        Returns: {
+          id: string
+          full_name: string
+          town: string
+          avatar_url: string
+          is_verified: boolean
+          user_type: Database["public"]["Enums"]["user_type"]
+          location_text: string
+        }[]
+      }
       get_service_ratings: {
         Args: { service_ids: string[] }
         Returns: {
