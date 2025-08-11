@@ -611,6 +611,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_contact_notification: {
+        Args: {
+          p_user_id: string
+          p_type: string
+          p_message: string
+          p_category?: string
+          p_target_url?: string
+        }
+        Returns: string
+      }
       create_notification: {
         Args: {
           user_id_param: string
@@ -620,6 +630,14 @@ export type Database = {
           target_url_param?: string
         }
         Returns: string
+      }
+      get_service_ratings: {
+        Args: { service_ids: string[] }
+        Returns: {
+          service_id: string
+          average_rating: number
+          review_count: number
+        }[]
       }
       update_user_presence: {
         Args: { status_param?: string }

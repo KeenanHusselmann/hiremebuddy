@@ -19,18 +19,10 @@ export const useServiceRatings = (serviceIds: string[]) => {
       }
 
       try {
-        // Get all reviews for services through bookings
-        const { data: reviewData, error } = await supabase
-          .from('reviews')
-          .select(`
-            rating,
-            booking_id,
-            bookings!inner(
-              service_id,
-              services!inner(id)
-            )
-          `)
-          .in('bookings.service_id', serviceIds);
+        // Use RPC to fetch ratings without RLS issues on bookings
+        const { data: agg, error } = await supabase.rpc('get_service_ratings', {
+          service_ids: serviceIds,
+        });
 
         if (error) throw error;
 
@@ -46,29 +38,19 @@ export const useServiceRatings = (serviceIds: string[]) => {
           };
         });
 
-        // Calculate actual ratings
-        if (reviewData) {
-          const serviceReviews: Record<string, number[]> = {};
-          
-          reviewData.forEach(review => {
-            const serviceId = review.bookings?.service_id;
-            if (serviceId) {
-              if (!serviceReviews[serviceId]) {
-                serviceReviews[serviceId] = [];
-              }
-              serviceReviews[serviceId].push(review.rating);
-            }
-          });
-
-          Object.entries(serviceReviews).forEach(([serviceId, ratings]) => {
-            const averageRating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+        // Apply aggregated results
+        if (agg && Array.isArray(agg)) {
+          agg.forEach((row: any) => {
+            const serviceId = row.service_id as string;
+            if (!serviceId) return;
             ratingsMap[serviceId] = {
               serviceId,
-              averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
-              reviewCount: ratings.length
+              averageRating: row.average_rating !== null ? Number(row.average_rating) : null,
+              reviewCount: Number(row.review_count || 0),
             };
           });
         }
+
 
         setRatings(ratingsMap);
       } catch (error) {

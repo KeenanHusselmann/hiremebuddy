@@ -157,11 +157,22 @@ const FeaturedWorkers = () => {
                   {/* Header */}
                   <div className="flex items-start space-x-4 mb-4">
                     <div className="relative">
-                      <img
-                        src={worker.avatar || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face`}
-                        alt={worker.name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
-                      />
+                      {worker.avatar ? (
+                        <img
+                          src={worker.avatar}
+                          alt={worker.name}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-primary/10 text-primary border-2 border-primary/20 flex items-center justify-center font-semibold">
+                          {worker.name
+                            .split(' ')
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((n) => n[0]?.toUpperCase())
+                            .join('') || '?'}
+                        </div>
+                      )}
                       {worker.isVerified && (
                         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
