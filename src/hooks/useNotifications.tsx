@@ -44,6 +44,25 @@ export const useNotifications = () => {
     }
   }, [profile?.id]);
 
+  const playDing = () => {
+    try {
+      const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880; // A5
+      o.connect(g);
+      g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      o.start();
+      o.stop(ctx.currentTime + 0.2);
+    } catch {}
+  };
+
   // Mark notification as read
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
@@ -110,15 +129,16 @@ export const useNotifications = () => {
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Show toast notification for new messages
-          if (newNotification.type === 'new_message') {
-            // Use browser notification API if available
-            if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('New Message', {
-                body: newNotification.message,
-                icon: '/favicon.ico'
-              });
-            }
+          // Show browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('New Notification', {
+              body: newNotification.message,
+              icon: '/favicon.ico'
+            });
+          }
+          // Play ding sound
+          if (document.visibilityState === 'visible') {
+            playDing();
           }
         }
       )

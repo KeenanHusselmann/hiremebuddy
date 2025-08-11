@@ -9,6 +9,7 @@ import { MessageCircle, Phone, Mail, MapPin, ArrowLeft, Send } from 'lucide-reac
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 const SupportPage = () => {
   const [name, setName] = useState('');
@@ -22,18 +23,30 @@ const SupportPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "Message sent!",
-        description: "We'll get back to you within 24 hours.",
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          source: 'support',
+          name,
+          email,
+          subject,
+          message,
+        },
       });
+
+      if (error) throw error;
+
+      toast({ title: 'Message sent!', description: "We'll get back to you within 24 hours." });
       setName('');
       setEmail('');
       setSubject('');
       setMessage('');
+    } catch (err: any) {
+      console.error('Support send error:', err);
+      toast({ title: 'Send failed', description: err.message || 'Please try again later.', variant: 'destructive' });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const scrollToTop = () => {

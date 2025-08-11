@@ -133,8 +133,8 @@ const TermsPage = () => {
                     </p>
                     <div className="mt-4 p-4 bg-muted/20 rounded-lg">
                       <p className="text-foreground font-medium">HireMeBuddy Support</p>
-                      <p className="text-muted-foreground">Email: legal@hiremebuddy.com</p>
-                      <p className="text-muted-foreground">Phone: +264 61 123 456</p>
+                      <p className="text-muted-foreground">Email: hiremebuddy061@gmail.com</p>
+                      <p className="text-muted-foreground">Phone: +264 81 853 6789</p>
                       <p className="text-muted-foreground">Address: Windhoek, Namibia</p>
                     </div>
                   </section>

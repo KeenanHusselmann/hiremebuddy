@@ -11,6 +11,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const ContactPage = () => {
   const { toast } = useToast();
@@ -35,10 +36,23 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          source: 'contact',
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          phone: formData.phone,
+          category: formData.category,
+        },
+      });
+
+      if (error) throw error;
+
       toast({
-        title: "Message Sent!",
+        title: 'Message Sent!',
         description: "Thank you for contacting us. We'll get back to you within 24 hours.",
       });
       setFormData({
@@ -49,8 +63,12 @@ const ContactPage = () => {
         category: '',
         message: ''
       });
+    } catch (err: any) {
+      console.error('Contact send error:', err);
+      toast({ title: 'Send failed', description: err.message || 'Please try again later.', variant: 'destructive' });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const contactMethods = [

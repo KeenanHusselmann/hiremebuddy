@@ -123,17 +123,6 @@ const QuoteRequestDetailPage = () => {
 
       if (error) throw error;
 
-      // Send notification to client
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: quoteRequest.client_id,
-          type: 'quote_received',
-          message: `You received a quote of N$${quoteAmount} for your project`,
-          category: 'quote',
-          target_url: `/quote-requests/${quoteRequest.id}`
-        });
-
       toast({
         title: "Quote Submitted",
         description: "Your quote has been sent to the client."
@@ -162,17 +151,6 @@ const QuoteRequestDetailPage = () => {
         .eq('id', quoteRequest.id);
 
       if (error) throw error;
-
-      // Send notification to provider
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: quoteRequest.labourer_id,
-          type: 'quote_accepted',
-          message: `Your quote for N$${quoteRequest.quote_amount} has been accepted`,
-          category: 'quote',
-          target_url: `/quote-requests/${quoteRequest.id}`
-        });
 
       toast({
         title: "Quote Accepted",
