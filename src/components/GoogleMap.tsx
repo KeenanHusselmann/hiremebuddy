@@ -243,7 +243,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                    <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
                      <button 
                        onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
-                       style="flex:1; min-width:120px; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px;"
+                       style="min-width:96px; padding:6px 8px; border-radius:6px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:11px; display:inline-flex; align-items:center; justify-content:center;"
                      >
                        View Profile
                      </button>
