@@ -555,14 +555,6 @@ const [isMapOpen, setIsMapOpen] = useState(false);
               <Button
                 type="button"
                 variant="outline"
-                onClick={getCurrentLocation}
-                disabled={isGettingLocation}
-              >
-                {isGettingLocation ? 'Getting...' : 'Use Current'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
                 onClick={() => setIsMapOpen(true)}
               >
                 Choose on Map
