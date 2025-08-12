@@ -11,6 +11,8 @@ import { Upload, X, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import MapLocationPicker from '@/components/maps/MapLocationPicker';
 
 interface ServiceForm {
   service_name: string;
@@ -49,7 +51,8 @@ export const ServiceCreationForm = () => {
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
+const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
+const [isMapOpen, setIsMapOpen] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -542,12 +545,12 @@ export const ServiceCreationForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="location_text">Service Location</Label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Input
                 id="location_text"
                 {...register('location_text', { required: 'Location is required for map display' })}
                 placeholder="e.g., Windhoek Central, Klein Windhoek"
-                className="flex-1"
+                className="flex-1 min-w-[220px]"
               />
               <Button
                 type="button"
@@ -557,6 +560,13 @@ export const ServiceCreationForm = () => {
               >
                 {isGettingLocation ? 'Getting...' : 'Use Current'}
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsMapOpen(true)}
+              >
+                Choose on Map
+              </Button>
             </div>
             <p className="text-sm text-muted-foreground">
               This location will be displayed on the map to help clients find you
@@ -564,6 +574,25 @@ export const ServiceCreationForm = () => {
             {errors.location_text && (
               <p className="text-sm text-destructive">{errors.location_text.message}</p>
             )}
+
+            <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Select your location</DialogTitle>
+                  <DialogDescription>Move the pin or tap the map to set your precise address.</DialogDescription>
+                </DialogHeader>
+                <MapLocationPicker
+                  initial={watch('latitude') && watch('longitude') ? { lat: watch('latitude') as number, lng: watch('longitude') as number } : null}
+                  onConfirm={(loc) => {
+                    setValue('latitude', loc.lat);
+                    setValue('longitude', loc.lng);
+                    setValue('location_text', loc.address);
+                    setIsMapOpen(false);
+                    toast({ title: 'Location selected', description: loc.address });
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="space-y-2">
