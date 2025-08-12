@@ -42,6 +42,10 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const selectedIdRef = useRef<string | null>(null);
 
+  // Helpers
+  const isFiniteNumber = (n: any) => typeof n === 'number' && Number.isFinite(n);
+  const isValidLatLng = (lat?: any, lng?: any) => isFiniteNumber(lat) && isFiniteNumber(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+
   // Geocode address to get accurate coordinates
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
     return new Promise((resolve) => {
@@ -172,23 +176,23 @@ const MapComponent: React.FC<GoogleMapProps> = ({
         for (const worker of workers) {
           let position = worker.location;
 
-          const shouldGeocode = worker.location.address && (
-            /\d+\s+[A-Za-z\s]+\s+(street|avenue|road|lane|drive|close|way)/i.test(worker.location.address) ||
-            worker.location.lat === WINDHOEK_CENTER.lat || 
-            worker.location.lng === WINDHOEK_CENTER.lng ||
-            Math.abs(worker.location.lat) < 1 || 
-            Math.abs(worker.location.lng) < 1 ||
-            Math.abs(worker.location.lat + 22.5609) < 0.01
-          );
+           const shouldGeocode = !!worker.location.address && (
+             !isValidLatLng(worker.location.lat, worker.location.lng) ||
+             (Math.abs(worker.location.lat - WINDHOEK_CENTER.lat) < 0.0001 && Math.abs(worker.location.lng - WINDHOEK_CENTER.lng) < 0.0001)
+           );
 
           if (shouldGeocode) {
-            const geocodedPosition = await geocodeAddress(worker.location.address);
-            if (geocodedPosition) {
-              position = { lat: geocodedPosition.lat, lng: geocodedPosition.lng, address: worker.location.address };
-            }
-          }
-
-          let marker = markersRef.current.get(worker.id);
+             const geocodedPosition = await geocodeAddress(worker.location.address);
+             if (geocodedPosition) {
+               position = { lat: geocodedPosition.lat, lng: geocodedPosition.lng, address: worker.location.address };
+             }
+           }
+           // Fallback if coordinates still invalid
+           if (!isValidLatLng(position.lat, position.lng)) {
+             position = { lat: center.lat, lng: center.lng, address: position.address || 'Windhoek, Namibia' };
+           }
+ 
+           let marker = markersRef.current.get(worker.id);
           if (!marker) {
             marker = new google.maps.Marker({
               position: { lat: position.lat, lng: position.lng },
@@ -213,40 +217,40 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             }
 
             marker.addListener('click', () => {
-              selectedIdRef.current = worker.id;
-              const content = `
-                <div class="p-4 min-w-64 max-w-80">
-                  <div class="flex items-center gap-3 mb-3">
-                    ${worker.profileImage ? 
-                      `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
-                      `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${escapeHTML(worker.name.charAt(0))}</div>`
-                    }
-                    <div class="flex-1">
-                      <h3 class="font-bold text-lg text-gray-800">${escapeHTML(worker.name)}</h3>
-                      <p class="text-sm text-gray-600 font-medium">${escapeHTML(worker.service)}</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between mb-3">
-                    <div class="flex gap-2">
-                      <button 
-                        onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                      >
-                        View Profile
-                      </button>
-                    </div>
-                  </div>
-                  <div class="border-t pt-2">
-                    <p class="text-xs text-gray-500 flex items-center gap-1">
-                      <span>📍</span>
-                      ${escapeHTML(position.address)}
-                    </p>
-                  </div>
-                </div>`;
-
-              infoWindowRef.current!.setContent(content);
-              infoWindowRef.current!.open(map, marker!);
-            });
+               selectedIdRef.current = worker.id;
+               const content = `
+                 <div class="card" style="max-width: min(90vw, 360px); min-width: 240px; padding: 12px;">
+                   <div style="display:flex; gap:12px; align-items:center;">
+                     ${worker.profileImage ? 
+                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="avatar" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
+                       `<div style="width:56px;height:56px;border-radius:9999px;background:hsl(var(--primary)/0.12);color:hsl(var(--primary));display:flex;align-items:center;justify-content:center;font-weight:700;">${escapeHTML(worker.name.charAt(0))}</div>`
+                     }
+                     <div style="flex:1; min-width:0;">
+                       <div class="title" style="font-weight:600;font-size:16px;color:hsl(var(--foreground)); overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(worker.name)}</div>
+                       <div class="subtitle" style="font-size:14px;color:hsl(var(--muted-foreground)); overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(worker.service)}</div>
+                     </div>
+                   </div>
+                   
+                   <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                     <button 
+                       onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
+                       style="flex:1; min-width:120px; padding:8px 12px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:14px;"
+                     >
+                       View Profile
+                     </button>
+                   </div>
+                   
+                   <div style="margin-top:8px; border-top:1px solid hsl(var(--border)); padding-top:8px;">
+                     <p class="meta" style="font-size:12px; color:hsl(var(--muted-foreground)); display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                       <span>📍</span>
+                       <span title="${escapeHTML(position.address)}">${escapeHTML(position.address)}</span>
+                     </p>
+                   </div>
+                 </div>`;
+ 
+               infoWindowRef.current!.setContent(content);
+               infoWindowRef.current!.open(map, marker!);
+             });
 
             markersRef.current.set(worker.id, marker);
           } else {
