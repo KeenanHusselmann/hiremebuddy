@@ -219,15 +219,15 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const content = `
-                 <div class="card" style="max-width: min(92vw, 360px); min-width: 220px; padding: 12px;">
+                 <div class="card" style="max-width: min(92vw, 360px); min-width: 220px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px;">
                    <div style="display:flex; gap:12px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
                        `<div style="width:56px;height:56px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--primary));display:flex;align-items:center;justify-content:center;font-weight:700;">${escapeHTML(worker.name.charAt(0))}</div>`
                      }
                      <div style="flex:1; min-width:0;">
-                       <div style="font-weight:600;font-size:16px;color:hsl(var(--foreground)); line-height:1.2; word-break:break-word;">${escapeHTML(worker.name)}</div>
-                       <div style="font-size:14px;color:hsl(var(--muted-foreground)); line-height:1.2; word-break:break-word; margin-top:2px;">${escapeHTML(worker.service)}</div>
+                       <div style="font-weight:700;font-size:16px;color:hsl(var(--foreground)); line-height:1.3; word-break:break-word;">${escapeHTML(worker.name)}</div>
+                       <div style="font-size:14px;color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; margin-top:2px;">${escapeHTML(worker.service)}</div>
                      </div>
                    </div>
                    
@@ -241,7 +241,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                    </div>
                    
                    <div style="margin-top:8px; border-top:1px solid hsl(var(--border)); padding-top:8px;">
-                     <p style="font-size:12px; color:hsl(var(--muted-foreground)); display:flex; align-items:center; gap:6px;">
+                     <p style="font-size:12px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:6px;">
                        <span>📍</span>
                        <span style="word-break:break-word;">${escapeHTML(position.address)}</span>
                      </p>
