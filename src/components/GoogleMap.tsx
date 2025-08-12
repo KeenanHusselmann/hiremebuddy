@@ -228,7 +228,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible; box-sizing:border-box;">
+                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -249,12 +249,13 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                      </button>
                    </div>
                    
-                   <div style="margin-top:6px; border-top:1px solid hsl(var(--border)); padding-top:6px;">
-                     <p style="font-size:10px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:4px;">
-                       <span>📍</span>
-                       <span style="word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(position.address)}</span>
-                     </p>
-                   </div>
+                    <div style="margin-top:6px;">
+                      <div style="width:88%; height:2px; background:hsl(var(--border)); border-radius:2px; margin:0 auto 6px auto;"></div>
+                      <p style="font-size:10px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:4px; margin:0;">
+                        <span>📍</span>
+                        <span style="word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(position.address)}</span>
+                      </p>
+                    </div>
                  </div>`;
                
                const guestContent = `
