@@ -1,4 +1,4 @@
-import { CheckCircle, Users, Search, Calendar, Shield, Star, ArrowRight } from 'lucide-react';
+import { CheckCircle, Users, Search, Calendar, Shield, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
@@ -109,19 +109,6 @@ const HowItWorksContent = () => {
             Connecting skilled Namibian professionals with customers has never been easier. 
             Here's how our platform brings trust and quality to every service interaction.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to={session ? "/browse" : "/auth"}>
-              <Button className="btn-sunset px-8 py-3 text-lg">
-                Find Services
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="outline" className="px-8 py-3 text-lg">
-                Join as Provider
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
