@@ -204,10 +204,9 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onA
                 For privacy-related questions or concerns, please contact us:
               </p>
               <div className="space-y-2">
-                <p>• Privacy Team Email: privacy@hiremebuddy.com</p>
-                <p>• General Support: support@hiremebuddy.com</p>
-                <p>• Phone: +264 61 123 456</p>
-                <p>• Mail: HireMeBuddy Privacy Team, P.O. Box 123, Windhoek, Namibia</p>
+                <p>• Email: hiremebuddy061@gmail.com</p>
+                <p>• Phone: +264 81 853 6789</p>
+                <p>• Address: 55 Kenneth Mcarthur Street, Auasblick</p>
                 <p>• Response Time: We aim to respond to privacy inquiries within 48 hours</p>
               </div>
             </section>

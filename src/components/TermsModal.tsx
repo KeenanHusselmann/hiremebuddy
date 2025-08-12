@@ -141,7 +141,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
             <section>
               <h3 className="text-lg font-semibold mb-3">Payment Terms and Fees</h3>
               <div className="space-y-3">
-                <p>• Payment arrangements are made directly between clients and service providers</p>
+                <p>• Clients pay HireMeBuddy directly; HireMeBuddy pays providers after the service is completed</p>
                 <p>• HireMeBuddy may charge service fees for platform usage and payment processing</p>
                 <p>• All fees and charges will be clearly disclosed before any transaction</p>
                 <p>• Refund policies are determined by individual service providers unless otherwise specified</p>
@@ -202,9 +202,9 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
                 For questions about these terms, please contact us:
               </p>
               <div className="space-y-2">
-                <p>• Email: support@hiremebuddy.com</p>
-                <p>• Phone: +264 61 123 456</p>
-                <p>• Address: HireMeBuddy, P.O. Box 456, Windhoek, Namibia</p>
+                <p>• Email: hiremebuddy061@gmail.com</p>
+                <p>• Phone: +264 81 853 6789</p>
+                <p>• Address: 55 Kenneth Mcarthur Street, Auasblick</p>
                 <p>• Business Hours: Monday - Friday, 8:00 AM - 5:00 PM (CAT)</p>
               </div>
             </section>
