@@ -11,12 +11,13 @@ interface Profile {
   contact_number?: string;
   whatsapp_link?: string;
   facebook_link?: string;
-  location_text?: string;
   avatar_url?: string;
   bio?: string;
   created_at: string;
   is_verified?: boolean;
   first_login_completed?: boolean;
+  town?: string | null;
+  location_text?: string | null;
 }
 
 interface AuthContextType {

@@ -213,7 +213,11 @@ const MapComponent: React.FC<GoogleMapProps> = ({
 
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
-              infoWindowRef.current = new google.maps.InfoWindow({ maxWidth: 360 });
+              infoWindowRef.current = new google.maps.InfoWindow({ 
+                maxWidth: 380,
+                disableAutoPan: false,
+                pixelOffset: new google.maps.Size(0, -14)
+              });
               infoWindowRef.current.addListener('closeclick', () => {
                 selectedIdRef.current = null;
               });
@@ -222,7 +226,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const content = `
-                 <div class="card" style="max-width: min(92vw, 360px); min-width: 220px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08);">
+                 <div class="card" style="max-width: min(96vw, 380px); min-width: 240px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08);">
                    <div style="display:flex; gap:12px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -253,7 +257,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
  
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
-               map.panBy(0, -80);
+               const panOffsetY = window.innerWidth < 640 ? -240 : -140;
+               map.panBy(0, panOffsetY);
              });
 
             markersRef.current.set(worker.id, marker);
