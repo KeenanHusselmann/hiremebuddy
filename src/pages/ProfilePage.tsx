@@ -339,7 +339,16 @@ const ProfilePage = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8 text-center">
+          <div className="mb-8 text-center relative">
+            <Button
+              aria-label="Open settings"
+              variant="outline"
+              size="icon"
+              className="absolute right-0 top-0 rounded-full"
+              onClick={() => document.getElementById('profile-settings-tab')?.click()}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
             <ProfileImageUpload 
               currentImageUrl={profile.avatar_url}
               onImageUpload={handleImageUpload}
@@ -366,7 +375,7 @@ const ProfilePage = () => {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-1 overflow-x-auto flex flex-nowrap gap-2">
+            <TabsList className="w-full sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-1 overflow-x-auto overflow-y-hidden flex flex-nowrap gap-2">
               <TabsTrigger value="profile" className="flex items-center gap-2 text-xs lg:text-sm px-3 py-2 rounded-full">
                 <User className="h-4 w-4" />
                 <span>{t('profile.title')}</span>
@@ -389,7 +398,7 @@ const ProfilePage = () => {
                 <Gamepad2 className="h-4 w-4" />
                 <span>Games</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2 text-xs lg:text-sm px-3 py-2 rounded-full">
+              <TabsTrigger id="profile-settings-tab" value="settings" className="flex items-center gap-2 text-xs lg:text-sm px-3 py-2 rounded-full">
                 <Settings className="h-4 w-4" />
                 <span>{t('profile.settings')}</span>
               </TabsTrigger>
