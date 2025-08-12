@@ -214,7 +214,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 380,
+                maxWidth: 420,
                 disableAutoPan: false,
                 pixelOffset: new google.maps.Size(0, -14)
               });
@@ -226,7 +226,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const content = `
-                 <div class="card" style="max-width: min(96vw, 380px); min-width: 240px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08);">
+                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 180px; padding: 14px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow: visible;">
                    <div style="display:flex; gap:12px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -257,7 +257,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
  
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
-               const panOffsetY = window.innerWidth < 640 ? -240 : -140;
+               const isMobile = window.innerWidth < 640;
+               const panOffsetY = isMobile ? -Math.min(420, Math.floor(window.innerHeight * 0.55)) : -160;
                map.panBy(0, panOffsetY);
              });
 
