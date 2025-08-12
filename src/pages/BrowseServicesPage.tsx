@@ -134,13 +134,9 @@ const BrowseServicesPage = () => {
         const provider = profileMap[providerId];
         const providerServices = servicesByProvider[providerId];
 
-        // Deterministic fallback coordinates around Windhoek
-        const hash = providerId.split('').reduce((a, b) => {
-          a = ((a << 5) - a) + b.charCodeAt(0);
-          return a & a;
-        }, 0);
-        const lng = 17.0658 + ((hash % 100) - 50) * 0.002;
-        const lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.002;
+        // Use town-based geocoding for accuracy (centered on town); the map will geocode the address
+        const lng = 17.0658; // Windhoek center as placeholder to trigger geocoding
+        const lat = -22.5609;
 
         return {
           id: providerId,

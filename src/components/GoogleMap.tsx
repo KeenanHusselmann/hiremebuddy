@@ -38,7 +38,9 @@ const MapComponent: React.FC<GoogleMapProps> = ({
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
 
   // Geocode address to get accurate coordinates
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
@@ -156,65 +158,63 @@ const MapComponent: React.FC<GoogleMapProps> = ({
 
   useEffect(() => {
     if (map && workers.length > 0) {
-      // Clear existing markers
-      markers.forEach(marker => marker.setMap(null));
-      
-      const createMarkersAsync = async () => {
-        const newMarkers: google.maps.Marker[] = [];
-        console.log('Creating markers for workers:', workers);
-        
+      const desiredIds = new Set(workers.map(w => w.id));
+
+      // Remove markers for workers no longer present
+      for (const [id, marker] of markersRef.current.entries()) {
+        if (!desiredIds.has(id)) {
+          marker.setMap(null);
+          markersRef.current.delete(id);
+        }
+      }
+
+      const updateMarkersAsync = async () => {
         for (const worker of workers) {
-          console.log('Processing worker:', worker.name, 'at address:', worker.location.address, 'coordinates:', worker.location);
           let position = worker.location;
-          
-          // Try geocoding for addresses that contain specific street information or look inaccurate
+
           const shouldGeocode = worker.location.address && (
-            // Has street number and name (like "55 Kenneth Mcarthur street")
             /\d+\s+[A-Za-z\s]+\s+(street|avenue|road|lane|drive|close|way)/i.test(worker.location.address) ||
-            // Coordinates are default Windhoek center
             worker.location.lat === WINDHOEK_CENTER.lat || 
             worker.location.lng === WINDHOEK_CENTER.lng ||
-            // Coordinates seem invalid
             Math.abs(worker.location.lat) < 1 || 
             Math.abs(worker.location.lng) < 1 ||
-            // Coordinates are too close to each other (suggests they're fallback values)
             Math.abs(worker.location.lat + 22.5609) < 0.01
           );
-          
+
           if (shouldGeocode) {
-            console.log('Attempting to geocode address for accurate positioning:', worker.location.address);
             const geocodedPosition = await geocodeAddress(worker.location.address);
             if (geocodedPosition) {
-              position = {
-                lat: geocodedPosition.lat,
-                lng: geocodedPosition.lng,
-                address: worker.location.address
-              };
-              console.log('Successfully geocoded', worker.name, 'to:', geocodedPosition);
-            } else {
-              console.log('Geocoding failed for', worker.name, ', using original coordinates');
+              position = { lat: geocodedPosition.lat, lng: geocodedPosition.lng, address: worker.location.address };
             }
           }
-          
-          const marker = new google.maps.Marker({
-            position: { lat: position.lat, lng: position.lng },
-            map,
-            title: `${escapeHTML(worker.name)} - ${escapeHTML(worker.service)}`,
-            icon: {
-              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="40" height="50" viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 0C8.95 0 0 8.95 0 20C0 35 20 50 20 50C20 50 40 35 40 20C40 8.95 31.05 0 20 0Z" fill="#10b981"/>
-                  <circle cx="20" cy="20" r="12" fill="white"/>
-                  <text x="20" y="26" text-anchor="middle" fill="#10b981" font-size="16" font-weight="bold">★</text>
-                </svg>
-              `),
-              scaledSize: new google.maps.Size(40, 50),
-              anchor: new google.maps.Point(20, 50)
-            }
-          });
 
-            const infoWindow = new google.maps.InfoWindow({
-              content: `
+          let marker = markersRef.current.get(worker.id);
+          if (!marker) {
+            marker = new google.maps.Marker({
+              position: { lat: position.lat, lng: position.lng },
+              map,
+              title: `${escapeHTML(worker.name)} - ${escapeHTML(worker.service)}`,
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg width="40" height="50" viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0C8.95 0 0 8.95 0 20C0 35 20 50 20 50C20 50 40 35 40 20C40 8.95 31.05 0 20 0Z" fill="#10b981"/>
+                    <circle cx="20" cy="20" r="12" fill="white"/>
+                    <text x="20" y="26" text-anchor="middle" fill="#10b981" font-size="16" font-weight="bold">★</text>
+                  </svg>
+                `),
+                scaledSize: new google.maps.Size(40, 50),
+                anchor: new google.maps.Point(20, 50)
+              }
+            });
+
+            // Lazily create a single InfoWindow and reuse it
+            if (!infoWindowRef.current) {
+              infoWindowRef.current = new google.maps.InfoWindow();
+            }
+
+            marker.addListener('click', () => {
+              selectedIdRef.current = worker.id;
+              const content = `
                 <div class="p-4 min-w-64 max-w-80">
                   <div class="flex items-center gap-3 mb-3">
                     ${worker.profileImage ? 
@@ -226,13 +226,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                       <p class="text-sm text-gray-600 font-medium">${escapeHTML(worker.service)}</p>
                     </div>
                   </div>
-                  
                   <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                      <div class="flex items-center gap-1" id="rating-${escapeHTML(worker.id)}">
-                        <!-- Rating will be populated by React -->
-                      </div>
-                    </div>
                     <div class="flex gap-2">
                       <button 
                         onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
@@ -242,28 +236,32 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                       </button>
                     </div>
                   </div>
-                  
                   <div class="border-t pt-2">
                     <p class="text-xs text-gray-500 flex items-center gap-1">
                       <span>📍</span>
                       ${escapeHTML(position.address)}
                     </p>
                   </div>
-                </div>
-              `
+                </div>`;
+
+              infoWindowRef.current!.setContent(content);
+              infoWindowRef.current!.open(map, marker!);
             });
 
-          marker.addListener('click', () => {
-            infoWindow.open(map, marker);
-          });
+            markersRef.current.set(worker.id, marker);
+          } else {
+            // Update marker position if changed
+            marker.setPosition({ lat: position.lat, lng: position.lng });
+          }
 
-          newMarkers.push(marker);
+          // If this worker is currently selected, ensure the info window stays open on updates
+          if (selectedIdRef.current === worker.id && infoWindowRef.current && markersRef.current.get(worker.id)) {
+            infoWindowRef.current.open(map, markersRef.current.get(worker.id));
+          }
         }
-        
-        setMarkers(newMarkers);
       };
 
-      createMarkersAsync();
+      updateMarkersAsync();
 
       // Set up global worker selection handler
       (window as any).selectWorker = (workerId: string) => {
