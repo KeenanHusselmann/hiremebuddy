@@ -116,6 +116,14 @@ const ProfilePage = () => {
       
       if (error) throw error;
       setNamibianTowns(data || []);
+
+      // Normalize form town to a valid option (case-insensitive)
+      if (profile && (profile as any).town) {
+        const match = (data || []).find((t) => t.name.toLowerCase() === String((profile as any).town || '').toLowerCase());
+        if (match) {
+          setFormData((prev) => ({ ...prev, town: match.name }));
+        }
+      }
     } catch (error: any) {
       console.error('Error loading towns:', error);
     }
