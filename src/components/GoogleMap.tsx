@@ -242,17 +242,18 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                selectedIdRef.current = worker.id;
                const authContent = `
                  <style>
-                   .hmb-iw { width: clamp(280px, 92vw, 640px); box-sizing: border-box; }
-                   .hmb-iw .card { border-radius: 20px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: 0 10px 24px hsl(var(--foreground) / .1); overflow: hidden; }
+                   .hmb-iw { width: clamp(300px, 92vw, 680px); box-sizing: border-box; }
+                   .hmb-iw * { box-sizing: inherit; }
+                   .hmb-iw .card { border-radius: 20px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: 0 12px 28px hsl(var(--foreground) / .12); overflow: hidden; }
                    .hmb-iw .header { display:flex; gap:12px; align-items:center; padding:12px 14px; }
-                   .hmb-iw .avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary)/0.12); color:hsl(var(--foreground)); display:flex; align-items:center; justify-content:center; font-weight:700; }
-                   .hmb-iw .name { font-weight:700; font-size:14px; color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; }
-                   .hmb-iw .service { font-size:12px; color:hsl(var(--muted-foreground)); line-height:1.3; margin-top:2px; word-break:break-word; }
+                   .hmb-iw .avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary)/0.12); color:hsl(var(--foreground)); display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 48px; }
+                   .hmb-iw .name { font-weight:700; font-size:14px; color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; overflow-wrap:anywhere; }
+                   .hmb-iw .service { font-size:12px; color:hsl(var(--muted-foreground)); line-height:1.3; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
                    .hmb-iw .actions { display:flex; gap:8px; padding:0 14px 12px 14px; }
                    .hmb-iw .btn { padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-width:96px; }
-                   .hmb-iw .divider { width:76%; height:3px; background:hsl(var(--border)); border-radius:3px; margin:6px auto; }
+                   .hmb-iw .divider { width:72%; height:3px; background:hsl(var(--border)); border-radius:3px; margin:6px auto; }
                    .hmb-iw .meta { padding:0 14px 12px 14px; }
-                   .hmb-iw .addr { font-size:11px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:6px; margin:0; word-break:break-word; }
+                   .hmb-iw .addr { font-size:11px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:6px; margin:0; word-break:break-word; overflow-wrap:anywhere; }
                    @media (max-width: 480px) { .hmb-iw .name{font-size:13px;} .hmb-iw .service{font-size:11px;} .hmb-iw .header{gap:10px; padding:10px 12px;} .hmb-iw .actions{padding:0 12px 10px 12px;} }
                  </style>
                  <div class="hmb-iw">
