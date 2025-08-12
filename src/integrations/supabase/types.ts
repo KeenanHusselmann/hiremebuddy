@@ -202,6 +202,7 @@ export type Database = {
           first_login_completed: boolean | null
           full_name: string
           id: string
+          id_document_image_path: string | null
           is_active: boolean | null
           is_verified: boolean | null
           latitude: number | null
@@ -209,6 +210,7 @@ export type Database = {
           longitude: number | null
           privacy_accepted_at: string | null
           privacy_version: string | null
+          selfie_image_path: string | null
           terms_accepted_at: string | null
           terms_version: string | null
           town: string | null
@@ -226,6 +228,7 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name: string
           id?: string
+          id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -233,6 +236,7 @@ export type Database = {
           longitude?: number | null
           privacy_accepted_at?: string | null
           privacy_version?: string | null
+          selfie_image_path?: string | null
           terms_accepted_at?: string | null
           terms_version?: string | null
           town?: string | null
@@ -250,6 +254,7 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name?: string
           id?: string
+          id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -257,6 +262,7 @@ export type Database = {
           longitude?: number | null
           privacy_accepted_at?: string | null
           privacy_version?: string | null
+          selfie_image_path?: string | null
           terms_accepted_at?: string | null
           terms_version?: string | null
           town?: string | null
