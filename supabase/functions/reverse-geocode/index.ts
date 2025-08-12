@@ -34,6 +34,9 @@ serve(async (req: Request) => {
 
     const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
     url.searchParams.set("latlng", `${lat},${lng}`);
+    // Prefer precise address-like results and avoid plus codes
+    url.searchParams.set("result_type", "street_address|premise|subpremise|route");
+    url.searchParams.set("location_type", "ROOFTOP|RANGE_INTERPOLATED");
     url.searchParams.set("key", apiKey);
 
     const resp = await fetch(url.toString());
@@ -43,11 +46,29 @@ serve(async (req: Request) => {
       throw new Error(`Geocoding API error: ${resp.status}`);
     }
 
-    const result = Array.isArray(data.results) && data.results.length > 0 ? data.results[0] : null;
-    const formatted_address: string | null = result?.formatted_address ?? null;
+    // Pick the best result by priority
+    const results: any[] = Array.isArray(data.results) ? data.results : [];
+    const byType = (t: string) => results.find(r => Array.isArray(r.types) && r.types.includes(t));
+    const candidate = byType('street_address') || byType('premise') || byType('subpremise') || byType('route') || results[0] || null;
+
+    let address: string | null = null;
+    if (candidate) {
+      const comps: any[] = candidate.address_components || [];
+      const get = (type: string) => comps.find(c => c.types?.includes(type))?.long_name ?? '';
+      const streetNumber = get('street_number');
+      const route = get('route');
+      const suburb = get('sublocality') || get('sublocality_level_1') || get('neighborhood');
+      const town = get('locality') || get('administrative_area_level_2');
+
+      const street = [streetNumber, route].filter(Boolean).join(' ');
+      const locality = [suburb, town].filter(Boolean).join(', ');
+
+      address = [street, locality].filter(Boolean).join(', ');
+      if (!address) address = candidate.formatted_address || null;
+    }
 
     return new Response(
-      JSON.stringify({ ok: true, address: formatted_address, raw: data }),
+      JSON.stringify({ ok: true, address, raw: data }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
