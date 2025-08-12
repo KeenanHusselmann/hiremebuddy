@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -21,9 +21,12 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose, onAccep
       <DialogContent className="max-w-2xl max-h-[90dvh] sm:max-h-[85vh] flex flex-col gap-0 min-h-0">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>Terms and Conditions</DialogTitle>
+          <DialogDescription className="sr-only">
+            Please review our terms and conditions details.
+          </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 min-h-0 pr-4">
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="space-y-6 text-sm pb-4">
             <section>
               <h3 className="text-lg font-semibold mb-3">Introduction</h3>
