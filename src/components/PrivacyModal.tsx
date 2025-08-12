@@ -214,7 +214,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, onA
 
             <div className="pt-8 border-t">
               <p className="text-center text-sm text-muted-foreground">
-                Last updated: January 2025<br/>
+                Last updated: {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
                 Effective Date: January 1, 2025<br/>
                 Version 2.0
               </p>
