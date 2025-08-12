@@ -93,11 +93,15 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
             placeMarker(loc);
             reverseGeocode(loc.lat, loc.lng);
           },
-          () => {
-            // Ignore error, keep default center
+          async () => {
+            // Fallback via server-side Google Geolocation API
+            await fallbackGeolocate();
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
         );
+      } else {
+        // No geolocation available: try server-side fallback
+        fallbackGeolocate();
       }
     }
   }, [initial]);
