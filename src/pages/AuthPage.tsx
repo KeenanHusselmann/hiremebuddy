@@ -159,8 +159,8 @@ const AuthPage = () => {
       }
     }
 
-      // KYC images will be uploaded via edge function after sign up
-
+    setIsLoading(true);
+    try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -171,7 +171,6 @@ const AuthPage = () => {
             contact_number: contactNumber,
             location_text: location,
             experience: userType === 'labourer' ? experience : undefined,
-            id_document_url: idDocumentUrl,
           },
           emailRedirectTo: `${window.location.origin}/`,
         },
