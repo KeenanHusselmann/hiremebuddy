@@ -29,6 +29,7 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
   const [selected, setSelected] = useState<{ lat: number; lng: number } | null>(initial || null);
   const [address, setAddress] = useState<string>('Pin a spot to select an address');
   const [tracking, setTracking] = useState(false);
+  const [locating, setLocating] = useState(false);
   const watchId = useRef<number | null>(null);
   const { toast } = useToast();
 
@@ -103,17 +104,20 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
 
   const recenterToMe = () => {
     if (!navigator.geolocation) return;
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setSelected(loc);
         placeMarker(loc);
         reverseGeocode(loc.lat, loc.lng);
+        setLocating(false);
       },
       () => {
+        setLocating(false);
         toast({ title: 'Location error', description: 'Unable to get your position', variant: 'destructive' });
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
   };
 
@@ -129,7 +133,7 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
           reverseGeocode(loc.lat, loc.lng);
         },
         () => {},
-        { enableHighAccuracy: true, maximumAge: 2000 }
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
       );
     } else if (watchId.current !== null) {
       navigator.geolocation.clearWatch(watchId.current);
@@ -153,9 +157,9 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={recenterToMe}>
+            <Button type="button" variant="outline" size="sm" onClick={recenterToMe} disabled={locating}>
               <Target className="h-4 w-4 mr-1" />
-              My location
+              {locating ? 'Getting…' : 'My location'}
             </Button>
             <div className="flex items-center gap-2 ml-auto text-sm">
               <Satellite className="h-4 w-4" /> Track live
