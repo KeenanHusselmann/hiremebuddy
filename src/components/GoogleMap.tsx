@@ -259,7 +259,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  </div>`;
                
                const guestContent = `
-                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible; box-sizing:border-box;">
+                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      <div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
                      <div style="flex:1; min-width:0;">
@@ -268,7 +268,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                      </div>
                    </div>
                    <div style="margin-top:8px; display:flex; gap:8px;">
-                     <a href="/auth" style="flex:1; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none; font-size:12px;">Log in to view</a>
+                     <a href="/auth" style="flex:1; padding:8px 10px; border-radius:6px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none; font-size:12px;">Log in to view</a>
                    </div>
                  </div>`;
                  
