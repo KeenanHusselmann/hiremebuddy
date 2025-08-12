@@ -644,6 +644,7 @@ export type Database = {
           id: string
           full_name: string
           town: string
+          location_text: string
           avatar_url: string
           is_verified: boolean
           user_type: Database["public"]["Enums"]["user_type"]

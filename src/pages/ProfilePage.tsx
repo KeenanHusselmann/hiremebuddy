@@ -256,12 +256,15 @@ const ProfilePage = () => {
         }
       }
 
-      const { error } = await supabase
+      const { data: updated, error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .select('id, town, location_text')
+        .single();
 
       if (error) throw error;
+      if (!updated) throw new Error('Profile update did not persist.');
 
       await refreshProfile();
       toast({

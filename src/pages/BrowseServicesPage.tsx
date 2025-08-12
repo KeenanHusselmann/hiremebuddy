@@ -119,7 +119,7 @@ const BrowseServicesPage = () => {
               ? `Offers ${(providerServices as any[]).length} services: ${allServiceNames}. ${primaryService.description}`
               : primaryService.description,
           price: primaryService.hourly_rate ? `N$${primaryService.hourly_rate}/hour` : 'Contact for pricing',
-          location: provider?.town || 'Namibia',
+          location: provider?.location_text || provider?.town || 'Namibia',
           category: primaryService.category?.name?.toLowerCase() || 'general',
           availability: 'Available' as const,
           tags: ['professional', provider?.is_verified ? 'verified' : '']
@@ -146,7 +146,7 @@ const BrowseServicesPage = () => {
           location: {
             lat,
             lng,
-            address: provider?.town ? `${provider.town}, Namibia` : 'Windhoek, Namibia',
+            address: provider?.location_text || (provider?.town ? `${provider.town}, Namibia` : 'Windhoek, Namibia'),
           },
           profileImage: provider?.avatar_url,
           services: providerServices,
@@ -157,7 +157,7 @@ const BrowseServicesPage = () => {
       // Also include verified, active providers who currently have no active services
       const { data: verifiedProfiles, error: verifiedErr } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, town, is_verified, is_active, user_type')
+        .select('id, full_name, avatar_url, town, location_text, is_verified, is_active, user_type')
         .in('user_type', ['labourer', 'both'])
         .eq('is_verified', true)
         .eq('is_active', true);
@@ -174,7 +174,7 @@ const BrowseServicesPage = () => {
           location: {
             lat: -22.5609,
             lng: 17.0658,
-            address: p.town ? `${p.town}, Namibia` : 'Namibia',
+            address: p.location_text || (p.town ? `${p.town}, Namibia` : 'Namibia'),
           },
           profileImage: p.avatar_url,
           services: [],
