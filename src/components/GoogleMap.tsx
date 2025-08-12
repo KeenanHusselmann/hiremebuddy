@@ -216,8 +216,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 680,
-                disableAutoPan: false,
+                maxWidth: 560,
+                disableAutoPan: true,
                 pixelOffset: new google.maps.Size(0, -14)
               });
               infoWindowRef.current.addListener('closeclick', () => {
@@ -242,7 +242,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                selectedIdRef.current = worker.id;
                const authContent = `
                  <style>
-                   .hmb-iw { width: clamp(300px, 92vw, 680px); box-sizing: border-box; }
+                   .hmb-iw { width: clamp(280px, 88vw, 520px); box-sizing: border-box; }
                    .hmb-iw * { box-sizing: inherit; }
                    .hmb-iw .card { border-radius: 20px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: 0 12px 28px hsl(var(--foreground) / .12); overflow: hidden; }
                    .hmb-iw .header { display:flex; gap:12px; align-items:center; padding:12px 14px; }
@@ -294,7 +294,6 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  
                const content = isAuthenticated ? authContent : guestContent;
   
-               infoWindowRef.current!.close();
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
                const isMobile = window.innerWidth < 640;
