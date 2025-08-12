@@ -172,12 +172,29 @@ export const ServiceCreationForm = () => {
         const { latitude, longitude } = position.coords;
         setValue('latitude', latitude);
         setValue('longitude', longitude);
-        setValue('location_text', `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-        setIsGettingLocation(false);
-        toast({
-          title: "Location added!",
-          description: "Your current location has been set for this service"
-        });
+        // Optimistically set while we reverse-geocode
+        setValue('location_text', `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (resolving address...)`);
+
+        // Reverse geocode to street address via Edge Function
+        (async () => {
+          try {
+            const { data, error } = await supabase.functions.invoke('reverse-geocode', {
+              body: { lat: latitude, lng: longitude }
+            });
+            const address = (data as any)?.address as string | undefined;
+            if (error) throw error as any;
+            setValue('location_text', address || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          } catch (e) {
+            // Fallback to coordinates if reverse geocoding fails
+            setValue('location_text', `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          } finally {
+            setIsGettingLocation(false);
+            toast({
+              title: "Location added!",
+              description: "Your current location has been set with a street address",
+            });
+          }
+        })();
       },
       (error) => {
         setIsGettingLocation(false);
