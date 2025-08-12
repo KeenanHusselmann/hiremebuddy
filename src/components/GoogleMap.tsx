@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Wrapper } from '@googlemaps/react-wrapper';
 import { useServiceRating, formatRating, renderStars } from '@/hooks/useServiceRatings';
+import { escapeHTML, safeUrl, escapeJSString } from '@/lib/utils';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC0qcSxvBv534pnfD5YvNimZlw8RbzTBCI';
 
@@ -198,7 +199,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
           const marker = new google.maps.Marker({
             position: { lat: position.lat, lng: position.lng },
             map,
-            title: `${worker.name} - ${worker.service}`,
+            title: `${escapeHTML(worker.name)} - ${escapeHTML(worker.service)}`,
             icon: {
               url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                 <svg width="40" height="50" viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,24 +218,24 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                 <div class="p-4 min-w-64 max-w-80">
                   <div class="flex items-center gap-3 mb-3">
                     ${worker.profileImage ? 
-                      `<img src="${worker.profileImage}" alt="${worker.name}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
-                      `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${worker.name[0]}</div>`
+                      `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200"/>` :
+                      `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">${escapeHTML(worker.name.charAt(0))}</div>`
                     }
                     <div class="flex-1">
-                      <h3 class="font-bold text-lg text-gray-800">${worker.name}</h3>
-                      <p class="text-sm text-gray-600 font-medium">${worker.service}</p>
+                      <h3 class="font-bold text-lg text-gray-800">${escapeHTML(worker.name)}</h3>
+                      <p class="text-sm text-gray-600 font-medium">${escapeHTML(worker.service)}</p>
                     </div>
                   </div>
                   
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <div class="flex items-center gap-1" id="rating-${worker.id}">
+                      <div class="flex items-center gap-1" id="rating-${escapeHTML(worker.id)}">
                         <!-- Rating will be populated by React -->
                       </div>
                     </div>
                     <div class="flex gap-2">
                       <button 
-                        onclick="window.selectWorker('${worker.id}')" 
+                        onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
                       >
                         View Profile
@@ -245,7 +246,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                   <div class="border-t pt-2">
                     <p class="text-xs text-gray-500 flex items-center gap-1">
                       <span>📍</span>
-                      ${position.address}
+                      ${escapeHTML(position.address)}
                     </p>
                   </div>
                 </div>

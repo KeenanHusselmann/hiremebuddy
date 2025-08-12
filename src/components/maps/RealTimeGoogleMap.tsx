@@ -16,6 +16,7 @@ import {
   Zap,
   RefreshCw
 } from 'lucide-react';
+import { escapeHTML, safeUrl, escapeJSString } from '@/lib/utils';
 
 // Use environment variable or fallback
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyC0qcSxvBv534pnfD5YvNimZlw8RbzTBCI';
@@ -325,7 +326,7 @@ const MapComponent: React.FC<RealTimeGoogleMapProps> = ({
       const marker = new google.maps.Marker({
         position: { lat, lng },
         map,
-        title: `${provider.full_name} - ${provider.services[0]?.service_name || 'Service Provider'}`,
+        title: `${escapeHTML(provider.full_name)} - ${escapeHTML(provider.services[0]?.service_name || 'Service Provider')}`,
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -383,10 +384,10 @@ const MapComponent: React.FC<RealTimeGoogleMapProps> = ({
     (window as any).getDirections = (lat: number, lng: number) => {
       if (userLocation) {
         const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lat},${lng}`;
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
       } else {
         const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
       }
     };
 
@@ -396,53 +397,69 @@ const MapComponent: React.FC<RealTimeGoogleMapProps> = ({
     const statusText = provider.presence?.status || 'unknown';
     const statusColor = provider.presence?.status === 'online' ? '#10b981' : 
                        provider.presence?.status === 'busy' ? '#f59e0b' : '#ef4444';
-    
+
+    const name = escapeHTML(provider.full_name || '');
+    const town = escapeHTML(provider.town || '');
+    const avatar = provider.avatar_url ? safeUrl(provider.avatar_url) : '';
+    const initial = escapeHTML((provider.full_name || '?').charAt(0));
+    const bioRaw = provider.bio || '';
+    const bioPreview = escapeHTML(bioRaw.substring(0, 100));
+    const bioSuffix = bioRaw.length > 100 ? '...' : '';
+    const providerIdEsc = escapeJSString(provider.id);
+    const phoneEsc = provider.contact_number ? escapeJSString(provider.contact_number) : '';
+
+    const servicesHtml = (provider.services || []).slice(0, 2).map(service => `
+      <div class="flex justify-between items-center">
+        <span class="text-sm">${escapeHTML(service.service_name || '')}</span>
+        ${service.hourly_rate ? `<span class="text-sm font-medium text-blue-600">N$${service.hourly_rate}/hr</span>` : ''}
+      </div>
+    `).join('');
+
+    const moreServicesHtml = (provider.services || []).length > 2 
+      ? `<p class="text-xs text-gray-500">+${(provider.services || []).length - 2} more services</p>`
+      : '';
+
     return `
       <div class="p-4 min-w-72 max-w-sm">
         <div class="flex items-start gap-3 mb-3">
-          ${provider.avatar_url ? 
-            `<img src="${provider.avatar_url}" alt="${provider.full_name}" class="w-12 h-12 rounded-full object-cover"/>` :
-            `<div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">${provider.full_name.charAt(0)}</div>`
+          ${avatar 
+            ? `<img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover"/>` 
+            : `<div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">${initial}</div>`
           }
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
-              <h3 class="font-semibold text-lg">${provider.full_name}</h3>
+              <h3 class="font-semibold text-lg">${name}</h3>
               ${provider.is_verified ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">✓ Verified</span>' : ''}
             </div>
             <div class="flex items-center gap-2 mb-2">
               <span class="inline-flex items-center gap-1 text-xs">
                 <span class="w-2 h-2 rounded-full" style="background-color: ${statusColor}"></span>
-                ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}
+                ${escapeHTML(statusText.charAt(0).toUpperCase() + statusText.slice(1))}
               </span>
               <span class="text-xs text-gray-500">•</span>
-              <span class="text-xs text-gray-600">${provider.town}</span>
+              <span class="text-xs text-gray-600">${town}</span>
             </div>
           </div>
         </div>
         
-        ${provider.bio ? `<p class="text-sm text-gray-700 mb-3 line-clamp-2">${provider.bio.substring(0, 100)}${provider.bio.length > 100 ? '...' : ''}</p>` : ''}
+        ${bioRaw ? `<p class="text-sm text-gray-700 mb-3 line-clamp-2">${bioPreview}${bioSuffix}</p>` : ''}
         
         <div class="space-y-2 mb-4">
           <h4 class="font-medium text-sm">Services:</h4>
-          ${provider.services.slice(0, 2).map(service => `
-            <div class="flex justify-between items-center">
-              <span class="text-sm">${service.service_name}</span>
-              ${service.hourly_rate ? `<span class="text-sm font-medium text-blue-600">N$${service.hourly_rate}/hr</span>` : ''}
-            </div>
-          `).join('')}
-          ${provider.services.length > 2 ? `<p class="text-xs text-gray-500">+${provider.services.length - 2} more services</p>` : ''}
+          ${servicesHtml}
+          ${moreServicesHtml}
         </div>
         
         <div class="flex gap-2">
           <button 
-            onclick="selectProvider('${provider.id}')" 
+            onclick="selectProvider('${providerIdEsc}')" 
             class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
           >
             View Profile
           </button>
-          ${provider.contact_number ? `
+          ${phoneEsc ? `
             <button 
-              onclick="callProvider('${provider.contact_number}')" 
+              onclick="callProvider('${phoneEsc}')" 
               class="px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition-colors"
               title="Call"
             >
@@ -596,15 +613,15 @@ const MapComponent: React.FC<RealTimeGoogleMapProps> = ({
                   <Button 
                     variant="outline"
                     onClick={() => {
-                      const lat = selectedProvider.latitude || WINDHOEK_CENTER.lat;
-                      const lng = selectedProvider.longitude || WINDHOEK_CENTER.lng;
-                      if (userLocation) {
-                        const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lat},${lng}`;
-                        window.open(url, '_blank');
-                      } else {
-                        const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-                        window.open(url, '_blank');
-                      }
+                        const lat = selectedProvider.latitude || WINDHOEK_CENTER.lat;
+                        const lng = selectedProvider.longitude || WINDHOEK_CENTER.lng;
+                        if (userLocation) {
+                          const url = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lat},${lng}`;
+                          window.open(url, '_blank', 'noopener,noreferrer');
+                        } else {
+                          const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                          window.open(url, '_blank', 'noopener,noreferrer');
+                        }
                     }}
                   >
                     <Navigation className="h-4 w-4" />
