@@ -25,19 +25,26 @@ const HeroSection = () => {
 
   const fetchStats = async () => {
     try {
-      // Count unique verified service providers
-      const { data: providersData } = await supabase
+      // Get all active services to collect provider IDs
+      const { data: servicesData, error: servicesErr } = await supabase
         .from('services')
-        .select('labourer_id, profiles!labourer_id(is_verified)')
+        .select('labourer_id')
         .eq('is_active', true);
 
-      // Filter for verified providers and get unique count
-      const verifiedProviderIds = new Set();
-      providersData?.forEach(service => {
-        if (service.profiles?.is_verified) {
-          verifiedProviderIds.add(service.labourer_id);
-        }
-      });
+      if (servicesErr) throw servicesErr;
+
+      const providerIds = Array.from(new Set((servicesData || []).map((s: any) => s.labourer_id).filter(Boolean)));
+
+      // Fetch safe provider profiles and count verified ones
+      let verifiedCount = 0;
+      if (providerIds.length) {
+        const { data: safeProfiles, error: profilesErr } = await supabase.rpc('get_safe_profiles', {
+          profile_ids: providerIds,
+        });
+        if (profilesErr) throw profilesErr;
+        verifiedCount = (safeProfiles || []).filter((p: any) => p.is_verified).length;
+      }
+
 
       // Count completed bookings
       const { count: jobsCount } = await supabase
@@ -46,7 +53,7 @@ const HeroSection = () => {
         .eq('status', 'completed');
 
       setStats({
-        providers: verifiedProviderIds.size,
+        providers: verifiedCount,
         jobsCompleted: jobsCount || 0,
         regionsCovered: 14 // Static for now as it represents coverage areas
       });
