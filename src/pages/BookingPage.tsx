@@ -67,14 +67,7 @@ const BookingPage = () => {
             service_name,
             description,
             hourly_rate,
-            labourer_id,
-            profiles!inner (
-              full_name,
-              avatar_url,
-              location_text,
-              town,
-              is_verified
-            )
+            labourer_id
           `)
           .eq('id', serviceId)
           .eq('is_active', true)
@@ -90,10 +83,19 @@ const BookingPage = () => {
           return;
         }
 
+        // Fetch safe provider info
+        const { data: safeProfiles, error: safeErr } = await supabase.rpc('get_safe_profiles', {
+          profile_ids: [serviceData.labourer_id]
+        });
+        if (safeErr) {
+          throw safeErr;
+        }
+        const provider = safeProfiles?.[0];
+
         setService({
           id: serviceData.id,
           title: serviceData.service_name,
-          provider: serviceData.profiles.full_name,
+          provider: provider?.full_name || 'Provider',
           price: serviceData.hourly_rate ? `N$${serviceData.hourly_rate}/hour` : 'N$0/hour',
           rating: 4.8, // Default rating for now
           category: serviceData.service_name.toLowerCase(),

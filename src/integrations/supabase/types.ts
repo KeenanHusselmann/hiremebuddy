@@ -647,7 +647,6 @@ export type Database = {
           avatar_url: string
           is_verified: boolean
           user_type: Database["public"]["Enums"]["user_type"]
-          location_text: string
         }[]
       }
       get_service_ratings: {
@@ -657,6 +656,10 @@ export type Database = {
           average_rating: number
           review_count: number
         }[]
+      }
+      is_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
       }
       update_user_presence: {
         Args: { status_param?: string }

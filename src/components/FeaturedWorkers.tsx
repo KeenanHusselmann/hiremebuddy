@@ -36,7 +36,7 @@ const FeaturedWorkers = () => {
   useEffect(() => {
     const fetchFeaturedWorkers = async () => {
       try {
-        // Fetch services with profile information to show featured workers
+        // 1) Fetch active services (no direct join on profiles)
         const { data: services, error } = await supabase
           .from('services')
           .select(`
@@ -44,43 +44,47 @@ const FeaturedWorkers = () => {
             service_name,
             description,
             hourly_rate,
-            labourer_id,
-            profiles!inner (
-              full_name,
-              avatar_url,
-              location_text,
-              town,
-              contact_number,
-              whatsapp_link,
-              facebook_link,
-              is_verified
-            )
+            labourer_id
           `)
           .eq('is_active', true)
           .limit(6);
 
         if (error) throw error;
 
-        // Transform services data to worker format
-        const workersData = services?.map(service => ({
-          id: service.id,
-          labourerId: service.labourer_id,
-          name: service.profiles.full_name,
-          profession: service.service_name,
-          location: service.profiles.town || 'Windhoek',
-          rating: 0, // Will be calculated from reviews in future
-          reviewCount: 0,
-          hourlyRate: service.hourly_rate || 0,
-          description: service.description,
-          specialties: [service.service_name],
-          avatar: service.profiles.avatar_url,
-          isVerified: service.profiles.is_verified,
-          responseTime: '< 2 hours',
-          completedJobs: 0,
-          contactNumber: service.profiles.contact_number,
-          whatsappLink: service.profiles.whatsapp_link,
-          facebookLink: service.profiles.facebook_link
-        })) || [];
+        const serviceList = services || [];
+        const providerIds = Array.from(new Set(serviceList.map(s => s.labourer_id)));
+
+        // 2) Fetch safe provider details via RPC (no sensitive data)
+        const { data: safeProfiles, error: safeErr } = await supabase.rpc('get_safe_profiles', {
+          profile_ids: providerIds
+        });
+        if (safeErr) throw safeErr;
+
+        const profileMap: Record<string, any> = {};
+        (safeProfiles || []).forEach((p: any) => {
+          profileMap[p.id] = p;
+        });
+
+        // 3) Transform services data to worker format
+        const workersData = serviceList.map((service: any) => {
+          const p = profileMap[service.labourer_id] || {};
+          return {
+            id: service.id,
+            labourerId: service.labourer_id,
+            name: p.full_name || 'Provider',
+            profession: service.service_name,
+            location: p.town || 'Windhoek',
+            rating: 0,
+            reviewCount: 0,
+            hourlyRate: service.hourly_rate || 0,
+            description: service.description,
+            specialties: [service.service_name],
+            avatar: p.avatar_url || null,
+            isVerified: !!p.is_verified,
+            responseTime: '< 2 hours',
+            completedJobs: 0
+          } as Worker;
+        });
 
         setWorkers(workersData);
       } catch (error) {
@@ -280,16 +284,9 @@ const FeaturedWorkers = () => {
                         Request Quote
                       </Button>
                     </div>
+                    {/* Direct contact details are hidden to protect provider privacy. */}
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground text-center">Or contact me using:</p>
-                      <div className="flex justify-center">
-                        <CommunicationButtons 
-                          phoneNumber={worker.contactNumber}
-                          whatsappNumber={worker.whatsappLink}
-                          facebookUrl={worker.facebookLink}
-                          className="justify-center"
-                        />
-                      </div>
+                      <p className="text-sm text-muted-foreground text-center">Prefer to talk first? Send a quote request and chat securely.</p>
                     </div>
                   </div>
                 </div>
