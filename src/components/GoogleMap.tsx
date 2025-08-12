@@ -216,7 +216,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 620,
+                maxWidth: 680,
                 disableAutoPan: false,
                 pixelOffset: new google.maps.Size(0, -14)
               });
@@ -229,7 +229,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                 if (iwC) {
                   iwC.style.padding = '0';
                   iwC.style.background = 'transparent';
-                  iwC.style.borderRadius = '16px';
+                  iwC.style.borderRadius = '20px';
                   iwC.style.overflow = 'visible';
                 }
                 if (iwD) {
@@ -241,7 +241,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; margin: 2px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
+                 <div class="card" style="width: min(98vw, 600px); min-width: 300px; min-height: 200px; padding: 10px; margin: 2px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:20px!important; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -272,7 +272,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  </div>`;
                
                const guestContent = `
-                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
+                 <div class="card" style="width: min(98vw, 600px); min-width: 300px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:20px!important; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      <div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
                      <div style="flex:1; min-width:0;">
