@@ -241,37 +241,56 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="p-4 min-w-64 max-w-80">
-                   <div class="flex items-center gap-3 mb-3">
+                 <style>
+                   .hmb-card { width: min(92vw, 360px); background: hsl(var(--card)); color: hsl(var(--foreground)); border-radius: 16px; box-shadow: 0 12px 28px hsl(var(--foreground) / 0.12); padding: 12px; border: 1px solid hsl(var(--border)); }
+                   .hmb-header { display:flex; gap:12px; align-items:center; }
+                   .hmb-avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary) / 0.12); display:flex; align-items:center; justify-content:center; font-weight:700; }
+                   .hmb-title { font-weight:700; font-size:14px; line-height:1.3; color:hsl(var(--foreground)); margin:0; }
+                   .hmb-sub { font-size:12px; line-height:1.3; color:hsl(var(--foreground)); margin:2px 0 0 0; }
+                   .hmb-meta { margin-top:10px; }
+                   .hmb-addr { font-size:11px; display:flex; align-items:center; gap:6px; margin:0; color:hsl(var(--foreground)); }
+                   .hmb-actions { margin-top:10px; display:flex; gap:8px; }
+                   .hmb-btn { padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px; text-decoration:none; border:none; cursor:pointer; }
+                 </style>
+                 <div class="hmb-card">
+                   <div class="hmb-header">
                      ${worker.profileImage ? 
-                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="w-14 h-14 rounded-full object-cover border border-border"/>` :
-                       `<div class="w-14 h-14 rounded-full bg-primary/15 text-foreground flex items-center justify-center font-bold text-lg shadow">★</div>`
+                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="hmb-avatar"/>` :
+                       `<div class="hmb-avatar">${escapeHTML(worker.name.charAt(0) || '★')}</div>`
                      }
-                     <div class="flex-1">
-                       <h3 class="font-bold text-lg text-foreground">${escapeHTML(worker.name)}</h3>
-                       <p class="text-sm text-muted-foreground font-medium">${escapeHTML(worker.service)}</p>
+                     <div style="flex:1; min-width:0;">
+                       <h3 class="hmb-title">${escapeHTML(worker.name)}</h3>
+                       <p class="hmb-sub">${escapeHTML(worker.service)}</p>
                      </div>
                    </div>
-                   <div class="border-t pt-2">
-                     <p class="text-xs text-muted-foreground flex items-center gap-1 mb-2">
-                       <span>📍</span>
-                       <span>${escapeHTML(position.address)}</span>
-                     </p>
-                     <button onclick="window.selectWorker('${escapeJSString(worker.id)}')" class="px-3 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold">View Profile</button>
+                   <div class="hmb-meta">
+                     <p class="hmb-addr"><span>📍</span><span>${escapeHTML(position.address)}</span></p>
+                   </div>
+                   <div class="hmb-actions">
+                     <button onclick="window.selectWorker('${escapeJSString(worker.id)}')" class="hmb-btn">View Profile</button>
                    </div>
                  </div>`;
                
                const guestContent = `
-                 <div class="p-4 min-w-64 max-w-80">
-                   <div class="flex items-center gap-3 mb-3">
-                     <div class="w-14 h-14 rounded-full bg-primary/15 text-foreground flex items-center justify-center font-bold text-lg shadow">🔒</div>
-                     <div class="flex-1">
-                       <h3 class="font-bold text-lg text-foreground">Login required</h3>
-                       <p class="text-sm text-muted-foreground font-medium">Sign in to view provider details</p>
+                 <style>
+                   .hmb-card { width: min(92vw, 360px); background: hsl(var(--card)); color: hsl(var(--foreground)); border-radius: 16px; box-shadow: 0 12px 28px hsl(var(--foreground) / 0.12); padding: 12px; border: 1px solid hsl(var(--border)); box-sizing: border-box; }
+                   .hmb-header { display:flex; gap:12px; align-items:center; }
+                   .hmb-avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary) / 0.12); display:flex; align-items:center; justify-content:center; font-weight:700; }
+                   .hmb-title { font-weight:700; font-size:14px; line-height:1.3; color:hsl(var(--foreground)); margin:0; }
+                   .hmb-sub { font-size:12px; line-height:1.3; color:hsl(var(--foreground)); margin:2px 0 0 0; }
+                   .hmb-actions { margin-top:10px; display:flex; gap:8px; }
+                   .hmb-btn { padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px; text-decoration:none; border:none; cursor:pointer; }
+                 </style>
+                 <div class="hmb-card">
+                   <div class="hmb-header">
+                     <div class="hmb-avatar">🔒</div>
+                     <div style="flex:1; min-width:0;">
+                       <h3 class="hmb-title">Login required</h3>
+                       <p class="hmb-sub">Sign in to view provider details</p>
                      </div>
                    </div>
-                   <div class="border-t pt-2">
-                     <a href="/auth" class="inline-flex px-3 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold">Log in to view</a>
+                   <div class="hmb-actions">
+                     <a href="/auth" class="hmb-btn">Log in to view</a>
                    </div>
                  </div>`;
                  
