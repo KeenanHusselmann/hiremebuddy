@@ -47,6 +47,7 @@ const ProfilePage = () => {
   const [namibianTowns, setNamibianTowns] = useState<Array<{id: string, name: string, region: string}>>([]);
   const [userServices, setUserServices] = useState<any[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('profile');
 
   useEffect(() => {
     // Set up real-time subscription for profile changes (verification status)
@@ -341,7 +342,7 @@ const ProfilePage = () => {
             variant="outline"
             size="icon"
             className="rounded-full"
-            onClick={() => document.getElementById('profile-settings-tab')?.click()}
+            onClick={() => setActiveTab('settings')}
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -374,7 +375,7 @@ const ProfilePage = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="profile" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-nowrap gap-2">
               <TabsTrigger value="profile" className="flex items-center gap-2 text-xs lg:text-sm px-3 py-2 rounded-full">
                 <User className="h-4 w-4" />
