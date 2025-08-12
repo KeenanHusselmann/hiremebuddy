@@ -241,34 +241,40 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="width: min(98vw, 600px); min-width: 300px; min-height: 200px; padding: 10px; margin: 2px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:20px!important; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
-                   <div style="display:flex; gap:8px; align-items:center;">
-                     ${worker.profileImage ? 
-                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
-                       `<div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">${escapeHTML(worker.name.charAt(0))}</div>`
-                     }
-                     <div style="flex:1; min-width:0;">
-                       <div style="font-weight:700;font-size:13px;color:hsl(var(--foreground)); line-height:1.25; word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(worker.name)}</div>
-                       <div style="font-size:11px;color:hsl(var(--foreground)); line-height:1.25; word-break:break-word; overflow-wrap:anywhere; margin-top:2px;">${escapeHTML(worker.service)}</div>
+                 <style>
+                   .hmb-iw { width: clamp(280px, 92vw, 640px); box-sizing: border-box; }
+                   .hmb-iw .card { border-radius: 20px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: 0 10px 24px hsl(var(--foreground) / .1); overflow: hidden; }
+                   .hmb-iw .header { display:flex; gap:12px; align-items:center; padding:12px 14px; }
+                   .hmb-iw .avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary)/0.12); color:hsl(var(--foreground)); display:flex; align-items:center; justify-content:center; font-weight:700; }
+                   .hmb-iw .name { font-weight:700; font-size:14px; color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; }
+                   .hmb-iw .service { font-size:12px; color:hsl(var(--muted-foreground)); line-height:1.3; margin-top:2px; word-break:break-word; }
+                   .hmb-iw .actions { display:flex; gap:8px; padding:0 14px 12px 14px; }
+                   .hmb-iw .btn { padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-width:96px; }
+                   .hmb-iw .divider { width:76%; height:3px; background:hsl(var(--border)); border-radius:3px; margin:6px auto; }
+                   .hmb-iw .meta { padding:0 14px 12px 14px; }
+                   .hmb-iw .addr { font-size:11px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:6px; margin:0; word-break:break-word; }
+                   @media (max-width: 480px) { .hmb-iw .name{font-size:13px;} .hmb-iw .service{font-size:11px;} .hmb-iw .header{gap:10px; padding:10px 12px;} .hmb-iw .actions{padding:0 12px 10px 12px;} }
+                 </style>
+                 <div class="hmb-iw">
+                   <div class="card">
+                     <div class="header">
+                       ${worker.profileImage ? 
+                         `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="avatar"/>` :
+                         `<div class="avatar">${escapeHTML(worker.name.charAt(0))}</div>`
+                       }
+                       <div style="flex:1; min-width:0;">
+                         <div class="name">${escapeHTML(worker.name)}</div>
+                         <div class="service">${escapeHTML(worker.service)}</div>
+                       </div>
+                     </div>
+                     <div class="actions">
+                       <button onclick="window.selectWorker('${escapeJSString(worker.id)}')" class="btn">View Profile</button>
+                     </div>
+                     <div class="divider"></div>
+                     <div class="meta">
+                       <p class="addr"><span>📍</span><span>${escapeHTML(position.address)}</span></p>
                      </div>
                    </div>
-                   
-                   <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                     <button 
-                       onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
-                       style="min-width:96px; padding:6px 8px; border-radius:6px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:11px; display:inline-flex; align-items:center; justify-content:center;"
-                     >
-                       View Profile
-                     </button>
-                   </div>
-                   
-                    <div style="margin-top:6px;">
-                      <div style="width:88%; height:2px; background:hsl(var(--border)); border-radius:2px; margin:0 auto 6px auto;"></div>
-                      <p style="font-size:10px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:4px; margin:0;">
-                        <span>📍</span>
-                        <span style="word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(position.address)}</span>
-                      </p>
-                    </div>
                  </div>`;
                
                const guestContent = `
