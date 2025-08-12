@@ -228,29 +228,29 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="max-width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible;">
+                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      ${worker.profileImage ? 
-                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:48px;height:48px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
-                       `<div style="width:48px;height:48px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">${escapeHTML(worker.name.charAt(0))}</div>`
+                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
+                       `<div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">${escapeHTML(worker.name.charAt(0))}</div>`
                      }
                      <div style="flex:1; min-width:0;">
-                       <div style="font-weight:700;font-size:14px;color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(worker.name)}</div>
-                       <div style="font-size:12px;color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; overflow-wrap:anywhere; margin-top:2px;">${escapeHTML(worker.service)}</div>
+                       <div style="font-weight:700;font-size:13px;color:hsl(var(--foreground)); line-height:1.25; word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(worker.name)}</div>
+                       <div style="font-size:11px;color:hsl(var(--foreground)); line-height:1.25; word-break:break-word; overflow-wrap:anywhere; margin-top:2px;">${escapeHTML(worker.service)}</div>
                      </div>
                    </div>
                    
-                   <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                   <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
                      <button 
                        onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
-                       style="flex:1; min-width:120px; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:13px;"
+                       style="flex:1; min-width:120px; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px;"
                      >
                        View Profile
                      </button>
                    </div>
                    
                    <div style="margin-top:6px; border-top:1px solid hsl(var(--border)); padding-top:6px;">
-                     <p style="font-size:11px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:4px;">
+                     <p style="font-size:10px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:4px;">
                        <span>📍</span>
                        <span style="word-break:break-word; overflow-wrap:anywhere;">${escapeHTML(position.address)}</span>
                      </p>
@@ -258,16 +258,16 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  </div>`;
                
                const guestContent = `
-                 <div class="card" style="max-width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 12px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible;">
+                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
-                     <div style="width:48px;height:48px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
+                     <div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
                      <div style="flex:1; min-width:0;">
-                       <div style="font-weight:700;font-size:14px;color:hsl(var(--foreground)); line-height:1.3;">Login required</div>
-                       <div style="font-size:12px;color:hsl(var(--muted-foreground)); margin-top:2px;">Sign in to view provider details</div>
+                       <div style="font-weight:700;font-size:13px;color:hsl(var(--foreground)); line-height:1.25;">Login required</div>
+                       <div style="font-size:11px;color:hsl(var(--muted-foreground)); margin-top:2px;">Sign in to view provider details</div>
                      </div>
                    </div>
-                   <div style="margin-top:10px; display:flex; gap:8px;">
-                     <a href="/auth" style="flex:1; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none; font-size:13px;">Log in to view</a>
+                   <div style="margin-top:8px; display:flex; gap:8px;">
+                     <a href="/auth" style="flex:1; padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none; font-size:12px;">Log in to view</a>
                    </div>
                  </div>`;
                  
