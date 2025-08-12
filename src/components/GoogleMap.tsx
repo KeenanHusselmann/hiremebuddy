@@ -216,7 +216,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 420,
+                maxWidth: 560,
                 disableAutoPan: false,
                 pixelOffset: new google.maps.Size(0, -14)
               });
@@ -228,7 +228,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 340px; max-height: min(80vh, 600px); padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:auto;">
+                 <div class="card" style="max-width: min(98vw, 560px); min-width: 280px; min-height: 220px; padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible;">
                    <div style="display:flex; gap:12px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -258,7 +258,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  </div>`;
                
                const guestContent = `
-                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 280px; padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:auto;">
+                 <div class="card" style="max-width: min(98vw, 560px); min-width: 280px; min-height: 220px; padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:visible;">
                    <div style="display:flex; gap:12px; align-items:center;">
                      <div style="width:56px;height:56px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
                      <div style="flex:1; min-width:0;">
@@ -276,7 +276,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
                const isMobile = window.innerWidth < 640;
-               const panOffsetY = isMobile ? -Math.min(640, Math.floor(window.innerHeight * 0.75)) : -200;
+               const panOffsetY = isMobile ? -Math.min(360, Math.floor(window.innerHeight * 0.5)) : -160;
                map.panBy(0, panOffsetY);
              });
 
