@@ -240,16 +240,24 @@ const ProfilePage = () => {
 
     setIsLoading(true);
     try {
-      // Build update payload
-      const updateData: any = { ...formData };
+      // Build update payload (only allowed fields)
+      const updateData: any = {
+        full_name: formData.full_name,
+        contact_number: formData.contact_number,
+        whatsapp_link: formData.whatsapp_link,
+        facebook_link: formData.facebook_link,
+        location_text: formData.location_text,
+        town: formData.town,
+        bio: formData.bio,
+      };
 
       // If location or town changed, geocode to update map coordinates
       const prevTown = (profile as any).town || '';
       const prevAddress = profile.location_text || '';
       const locationChanged = updateData.town !== prevTown || updateData.location_text !== prevAddress;
 
-      if (locationChanged && updateData.location_text) {
-        const coords = await geocodeAddress(updateData.location_text, updateData.town);
+      if (locationChanged && (updateData.location_text || updateData.town)) {
+        const coords = await geocodeAddress(updateData.location_text || '', updateData.town);
         if (coords) {
           updateData.latitude = coords.lat;
           updateData.longitude = coords.lng;
