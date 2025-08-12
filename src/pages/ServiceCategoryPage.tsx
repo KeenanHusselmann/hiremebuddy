@@ -33,14 +33,11 @@ const ServiceCategoryPage = () => {
         namePatterns.push(`%${slug}%`);
       }
 
-      let query = supabase
+      // 1) Fetch services with category filter only (no profiles join)
+      let baseQuery = supabase
         .from('services')
         .select(`
           *,
-          labourer:profiles!labourer_id (
-            full_name,
-            town
-          ),
           category:service_categories!inner (
             name
           )
@@ -49,18 +46,38 @@ const ServiceCategoryPage = () => {
 
       // Apply OR filters for multiple patterns against joined category name
       const orFilters = namePatterns.map(p => `service_categories.name.ilike.${p}`).join(',');
-      const { data, error } = await query.or(orFilters);
-
+      const { data: servicesData, error } = await baseQuery.or(orFilters);
       if (error) throw error;
 
-      setServices(data || []);
+      const serviceList = servicesData || [];
+      const providerIds = Array.from(new Set(serviceList.map((s: any) => s.labourer_id).filter(Boolean)));
+
+      // 2) Fetch safe provider details via RPC
+      const { data: safeProfiles, error: safeErr } = await supabase.rpc('get_safe_profiles', {
+        profile_ids: providerIds
+      });
+      if (safeErr) throw safeErr;
+      const profileMap: Record<string, any> = {};
+      (safeProfiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+
+      // 3) Only keep services with verified providers and attach minimal labourer info
+      const withProviders = serviceList
+        .filter((s: any) => profileMap[s.labourer_id]?.is_verified)
+        .map((s: any) => ({
+          ...s,
+          labourer: {
+            full_name: profileMap[s.labourer_id]?.full_name,
+            town: profileMap[s.labourer_id]?.town,
+          },
+        }));
+
+      setServices(withProviders);
     } catch (error) {
       console.error('Error fetching services:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const categoryInfo = {
     plumbing: {
       title: 'Plumbing Services',

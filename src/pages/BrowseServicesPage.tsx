@@ -61,21 +61,11 @@ const BrowseServicesPage = () => {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
+      // 1) Fetch services without joining profiles (RLS-safe)
+      const { data: servicesData, error } = await supabase
         .from('services')
         .select(`
           *,
-          labourer:profiles!labourer_id (
-            id,
-            full_name,
-            town,
-            contact_number,
-            is_verified,
-            avatar_url,
-            latitude,
-            longitude,
-            location_text
-          ),
           category:service_categories (
             name
           )
@@ -87,97 +77,85 @@ const BrowseServicesPage = () => {
         return;
       }
 
-      // Filter out services from unverified providers
-      const verifiedServices = (data || []).filter(service => service.labourer?.is_verified === true);
-      
+      const serviceList = servicesData || [];
+      const providerIds = Array.from(new Set(serviceList.map((s: any) => s.labourer_id).filter(Boolean)));
+
+      // 2) Fetch safe provider details via RPC (no sensitive data, allowed by RLS)
+      const { data: safeProfiles, error: safeErr } = await supabase.rpc('get_safe_profiles', {
+        profile_ids: providerIds
+      });
+      if (safeErr) {
+        console.error('Error fetching provider profiles:', safeErr);
+      }
+
+      const profileMap: Record<string, any> = {};
+      (safeProfiles || []).forEach((p: any) => {
+        profileMap[p.id] = p;
+      });
+
+      // Only include services where the provider exists and is verified
+      const verifiedServices = serviceList.filter((s: any) => profileMap[s.labourer_id]?.is_verified);
+
       // Group services by provider
-      const servicesByProvider = verifiedServices.reduce((acc, service) => {
-        const providerId = service.labourer?.id;
-        if (!acc[providerId]) {
-          acc[providerId] = [];
-        }
+      const servicesByProvider = verifiedServices.reduce((acc: Record<string, any[]>, service: any) => {
+        const providerId = service.labourer_id;
+        if (!acc[providerId]) acc[providerId] = [];
         acc[providerId].push(service);
         return acc;
       }, {} as Record<string, any[]>);
 
-      // Transform data to show one service per provider with all their services listed
-      const transformedServices: Service[] = Object.values(servicesByProvider).map(providerServices => {
-        const primaryService = providerServices[0]; // Use first service as primary
-        const allServiceNames = providerServices.map(s => s.service_name).join(', ');
-        
-         return {
-           id: primaryService.id,
-           title: providerServices.length > 1 ? allServiceNames : primaryService.service_name,
-           provider: primaryService.labourer?.full_name || 'Unknown Provider',
-           description: providerServices.length > 1 
-             ? `Offers ${providerServices.length} services: ${allServiceNames}. ${primaryService.description}` 
-             : primaryService.description,
-           price: primaryService.hourly_rate ? `N$${primaryService.hourly_rate}/hour` : 'Contact for pricing',
-           location: primaryService.labourer?.town || 'Unknown Location',
-           category: primaryService.category?.name?.toLowerCase() || 'general',
-           availability: 'Available' as const,
-           tags: ['professional', 'verified']
-         };
-       });
+      // Transform data to show one card per provider summarizing services
+      const transformedServices: Service[] = Object.entries(servicesByProvider).map(([providerId, providerServices]) => {
+        const primaryService: any = providerServices[0];
+        const allServiceNames = (providerServices as any[]).map((s) => s.service_name).join(', ');
+        const provider = profileMap[providerId];
+
+        return {
+          id: primaryService.id,
+          title: (providerServices as any[]).length > 1 ? allServiceNames : primaryService.service_name,
+          provider: provider?.full_name || 'Unknown Provider',
+          description:
+            (providerServices as any[]).length > 1
+              ? `Offers ${(providerServices as any[]).length} services: ${allServiceNames}. ${primaryService.description}`
+              : primaryService.description,
+          price: primaryService.hourly_rate ? `N$${primaryService.hourly_rate}/hour` : 'Contact for pricing',
+          location: provider?.town || 'Namibia',
+          category: primaryService.category?.name?.toLowerCase() || 'general',
+          availability: 'Available' as const,
+          tags: ['professional', provider?.is_verified ? 'verified' : '']
+            .filter(Boolean) as string[],
+        };
+      });
 
       setServices(transformedServices);
 
-      // Group providers and transform for map
-      const uniqueProviders = verifiedServices.reduce((acc, service) => {
-        const providerId = service.labourer?.id;
-        if (!providerId || acc.find(p => p.id === providerId)) return acc;
-        
-        const provider = service.labourer;
-        const providerServices = verifiedServices.filter(s => s.labourer?.id === providerId);
-        
-        // Check for coordinates and address - prefer geocoding real addresses
-        let lat, lng;
-        const locationText = provider.location_text || provider.town || 'Windhoek, Namibia';
-        
-        console.log('Provider location data:', {
-          name: provider.full_name,
-          latitude: provider.latitude,
-          longitude: provider.longitude,
-          location_text: provider.location_text,
-          town: provider.town
-        });
-        
-        if (provider.latitude && provider.longitude && 
-            Number(provider.latitude) !== -22.5609 && Number(provider.longitude) !== 17.0658) {
-          // Use database coordinates only if they're not the default Windhoek center
-          lat = Number(provider.latitude);
-          lng = Number(provider.longitude);
-          console.log('Using database coordinates for', provider.full_name, ':', { lat, lng });
-        } else {
-          // Use deterministic fallback coordinates around Windhoek
-          // The GoogleMap component will handle geocoding the real address
-          const hash = providerId.split('').reduce((a, b) => {
-            a = ((a << 5) - a) + b.charCodeAt(0);
-            return a & a;
-          }, 0);
-          
-          lng = 17.0658 + ((hash % 100) - 50) * 0.002; // Spread around Windhoek
-          lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.002;
-          console.log('Using fallback coordinates for', provider.full_name, ', will geocode:', locationText);
-        }
+      // Build provider markers for the map view
+      const uniqueProviders = Object.keys(servicesByProvider).map((providerId) => {
+        const provider = profileMap[providerId];
+        const providerServices = servicesByProvider[providerId];
 
-        acc.push({
+        // Deterministic fallback coordinates around Windhoek
+        const hash = providerId.split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0);
+        const lng = 17.0658 + ((hash % 100) - 50) * 0.002;
+        const lat = -22.5609 + (((hash * 7) % 100) - 50) * 0.002;
+
+        return {
           id: providerId,
-          name: provider.full_name,
-          service: providerServices.map(s => s.service_name).join(', '),
+          name: provider?.full_name || 'Unknown Provider',
+          service: (providerServices as any[]).map((s) => s.service_name).join(', '),
           location: {
             lat,
             lng,
-            address: locationText
+            address: provider?.town ? `${provider.town}, Namibia` : 'Windhoek, Namibia',
           },
-          profileImage: provider.avatar_url,
+          profileImage: provider?.avatar_url,
           services: providerServices,
-          contactNumber: provider.contact_number,
-          isVerified: provider.is_verified
-        });
-        
-        return acc;
-      }, []);
+          isVerified: !!provider?.is_verified,
+        };
+      });
 
       setProviders(uniqueProviders);
     } catch (error) {
@@ -186,7 +164,6 @@ const BrowseServicesPage = () => {
       setLoading(false);
     }
   };
-
   // NLP-style keyword expansion for search
   const synonymMap: Record<string, string[]> = {
     catering: ['food', 'cooking', 'chef', 'kitchen', 'cater'],
