@@ -160,7 +160,7 @@ const SupportPage = () => {
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-foreground mb-2">Is it safe to use Hire.Me.Bra?</h4>
+                      <h4 className="font-semibold text-foreground mb-2">Is it safe to use Hire.Me.Buddy?</h4>
                       <p className="text-sm text-muted-foreground">
                         Yes! All our professionals are verified and rated by previous clients for your safety.
                       </p>
