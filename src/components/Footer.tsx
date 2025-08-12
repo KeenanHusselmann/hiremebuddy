@@ -27,15 +27,31 @@ const Footer = () => {
                 create opportunities, and strengthen our communities.
               </p>
               <div className="flex space-x-3">
-                <div className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors cursor-pointer">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61578981526475"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors"
+                >
                   <Facebook className="h-4 w-4 text-primary" />
-                </div>
-                <div className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors cursor-pointer">
+                </a>
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=hiremebuddy061@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Email via Gmail"
+                  className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors"
+                >
                   <MessageCircle className="h-4 w-4 text-primary" />
-                </div>
-                <div className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors cursor-pointer">
+                </a>
+                <a
+                  href="tel:+264818536789"
+                  aria-label="Call"
+                  className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors"
+                >
                   <Phone className="h-4 w-4 text-primary" />
-                </div>
+                </a>
               </div>
             </div>
 
