@@ -216,7 +216,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 560,
+                maxWidth: 480,
                 disableAutoPan: true,
                 pixelOffset: new google.maps.Size(0, -14)
               });
@@ -296,9 +296,6 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
-               const isMobile = window.innerWidth < 640;
-               const panOffsetY = isMobile ? -Math.min(360, Math.floor(window.innerHeight * 0.5)) : -160;
-               map.panBy(0, panOffsetY);
              });
 
             markersRef.current.set(worker.id, marker);
@@ -307,10 +304,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.setPosition({ lat: position.lat, lng: position.lng });
           }
 
-          // If this worker is currently selected, ensure the info window stays open on updates
-          if (selectedIdRef.current === worker.id && infoWindowRef.current && markersRef.current.get(worker.id)) {
-            infoWindowRef.current.open(map, markersRef.current.get(worker.id));
-          }
+          // Keep info window as-is to avoid flicker on marker updates
         }
       };
 
