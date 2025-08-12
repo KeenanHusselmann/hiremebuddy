@@ -216,7 +216,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 480,
+                maxWidth: 360,
                 disableAutoPan: true,
                 pixelOffset: new google.maps.Size(0, -14)
               });
@@ -241,54 +241,37 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <style>
-                   .hmb-iw { width: clamp(280px, 88vw, 520px); box-sizing: border-box; }
-                   .hmb-iw * { box-sizing: inherit; }
-                   .hmb-iw .card { border-radius: 20px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: 0 12px 28px hsl(var(--foreground) / .12); overflow: hidden; }
-                   .hmb-iw .header { display:flex; gap:12px; align-items:center; padding:12px 14px; }
-                   .hmb-iw .avatar { width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border)); background:hsl(var(--primary)/0.12); color:hsl(var(--foreground)); display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 48px; }
-                   .hmb-iw .name { font-weight:700; font-size:14px; color:hsl(var(--foreground)); line-height:1.3; word-break:break-word; overflow-wrap:anywhere; }
-                   .hmb-iw .service { font-size:12px; color:hsl(var(--muted-foreground)); line-height:1.3; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
-                   .hmb-iw .actions { display:flex; gap:8px; padding:0 14px 12px 14px; }
-                   .hmb-iw .btn { padding:8px 10px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:12px; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-width:96px; }
-                   .hmb-iw .divider { width:72%; height:3px; background:hsl(var(--border)); border-radius:3px; margin:6px auto; }
-                   .hmb-iw .meta { padding:0 14px 12px 14px; }
-                   .hmb-iw .addr { font-size:11px; color:hsl(var(--foreground)); display:flex; align-items:center; gap:6px; margin:0; word-break:break-word; overflow-wrap:anywhere; }
-                   @media (max-width: 480px) { .hmb-iw .name{font-size:13px;} .hmb-iw .service{font-size:11px;} .hmb-iw .header{gap:10px; padding:10px 12px;} .hmb-iw .actions{padding:0 12px 10px 12px;} }
-                 </style>
-                 <div class="hmb-iw">
-                   <div class="card">
-                     <div class="header">
-                       ${worker.profileImage ? 
-                         `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="avatar"/>` :
-                         `<div class="avatar">${escapeHTML(worker.name.charAt(0))}</div>`
-                       }
-                       <div style="flex:1; min-width:0;">
-                         <div class="name">${escapeHTML(worker.name)}</div>
-                         <div class="service">${escapeHTML(worker.service)}</div>
-                       </div>
+                 <div class="p-4 min-w-64 max-w-80">
+                   <div class="flex items-center gap-3 mb-3">
+                     ${worker.profileImage ? 
+                       `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" class="w-14 h-14 rounded-full object-cover border border-border"/>` :
+                       `<div class="w-14 h-14 rounded-full bg-primary/15 text-foreground flex items-center justify-center font-bold text-lg shadow">★</div>`
+                     }
+                     <div class="flex-1">
+                       <h3 class="font-bold text-lg text-foreground">${escapeHTML(worker.name)}</h3>
+                       <p class="text-sm text-muted-foreground font-medium">${escapeHTML(worker.service)}</p>
                      </div>
-                     <div class="actions">
-                       <button onclick="window.selectWorker('${escapeJSString(worker.id)}')" class="btn">View Profile</button>
-                     </div>
-                     <div class="divider"></div>
-                     <div class="meta">
-                       <p class="addr"><span>📍</span><span>${escapeHTML(position.address)}</span></p>
-                     </div>
+                   </div>
+                   <div class="border-t pt-2">
+                     <p class="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                       <span>📍</span>
+                       <span>${escapeHTML(position.address)}</span>
+                     </p>
+                     <button onclick="window.selectWorker('${escapeJSString(worker.id)}')" class="px-3 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold">View Profile</button>
                    </div>
                  </div>`;
                
                const guestContent = `
-                 <div class="card" style="width: min(98vw, 600px); min-width: 300px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:20px!important; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
-                   <div style="display:flex; gap:8px; align-items:center;">
-                     <div style="width:44px;height:44px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
-                     <div style="flex:1; min-width:0;">
-                       <div style="font-weight:700;font-size:13px;color:hsl(var(--foreground)); line-height:1.25;">Login required</div>
-                       <div style="font-size:11px;color:hsl(var(--muted-foreground)); margin-top:2px;">Sign in to view provider details</div>
+                 <div class="p-4 min-w-64 max-w-80">
+                   <div class="flex items-center gap-3 mb-3">
+                     <div class="w-14 h-14 rounded-full bg-primary/15 text-foreground flex items-center justify-center font-bold text-lg shadow">🔒</div>
+                     <div class="flex-1">
+                       <h3 class="font-bold text-lg text-foreground">Login required</h3>
+                       <p class="text-sm text-muted-foreground font-medium">Sign in to view provider details</p>
                      </div>
                    </div>
-                   <div style="margin-top:8px; display:flex; gap:8px;">
-                     <a href="/auth" style="flex:1; padding:8px 10px; border-radius:6px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none; font-size:12px;">Log in to view</a>
+                   <div class="border-t pt-2">
+                     <a href="/auth" class="inline-flex px-3 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold">Log in to view</a>
                    </div>
                  </div>`;
                  
