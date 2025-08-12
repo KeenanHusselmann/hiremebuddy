@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Facebook, MessageCircle, Phone, Mail, MapPin } from 'lucide-react';
 import logo from '@/assets/hiremebuddy-logo.png';
+import { useAuth } from '@/hooks/useAuth';
 
 const Footer = () => {
+  const { session } = useAuth();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -72,18 +74,20 @@ const Footer = () => {
               </nav>
             </div>
 
-            {/* Services */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Popular Services</h4>
-               <nav className="flex flex-col space-y-2">
-                <Link to="/services/plumbing" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Plumbing</Link>
-                <Link to="/services/electrical" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Electrical Work</Link>
-                <Link to="/services/carpentry" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Carpentry</Link>
-                <Link to="/services/home-repairs" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Home Repairs</Link>
-                <Link to="/services/gardening" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Gardening</Link>
-                <Link to="/services/painting" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Painting</Link>
-               </nav>
-            </div>
+            {/* Services (Only for authenticated users) */}
+            {session && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-foreground">Popular Services</h4>
+                <nav className="flex flex-col space-y-2">
+                  <Link to="/services/plumbing" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Plumbing</Link>
+                  <Link to="/services/electrical" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Electrical Work</Link>
+                  <Link to="/services/carpentry" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Carpentry</Link>
+                  <Link to="/services/home-repairs" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Home Repairs</Link>
+                  <Link to="/services/gardening" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Gardening</Link>
+                  <Link to="/services/painting" onClick={scrollToTop} className="text-sm text-muted-foreground hover:text-primary transition-colors">Painting</Link>
+                </nav>
+              </div>
+            )}
 
             {/* Contact Info */}
             <div className="space-y-4">
