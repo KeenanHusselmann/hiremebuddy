@@ -228,7 +228,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
                const authContent = `
-                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
+                 <div class="card" style="width: min(98vw, 560px); min-width: 280px; min-height: 200px; padding: 10px; margin: 2px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:16px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:hidden; box-sizing:border-box;">
                    <div style="display:flex; gap:8px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:44px;height:44px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -274,6 +274,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                  
                const content = isAuthenticated ? authContent : guestContent;
   
+               infoWindowRef.current!.close();
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
                const isMobile = window.innerWidth < 640;
