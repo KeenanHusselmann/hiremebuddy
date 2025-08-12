@@ -216,12 +216,25 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             // Lazily create a single InfoWindow and reuse it
             if (!infoWindowRef.current) {
               infoWindowRef.current = new google.maps.InfoWindow({ 
-                maxWidth: 560,
+                maxWidth: 620,
                 disableAutoPan: false,
                 pixelOffset: new google.maps.Size(0, -14)
               });
               infoWindowRef.current.addListener('closeclick', () => {
                 selectedIdRef.current = null;
+              });
+              infoWindowRef.current.addListener('domready', () => {
+                const iwC = document.querySelector('.gm-style-iw-c') as HTMLElement | null;
+                const iwD = document.querySelector('.gm-style-iw-d') as HTMLElement | null;
+                if (iwC) {
+                  iwC.style.padding = '0';
+                  iwC.style.background = 'transparent';
+                  iwC.style.borderRadius = '16px';
+                  iwC.style.overflow = 'visible';
+                }
+                if (iwD) {
+                  iwD.style.overflow = 'visible';
+                }
               });
             }
 
