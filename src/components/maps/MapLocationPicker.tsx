@@ -102,20 +102,52 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
     }
   }, [initial]);
 
+  const fallbackGeolocate = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('geolocate', { body: {} });
+      if (error) throw error as any;
+      const loc = (data as any)?.location ?? (data as any);
+      if (loc?.lat && loc?.lng) {
+        const pos = { lat: Number(loc.lat), lng: Number(loc.lng) };
+        setSelected(pos);
+        placeMarker(pos);
+        reverseGeocode(pos.lat, pos.lng);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
   const recenterToMe = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocating(true);
+      fallbackGeolocate().then((ok) => {
+        setLocating(false);
+        if (!ok) {
+          toast({ title: 'Location unavailable', description: 'Geolocation not supported. Try opening the map in a new tab or search manually.', variant: 'destructive' });
+        }
+      });
+      return;
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setSelected(loc);
         placeMarker(loc);
         reverseGeocode(loc.lat, loc.lng);
         setLocating(false);
       },
-      () => {
+      async (err) => {
+        const ok = await fallbackGeolocate();
         setLocating(false);
-        toast({ title: 'Location error', description: 'Unable to get your position', variant: 'destructive' });
+        if (!ok) {
+          let msg = 'Unable to get your position.';
+          if ((err as any)?.code === 1) msg = 'Permission denied for location. Please allow access.';
+          else if ((err as any)?.code === 2) msg = 'Position unavailable. Check your connection.';
+          else if ((err as any)?.code === 3) msg = 'Location request timed out. Try again.';
+          toast({ title: 'Location error', description: msg, variant: 'destructive' });
+        }
       },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
