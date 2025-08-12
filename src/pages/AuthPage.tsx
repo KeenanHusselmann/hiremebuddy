@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { TermsModal } from '@/components/TermsModal';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import logo from '@/assets/hiremebuddy-logo.png';
+import CameraCapture from '@/components/CameraCapture';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -33,6 +34,12 @@ const AuthPage = () => {
   const [experience, setExperience] = useState('');
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  // KYC camera captures
+  const [idDocumentBlob, setIdDocumentBlob] = useState<Blob | null>(null);
+  const [idDocPreview, setIdDocPreview] = useState<string | null>(null);
+  const [selfieBlob, setSelfieBlob] = useState<Blob | null>(null);
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+
   
   // Modal states
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -112,10 +119,10 @@ const AuthPage = () => {
 
     // Validation for providers
     if (userType === 'labourer') {
-      if (!idDocument) {
+      if (!idDocumentBlob || !selfieBlob) {
         toast({
-          title: "Error",
-          description: "Identity document is required for service providers",
+          title: "Verification required",
+          description: "Please capture your ID document and a face selfie to continue",
           variant: "destructive",
         });
         return;
@@ -152,26 +159,7 @@ const AuthPage = () => {
       }
     }
 
-    setIsLoading(true);
-    try {
-      // First, upload ID document if provider
-      let idDocumentUrl = null;
-      if (userType === 'labourer' && idDocument) {
-        const fileExt = idDocument.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('profile-images')
-          .upload(`id-documents/${fileName}`, idDocument);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from('profile-images')
-          .getPublicUrl(`id-documents/${fileName}`);
-        
-        idDocumentUrl = urlData.publicUrl;
-      }
+      // KYC images will be uploaded via edge function after sign up
 
       const { error } = await supabase.auth.signUp({
         email,
@@ -519,33 +507,21 @@ const AuthPage = () => {
                           />
                         </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="idDocument">Identity Document *</Label>
-                          <div className="flex items-center space-x-3">
-                            <input
-                              id="idDocument"
-                              type="file"
-                              accept="image/*,.pdf"
-                              onChange={handleFileChange}
-                              className="hidden"
-                              required
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById('idDocument')?.click()}
-                              className="flex items-center space-x-2"
-                            >
-                              <span>Upload ID Document</span>
-                            </Button>
-                            {idDocument && (
-                              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                <span>{idDocument.name}</span>
-                              </div>
-                            )}
-                          </div>
+                        <div className="space-y-4">
+                          <CameraCapture
+                            label="Capture ID Document (Use back camera)"
+                            facingMode="environment"
+                            onCapture={(blob, dataUrl) => { setIdDocumentBlob(blob); setIdDocPreview(dataUrl); }}
+                            captureText="Capture ID Document"
+                          />
+                          <CameraCapture
+                            label="Capture Selfie (Face verification)"
+                            facingMode="user"
+                            onCapture={(blob, dataUrl) => { setSelfieBlob(blob); setSelfiePreview(dataUrl); }}
+                            captureText="Capture Selfie"
+                          />
                           <p className="text-xs text-muted-foreground">
-                            Upload your ID document or driver's license for verification
+                            Real-time camera capture is required. Gallery uploads are disabled for security.
                           </p>
                         </div>
 
