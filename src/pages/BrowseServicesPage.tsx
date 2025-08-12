@@ -129,13 +129,14 @@ const BrowseServicesPage = () => {
 
       setServices(transformedServices);
 
-      // Build provider markers for the map view
-      const uniqueProviders = Object.keys(servicesByProvider).map((providerId) => {
+      // Build provider markers for the map view from providers with services
+      const providerIdsWithServices = Object.keys(servicesByProvider);
+      const uniqueProviders = providerIdsWithServices.map((providerId) => {
         const provider = profileMap[providerId];
         const providerServices = servicesByProvider[providerId];
 
-        // Use town-based geocoding for accuracy (centered on town); the map will geocode the address
-        const lng = 17.0658; // Windhoek center as placeholder to trigger geocoding
+        // Use town-based geocoding for accuracy; map component will refine if needed
+        const lng = 17.0658; // Windhoek center placeholder triggers geocoding
         const lat = -22.5609;
 
         return {
@@ -153,7 +154,34 @@ const BrowseServicesPage = () => {
         };
       });
 
-      setProviders(uniqueProviders);
+      // Also include verified, active providers who currently have no active services
+      const { data: verifiedProfiles, error: verifiedErr } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, town, is_verified, is_active, user_type')
+        .in('user_type', ['labourer', 'both'])
+        .eq('is_verified', true)
+        .eq('is_active', true);
+      if (verifiedErr) {
+        console.warn('Could not fetch verified profiles without services:', verifiedErr);
+      }
+      const providersWithMarkersSet = new Set(providerIdsWithServices);
+      const additionalVerifiedProviders = (verifiedProfiles || [])
+        .filter((p: any) => !providersWithMarkersSet.has(p.id))
+        .map((p: any) => ({
+          id: p.id,
+          name: p.full_name || 'Verified Provider',
+          service: 'Service Provider',
+          location: {
+            lat: -22.5609,
+            lng: 17.0658,
+            address: p.town ? `${p.town}, Namibia` : 'Namibia',
+          },
+          profileImage: p.avatar_url,
+          services: [],
+          isVerified: true,
+        }));
+
+      setProviders([...uniqueProviders, ...additionalVerifiedProviders]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
