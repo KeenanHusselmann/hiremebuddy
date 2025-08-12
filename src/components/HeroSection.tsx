@@ -10,7 +10,7 @@ import heroBackground from '@/assets/hero-background.jpg';
 
 const HeroSection = () => {
   const { t } = useLanguage();
-  const { profile } = useAuth();
+  const { profile, session } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({
@@ -123,7 +123,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button 
                 className="btn-sunset px-8 py-4 text-lg min-w-[200px]"
-                onClick={() => window.location.href = '/browse'}
+                onClick={() => (session ? navigate('/browse') : navigate('/auth'))}
               >
                 {t('hero.findServices')}
               </Button>

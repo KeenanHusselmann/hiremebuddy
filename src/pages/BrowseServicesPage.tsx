@@ -13,6 +13,7 @@ import { GoogleMap } from '@/components/GoogleMap';
 import { BackButton } from '@/hooks/useBackNavigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
@@ -42,7 +43,8 @@ const BrowseServicesPage = () => {
 
   // Get ratings for all services
   const serviceIds = services.map(service => service.id);
-  const { ratings } = useServiceRatings(serviceIds);
+const { ratings } = useServiceRatings(serviceIds);
+  const { session } = useAuth();
 
   const categories = [
     'all', 'plumbing', 'electrical', 'carpentry', 'painting', 
@@ -55,9 +57,13 @@ const BrowseServicesPage = () => {
     'rundu', 'katima-mulilo', 'keetmanshoop', 'otjiwarongo'
   ];
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
+useEffect(() => {
+    if (session) {
+      fetchServices();
+    } else {
+      setLoading(false);
+    }
+  }, [session]);
 
   const fetchServices = async () => {
     try {
@@ -246,6 +252,20 @@ const BrowseServicesPage = () => {
   const handleServiceClick = (service: Service) => {
     navigate(`/services/${service.category}/${service.id}`);
   };
+
+if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-3xl font-bold mb-4">Login required</h1>
+          <p className="text-muted-foreground mb-6">Please log in to browse services and view providers.</p>
+          <Button className="btn-sunset" onClick={() => navigate('/auth')}>Log in</Button>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -462,6 +482,7 @@ const BrowseServicesPage = () => {
           <TabsContent value="map">
             <GoogleMap 
               workers={providers} 
+              isAuthenticated={!!session}
               onWorkerSelect={(worker) => {
                 // Find the first service for this worker to navigate to
                 const workerService = services.find(service => 

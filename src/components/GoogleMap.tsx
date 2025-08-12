@@ -27,6 +27,7 @@ interface GoogleMapProps {
   center?: { lat: number; lng: number };
   zoom?: number;
   className?: string;
+  isAuthenticated?: boolean;
 }
 
 const MapComponent: React.FC<GoogleMapProps> = ({
@@ -34,7 +35,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   onWorkerSelect,
   center = WINDHOEK_CENTER,
   zoom = 12,
-  className = "w-full h-96"
+  className = "w-full h-96",
+  isAuthenticated = false
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -225,8 +227,8 @@ const MapComponent: React.FC<GoogleMapProps> = ({
 
             marker.addListener('click', () => {
                selectedIdRef.current = worker.id;
-               const content = `
-                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 180px; padding: 14px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow: visible;">
+               const authContent = `
+                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 340px; max-height: min(80vh, 600px); padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:auto;">
                    <div style="display:flex; gap:12px; align-items:center;">
                      ${worker.profileImage ? 
                        `<img src="${safeUrl(worker.profileImage || '')}" alt="${escapeHTML(worker.name)}" style="width:56px;height:56px;border-radius:9999px;object-fit:cover;border:1px solid hsl(var(--border));"/>` :
@@ -241,7 +243,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
                      <button 
                        onclick="window.selectWorker('${escapeJSString(worker.id)}')" 
-                       style="flex:1; min-width:120px; padding:8px 12px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:14px;"
+                       style="flex:1; min-width:120px; padding:10px 12px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; font-size:14px;"
                      >
                        View Profile
                      </button>
@@ -254,11 +256,27 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                      </p>
                    </div>
                  </div>`;
- 
+               
+               const guestContent = `
+                 <div class="card" style="max-width: min(98vw, 420px); min-width: 260px; min-height: 280px; padding: 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:12px; box-shadow:0 10px 20px hsl(var(--foreground) / 0.08); overflow:auto;">
+                   <div style="display:flex; gap:12px; align-items:center;">
+                     <div style="width:56px;height:56px;border-radius:9999px;background:hsl(var(--primary) / 0.12);color:hsl(var(--foreground));display:flex;align-items:center;justify-content:center;font-weight:700;">🔒</div>
+                     <div style="flex:1; min-width:0;">
+                       <div style="font-weight:700;font-size:16px;color:hsl(var(--foreground)); line-height:1.4;">Login required</div>
+                       <div style="font-size:14px;color:hsl(var(--muted-foreground)); margin-top:2px;">Sign in to view provider details</div>
+                     </div>
+                   </div>
+                   <div style="margin-top:12px; display:flex; gap:8px;">
+                     <a href="/auth" style="flex:1; padding:10px 12px; border-radius:8px; background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); font-weight:600; text-align:center; text-decoration:none;">Log in to view</a>
+                   </div>
+                 </div>`;
+                 
+               const content = isAuthenticated ? authContent : guestContent;
+  
                infoWindowRef.current!.setContent(content);
                infoWindowRef.current!.open(map, marker!);
                const isMobile = window.innerWidth < 640;
-               const panOffsetY = isMobile ? -Math.min(420, Math.floor(window.innerHeight * 0.55)) : -160;
+               const panOffsetY = isMobile ? -Math.min(640, Math.floor(window.innerHeight * 0.75)) : -200;
                map.panBy(0, panOffsetY);
              });
 

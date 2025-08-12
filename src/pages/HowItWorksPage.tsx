@@ -5,8 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const HowItWorksPage = () => {
+  const { session } = useAuth();
   const steps = [
     {
       number: 1,
@@ -113,7 +115,7 @@ const HowItWorksPage = () => {
               Here's how our platform brings trust and quality to every service interaction.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/browse">
+              <Link to={session ? "/browse" : "/auth"}>
                 <Button className="btn-sunset px-8 py-3 text-lg">
                   Find Services
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -277,7 +279,7 @@ const HowItWorksPage = () => {
               Join thousands of satisfied customers and skilled professionals on HireMeBuddy today
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/browse">
+              <Link to={session ? "/browse" : "/auth"}>
                 <Button variant="secondary" className="px-8 py-3 text-lg">
                   Find Services Now
                 </Button>
