@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { BackButton } from '@/hooks/useBackNavigation';
 
 const PrivacyPage = () => {
   useEffect(() => {
@@ -27,6 +28,7 @@ const PrivacyPage = () => {
       <main className="py-16">
         <div className="container-responsive">
           <div className="max-w-4xl mx-auto">
+            <BackButton className="mb-6" />
             <div className="glass-card p-8 md:p-12">
               <h1 className="text-4xl font-bold text-foreground mb-8 text-center">
                 Privacy Policy

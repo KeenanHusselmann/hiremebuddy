@@ -474,24 +474,15 @@ const ProfilePage = () => {
                         />
                       </div>
 
-                       <div className="space-y-2">
-                         <Label htmlFor="town">Town/City</Label>
-                         <Select
-                           value={formData.town}
-                           onValueChange={(value) => handleInputChange('town', value)}
-                         >
-                           <SelectTrigger>
-                             <SelectValue placeholder="Select your town" />
-                           </SelectTrigger>
-                           <SelectContent>
-                             {namibianTowns.map((town) => (
-                               <SelectItem key={town.id} value={town.name}>
-                                 {town.name}, {town.region}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                       </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="town">Town/City</Label>
+                          <Input
+                            id="town"
+                            value={formData.town}
+                            onChange={(e) => handleInputChange('town', e.target.value)}
+                            placeholder="Enter your town/city"
+                          />
+                        </div>
 
                        <div className="space-y-2">
                          <Label htmlFor="location_text">{t('profile.location')}</Label>
