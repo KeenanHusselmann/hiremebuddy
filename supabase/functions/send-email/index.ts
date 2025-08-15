@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@4.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -25,7 +23,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log('Processing email request...');
+    console.log('Starting email processing...');
     
     // Check if RESEND_API_KEY is available
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
@@ -43,12 +41,34 @@ serve(async (req: Request) => {
       });
     }
 
+    // Initialize Resend with the API key
+    const resend = new Resend(resendApiKey);
+    console.log('Resend initialized successfully');
+
     const body: SendEmailRequest = await req.json();
-    console.log('Request body:', { ...body, email: '[hidden]' });
+    console.log('Request body received:', { 
+      source: body.source, 
+      name: body.name, 
+      subject: body.subject,
+      hasMessage: !!body.message 
+    });
 
     // Validate required fields
     if (!body.name || !body.email || !body.subject || !body.message) {
-      throw new Error('Missing required fields');
+      console.error('Missing required fields:', {
+        name: !!body.name,
+        email: !!body.email,
+        subject: !!body.subject,
+        message: !!body.message
+      });
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Missing required fields',
+        details: 'Name, email, subject, and message are required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
     }
 
     const toAddress = 'hiremebuddy061@gmail.com';
@@ -84,11 +104,19 @@ serve(async (req: Request) => {
       reply_to: body.email,
     };
 
+    console.log('Email data prepared, sending...');
     const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
       console.error('Resend error:', error);
-      throw new Error(`Email sending failed: ${JSON.stringify(error)}`);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: `Email sending failed: ${error.message}`,
+        details: JSON.stringify(error)
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
     }
 
     console.log('Email sent successfully:', data);
