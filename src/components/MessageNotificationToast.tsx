@@ -39,8 +39,13 @@ export const MessageNotificationToast: React.FC = () => {
         async (payload) => {
           const newNotification = payload.new as any;
 
-          // Only handle message-type notifications
+          // Only handle message-type notifications AND ensure it's not already handled by useNotifications
           if (newNotification.type !== 'new_message' && newNotification.category !== 'message') {
+            return;
+          }
+          
+          // Skip booking-related notifications as they're handled by NotificationCenter
+          if (newNotification.category === 'booking' || newNotification.type === 'booking_created' || newNotification.type === 'booking_status_changed') {
             return;
           }
 
