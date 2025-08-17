@@ -12,6 +12,18 @@ interface Notification {
   created_at: string;
 }
 
+// Build a stable key to detect duplicates created by backend triggers
+const buildKey = (n: Notification) => `${n.type}|${n.target_url || ''}|${n.created_at}`;
+
+const dedupeNotifications = (list: Notification[]) => {
+  const map = new Map<string, Notification>();
+  for (const n of list) {
+    const key = buildKey(n);
+    if (!map.has(key)) map.set(key, n);
+  }
+  return Array.from(map.values());
+};
+
 export const useNotifications = () => {
   const { profile } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -35,8 +47,9 @@ export const useNotifications = () => {
         return;
       }
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.is_read).length || 0);
+      const deduped = dedupeNotifications(data || []);
+      setNotifications(deduped);
+      setUnreadCount(deduped.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Error in fetchNotifications:', error);
     } finally {
@@ -85,6 +98,33 @@ export const useNotifications = () => {
     }
   }, []);
 
+  // Mark a group of duplicate notifications (same type/url/timestamp) as read
+  const markGroupAsRead = useCallback(async (notificationId: string) => {
+    if (!notifications.length) return;
+    const target = notifications.find(n => n.id === notificationId);
+    if (!target) return;
+    const key = buildKey(target);
+    const duplicateIds = notifications
+      .filter(n => !n.is_read && buildKey(n) === key)
+      .map(n => n.id);
+    if (duplicateIds.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .in('id', duplicateIds);
+      if (error) {
+        console.error('Error marking group as read:', error);
+        return;
+      }
+      setNotifications(prev => prev.map(n => buildKey(n) === key ? { ...n, is_read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - duplicateIds.length));
+    } catch (e) {
+      console.error('Error in markGroupAsRead:', e);
+    }
+  }, [notifications]);
+
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     if (!profile?.id) return;
@@ -126,17 +166,20 @@ export const useNotifications = () => {
         },
         (payload) => {
           const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
-          
-          // Show browser notification
+          setNotifications(prev => {
+            const newKey = buildKey(newNotification);
+            const exists = prev.some(n => buildKey(n) === newKey);
+            const next = exists ? prev : [newNotification, ...prev];
+            // Recalculate unread from deduped list
+            setUnreadCount(next.filter(n => !n.is_read).length);
+            return next;
+          });
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('New Notification', {
               body: newNotification.message,
               icon: '/favicon.ico'
             });
           }
-          // Play ding sound
           if (document.visibilityState === 'visible') {
             playDing();
           }
@@ -169,6 +212,7 @@ export const useNotifications = () => {
     unreadCount,
     isLoading,
     markAsRead,
+    markGroupAsRead,
     markAllAsRead,
     refetch: fetchNotifications
   };

@@ -42,12 +42,12 @@ const getNotificationColor = (category: string) => {
 
 export const NotificationCenter: React.FC = () => {
   const navigate = useNavigate();
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, markGroupAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.is_read) {
-      markAsRead(notification.id);
+      markGroupAsRead(notification.id);
     }
     
     if (notification.target_url) {
@@ -170,7 +170,7 @@ export const NotificationCenter: React.FC = () => {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              markAsRead(notification.id);
+                              markGroupAsRead(notification.id);
                             }}
                             className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                           >

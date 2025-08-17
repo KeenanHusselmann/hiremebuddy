@@ -14,6 +14,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useServiceRating, renderStars, formatRating } from '@/hooks/useServiceRatings';
 
 const BookingPage = () => {
   const location = useLocation();
@@ -32,6 +33,9 @@ const BookingPage = () => {
     labourerId: ''
   });
   const [isLoadingService, setIsLoadingService] = useState(true);
+
+  // Live rating for this service
+  const { rating: serviceRating } = useServiceRating(service.id);
 
   const [bookingData, setBookingData] = useState({
     date: '',
@@ -97,7 +101,7 @@ const BookingPage = () => {
           title: serviceData.service_name,
           provider: provider?.full_name || 'Provider',
           price: serviceData.hourly_rate ? `N$${serviceData.hourly_rate}/hour` : 'N$0/hour',
-          rating: 4.8, // Default rating for now
+          rating: 0,
           category: serviceData.service_name.toLowerCase(),
           labourerId: serviceData.labourer_id
         });
@@ -408,8 +412,15 @@ const BookingPage = () => {
                     <h3 className="font-semibold text-lg">{service.title}</h3>
                     <p className="text-primary font-medium">{service.provider}</p>
                     <div className="flex items-center gap-1 mt-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm">{service.rating}</span>
+                      {renderStars(serviceRating.averageRating, 'sm')}
+                      <span className="text-sm">
+                        {formatRating(serviceRating.averageRating, serviceRating.reviewCount)}
+                      </span>
+                      {serviceRating.reviewCount > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          ({serviceRating.reviewCount} review{serviceRating.reviewCount !== 1 ? 's' : ''})
+                        </span>
+                      )}
                     </div>
                   </div>
 
