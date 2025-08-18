@@ -19,39 +19,42 @@ const ServiceCategories = () => {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-  const fetchCategoryCounts = async () => {
+    const fetchCategoryCounts = async () => {
       try {
-        // Get counts by category
-        const { data: categoryData, error: categoryError } = await supabase
-          .from('service_categories')
-          .select(`
-            name,
-            services(count),
-            service_subcategories(
-              services(count)
-            )
-          `);
+        // Fetch categories and provider-category assignments
+        const [
+          { data: categories, error: catError },
+          { data: providerLinks, error: provError }
+        ] = await Promise.all([
+          supabase.from('service_categories').select('id, name'),
+          supabase.from('provider_categories').select('category_id, provider_id')
+        ]);
 
-        if (categoryError) {
-          console.error('Error fetching category counts:', categoryError);
+        if (catError) {
+          console.error('Error fetching categories:', catError);
+          return;
+        }
+        if (provError) {
+          console.error('Error fetching provider categories:', provError);
           return;
         }
 
-        const counts: Record<string, number> = {};
-        categoryData?.forEach((category: any) => {
-          // Count services directly in category
-          const directServices = category.services?.[0]?.count || 0;
-          
-          // Count services in subcategories
-          const subcategoryServices = category.service_subcategories?.reduce((total: number, sub: any) => {
-            return total + (sub.services?.[0]?.count || 0);
-          }, 0) || 0;
-          
-          // Use only the higher count (avoid double counting when services exist in both)
-          // If there are subcategory services, use that count, otherwise use direct services
-          counts[category.name.toLowerCase()] = subcategoryServices > 0 ? subcategoryServices : directServices;
+        // Count DISTINCT providers per category
+        const countsByCategoryId = new Map<string, Set<string>>();
+        providerLinks?.forEach((row: any) => {
+          if (!row.category_id || !row.provider_id) return;
+          if (!countsByCategoryId.has(row.category_id)) {
+            countsByCategoryId.set(row.category_id, new Set<string>());
+          }
+          countsByCategoryId.get(row.category_id)!.add(row.provider_id);
         });
-        
+
+        const counts: Record<string, number> = {};
+        categories?.forEach((cat: any) => {
+          const set = countsByCategoryId.get(cat.id) || new Set<string>();
+          counts[cat.name.toLowerCase()] = set.size;
+        });
+
         setCategoryCounts(counts);
       } catch (error) {
         console.error('Error fetching category counts:', error);
@@ -166,9 +169,7 @@ const ServiceCategories = () => {
                   <span className="text-xs text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
                     {(() => {
                       const key = category.title.toLowerCase();
-                      // Map Tech Support card to include IT Services count
-                      const mappedKey = key === 'tech support' ? 'it services' : key;
-                      const count = categoryCounts[mappedKey] || categoryCounts[key] || 0;
+                      const count = categoryCounts[key] || 0;
                       return count === 0 ? '0 Providers' : `${count} Provider${count === 1 ? '' : 's'}`;
                     })()}
                   </span>
