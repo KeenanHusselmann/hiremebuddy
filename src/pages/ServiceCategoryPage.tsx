@@ -28,7 +28,7 @@ const ServiceCategoryPage = () => {
       const slug = (category || '').toLowerCase();
       const namePatterns: string[] = [];
       if (slug === 'tech-support') {
-        namePatterns.push('%it%','%tech%');
+        namePatterns.push('%tech support%', '%tech%', '%it%');
       } else {
         namePatterns.push(`%${slug}%`);
       }
