@@ -166,6 +166,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
+      
+      // Redirect to auth page
+      window.location.href = '/auth';
     } catch (error: any) {
       toast({
         title: "Error",

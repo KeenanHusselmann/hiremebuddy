@@ -280,7 +280,7 @@ const BookingDetailPage: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
+                    <Calendar className="h-5 w-5 text-foreground/70 dark:text-foreground/80" />
                     <div>
                       <p className="font-medium">Date</p>
                       <p className="text-sm text-muted-foreground">
@@ -301,16 +301,27 @@ const BookingDetailPage: React.FC = () => {
                 {booking.message && (
                   <div>
                     <p className="font-medium mb-2">Message</p>
-                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                      {booking.message.split(/[,:;]/).map((item, index) => {
-                        const trimmedItem = item.trim();
-                        if (!trimmedItem) return null;
-                        return (
-                          <div key={index} className="mb-1 last:mb-0">
-                            • {trimmedItem}
-                          </div>
-                        );
-                      })}
+                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md space-y-2">
+                      {(() => {
+                        const lines = booking.message.split('\n').filter(line => line.trim());
+                        const fields = [
+                          { label: 'Project Details', key: 'project' },
+                          { label: 'Address', key: 'address' },
+                          { label: 'Phone Number', key: 'phone' },
+                          { label: 'Duration', key: 'duration' },
+                          { label: 'Urgency', key: 'urgency' }
+                        ];
+                        
+                        return fields.map((field, index) => {
+                          const value = lines[index] || 'Not specified';
+                          return (
+                            <div key={field.key} className="flex flex-col">
+                              <span className="font-medium text-foreground">{field.label}</span>
+                              <span className="text-muted-foreground">{value}</span>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
                 )}
