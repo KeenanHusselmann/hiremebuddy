@@ -28,6 +28,7 @@ import Footer from '@/components/Footer';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { ServiceRating } from '@/components/ServiceRating';
+import { useServiceRating, formatRating, renderStars } from '@/hooks/useServiceRatings';
 
 interface Booking {
   id: string;
@@ -68,6 +69,11 @@ const BookingDetailPage: React.FC = () => {
   const isClient = currentProfile?.id === booking?.client_id;
   const otherProfile = isClient ? labourerProfile : clientProfile;
   const otherUserId = isClient ? booking?.labourer_id : booking?.client_id;
+
+  // Get real-time rating data for service provider
+  const { rating: serviceRating, loading: ratingLoading } = useServiceRating(
+    (isClient && booking?.service_id) ? booking.service_id : ''
+  );
 
   useEffect(() => {
     if (!bookingId) return;
@@ -295,9 +301,17 @@ const BookingDetailPage: React.FC = () => {
                 {booking.message && (
                   <div>
                     <p className="font-medium mb-2">Message</p>
-                    <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                      {booking.message}
-                    </p>
+                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                      {booking.message.split(/[,:;]/).map((item, index) => {
+                        const trimmedItem = item.trim();
+                        if (!trimmedItem) return null;
+                        return (
+                          <div key={index} className="mb-1 last:mb-0">
+                            • {trimmedItem}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -403,6 +417,13 @@ const BookingDetailPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {otherProfile.contact_number && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm">{otherProfile.contact_number}</p>
+                    </div>
+                  )}
+
                   {otherProfile.location_text && (
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -410,20 +431,23 @@ const BookingDetailPage: React.FC = () => {
                     </div>
                   )}
 
-                  <Separator />
-
-                  <div className="flex gap-2">
-                    {otherProfile.contact_number && (
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Phone className="h-4 w-4 mr-2" />
-                        Call
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Chat
-                    </Button>
-                  </div>
+                  {/* Real-time Rating - only show for service providers */}
+                  {isClient && !ratingLoading && (
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center gap-2">
+                        {renderStars(serviceRating.averageRating, 'sm')}
+                        <span className="text-sm font-medium">
+                          {formatRating(serviceRating.averageRating, serviceRating.reviewCount)}
+                        </span>
+                        {serviceRating.reviewCount > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            ({serviceRating.reviewCount} reviews)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
