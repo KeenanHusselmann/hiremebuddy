@@ -60,9 +60,9 @@ const ServiceCategoryPage = () => {
       const profileMap: Record<string, any> = {};
       (safeProfiles || []).forEach((p: any) => { profileMap[p.id] = p; });
 
-      // 3) Only keep services with verified providers and attach minimal labourer info
+      // 3) Only keep services with verified AND active providers and attach minimal labourer info
       const withProviders = serviceList
-        .filter((s: any) => profileMap[s.labourer_id]?.is_verified)
+        .filter((s: any) => profileMap[s.labourer_id]?.is_verified && profileMap[s.labourer_id]?.is_active)
         .map((s: any) => ({
           ...s,
           labourer: {
@@ -270,7 +270,7 @@ const ServiceCategoryPage = () => {
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Category Not Found</h1>
           <p className="text-muted-foreground mb-4">The requested service category doesn't exist.</p>
-          <Button onClick={() => navigate('/browse')}>Browse All Services</Button>
+          <Button onClick={() => navigate('/')}>Back to Home</Button>
         </div>
         <Footer />
       </div>
@@ -289,11 +289,11 @@ const ServiceCategoryPage = () => {
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/browse')}
+          onClick={() => navigate('/')}
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Browse
+          Back to Home
         </Button>
 
         {/* Category Header */}
@@ -346,9 +346,9 @@ const ServiceCategoryPage = () => {
                     </Button>
                     <Button 
                       className="btn-glass px-8 py-3"
-                      onClick={() => navigate('/browse')}
+                      onClick={() => navigate('/')}
                     >
-                      Browse Other Categories
+                      Back to Home
                     </Button>
                   </div>
                 </div>
@@ -436,9 +436,9 @@ const ServiceCategoryPage = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    onClick={() => navigate('/browse')}
+                    onClick={() => navigate('/')}
                   >
-                    Browse Other Categories
+                    Back to Home
                   </Button>
                 </div>
               </div>

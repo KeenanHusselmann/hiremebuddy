@@ -21,38 +21,36 @@ const ServiceCategories = () => {
   useEffect(() => {
     const fetchCategoryCounts = async () => {
       try {
-        // Fetch categories and provider-category assignments
-        const [
-          { data: categories, error: catError },
-          { data: providerLinks, error: provError }
-        ] = await Promise.all([
-          supabase.from('service_categories').select('id, name'),
-          supabase.from('provider_categories').select('category_id, provider_id')
-        ]);
+        // Fetch categories and count active/verified providers
+        const { data: categoryCounts, error: countError } = await supabase
+          .from('service_categories')
+          .select(`
+            name,
+            provider_categories!inner(
+              provider_id,
+              profiles!inner(
+                is_active,
+                is_verified
+              )
+            )
+          `);
 
-        if (catError) {
-          console.error('Error fetching categories:', catError);
+        if (countError) {
+          console.error('Error fetching category counts:', countError);
           return;
         }
-        if (provError) {
-          console.error('Error fetching provider categories:', provError);
-          return;
-        }
 
-        // Count DISTINCT providers per category
-        const countsByCategoryId = new Map<string, Set<string>>();
-        providerLinks?.forEach((row: any) => {
-          if (!row.category_id || !row.provider_id) return;
-          if (!countsByCategoryId.has(row.category_id)) {
-            countsByCategoryId.set(row.category_id, new Set<string>());
-          }
-          countsByCategoryId.get(row.category_id)!.add(row.provider_id);
-        });
-
+        // Count only active and verified providers
         const counts: Record<string, number> = {};
-        categories?.forEach((cat: any) => {
-          const set = countsByCategoryId.get(cat.id) || new Set<string>();
-          counts[cat.name.toLowerCase()] = set.size;
+        categoryCounts?.forEach((category: any) => {
+          const activeProviders = new Set<string>();
+          category.provider_categories?.forEach((pc: any) => {
+            // Only count if provider is both active and verified
+            if (pc.profiles?.is_active && pc.profiles?.is_verified) {
+              activeProviders.add(pc.provider_id);
+            }
+          });
+          counts[category.name.toLowerCase()] = activeProviders.size;
         });
 
         setCategoryCounts(counts);
@@ -182,7 +180,7 @@ const ServiceCategories = () => {
         <div className="text-center mt-12">
           <button 
             className="btn-glass px-8 py-3 text-lg hover:scale-105 transition-transform duration-200"
-            onClick={() => window.location.href = '/browse'}
+            onClick={() => window.location.href = '/'}
           >
             View All Services
           </button>
