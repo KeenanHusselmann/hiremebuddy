@@ -24,7 +24,7 @@ const ServiceCategoryPage = () => {
 
   const fetchCategoryServices = async () => {
     try {
-      // Map common slugs to category name patterns in DB
+      // Resolve category IDs by matching name patterns first
       const slug = (category || '').toLowerCase();
       const namePatterns: string[] = [];
       if (slug === 'tech-support') {
@@ -33,34 +33,42 @@ const ServiceCategoryPage = () => {
         namePatterns.push(`%${slug}%`);
       }
 
-      // 1) Fetch services with category filter only (no profiles join)
-      let baseQuery = supabase
-        .from('services')
-        .select(`
-          *,
-          category:service_categories!inner (
-            name
-          )
-        `)
-        .eq('is_active', true);
+      // 1) Fetch matching categories by name (reliable filtering)
+      const orCat = namePatterns.map((p) => `name.ilike.${p}`).join(',');
+      const { data: matchedCats, error: catErr } = await supabase
+        .from('service_categories')
+        .select('id, name')
+        .or(orCat);
+      if (catErr) throw catErr;
 
-      // Apply OR filters for multiple patterns against joined category name
-      const orFilters = namePatterns.map(p => `service_categories.name.ilike.${p}`).join(',');
-      const { data: servicesData, error } = await baseQuery.or(orFilters);
-      if (error) throw error;
+      const categoryIds = (matchedCats || []).map((c: any) => c.id);
+      if (categoryIds.length === 0) {
+        setServices([]);
+        setLoading(false);
+        return;
+      }
+
+      // 2) Fetch ACTIVE services under these categories
+      const { data: servicesData, error: srvErr } = await supabase
+        .from('services')
+        .select('*')
+        .in('category_id', categoryIds)
+        .eq('is_active', true);
+      if (srvErr) throw srvErr;
 
       const serviceList = servicesData || [];
       const providerIds = Array.from(new Set(serviceList.map((s: any) => s.labourer_id).filter(Boolean)));
 
-      // 2) Fetch safe provider details via RPC
+      // 3) Fetch safe provider details via RPC (bypasses RLS limits)
       const { data: safeProfiles, error: safeErr } = await supabase.rpc('get_safe_profiles', {
         profile_ids: providerIds
       });
       if (safeErr) throw safeErr;
+
       const profileMap: Record<string, any> = {};
       (safeProfiles || []).forEach((p: any) => { profileMap[p.id] = p; });
 
-      // 3) Only keep services with verified AND active providers and attach minimal labourer info
+      // 4) Only show services for VERIFIED providers
       const withProviders = serviceList
         .filter((s: any) => profileMap[s.labourer_id]?.is_verified)
         .map((s: any) => ({

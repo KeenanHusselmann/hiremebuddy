@@ -183,13 +183,8 @@ const AuthPage = () => {
         description: "Please check your email to verify your account.",
       });
       
-      // If successful signup and user is a provider with selected categories, save them
-      if (userType === 'labourer' && selectedCategories.length > 0) {
-        // Wait for profile to be created by the trigger, then save categories
-        setTimeout(async () => {
-          await saveProviderCategories();
-        }, 2000);
-      }
+      // Categories are no longer selected during signup; skipping category save
+
       
       // Reset form after successful signup
       resetForm();
@@ -535,84 +530,7 @@ const AuthPage = () => {
                           </p>
                         </div>
 
-                        {/* Service Categories Selection */}
-                        <div className="space-y-4 pt-4 border-t border-glass-border/30">
-                          <Label className="text-base font-medium">Service Categories</Label>
-                          <p className="text-sm text-muted-foreground">Select the service categories you specialize in</p>
-                          
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label>Category</Label>
-                              <Select value={currentCategory} onValueChange={setCurrentCategory}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                   {categories.map((category) => (
-                                     <SelectItem key={category.id} value={category.id}>
-                                       {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
-                                     </SelectItem>
-                                   ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                          </div>
-
-                          <Button 
-                            type="button" 
-                            onClick={addCategory} 
-                            variant="outline"
-                            disabled={!currentCategory}
-                            className="w-full"
-                          >
-                            Add Category
-                          </Button>
-
-                          {/* Selected Categories Display */}
-                          {selectedCategories.length > 0 && (
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">Selected Categories:</Label>
-                              <div className="space-y-2">
-                                {selectedCategories.map((categorySelection) => {
-                                  const category = categories.find(c => c.id === categorySelection.categoryId);
-                                  return (
-                                    <div key={categorySelection.categoryId} className="p-3 border rounded-lg space-y-2">
-                                      <div className="flex items-center justify-between">
-                                        <span className="font-medium">{category?.name}</span>
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => removeCategory(categorySelection.categoryId)}
-                                        >
-                                          <X className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                      {categorySelection.subcategoryIds.length > 0 && (
-                                        <div className="flex flex-wrap gap-1">
-                                          {categorySelection.subcategoryIds.map((subId) => {
-                                            const subcategory = subcategories.find(s => s.id === subId);
-                                            return (
-                                              <Badge 
-                                                key={subId} 
-                                                variant="secondary"
-                                                className="text-xs cursor-pointer"
-                                                onClick={() => removeSubcategory(categorySelection.categoryId, subId)}
-                                              >
-                                                {subcategory?.name} <X className="h-3 w-3 ml-1" />
-                                              </Badge>
-                                            );
-                                          })}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        {/* Service Categories Selection removed per requirements */}
 
                         {/* Terms and Privacy Acceptance for Providers */}
                         <div className="space-y-4 pt-4 border-t border-glass-border/30">
