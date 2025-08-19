@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -42,22 +43,49 @@ interface ServiceSubcategory {
 export const ServiceCreationForm = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [subcategories, setSubcategories] = useState<ServiceSubcategory[]>([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState<ServiceSubcategory[]>([]);
   const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
+  const [existingPortfolioUrls, setExistingPortfolioUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showAddSubcategory, setShowAddSubcategory] = useState(false);
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
-const [isMapOpen, setIsMapOpen] = useState(false);
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ServiceForm>();
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  
+  // Get edit service data from navigation state
+  const editService = location.state?.editService;
+  const isEditing = !!editService;
 
   useEffect(() => {
     loadCategories();
     loadSubcategories();
   }, []);
+
+  // Populate form when editing
+  useEffect(() => {
+    if (isEditing && editService && categories.length > 0 && subcategories.length > 0) {
+      setValue('service_name', editService.service_name);
+      setValue('description', editService.description);
+      setValue('hourly_rate', editService.hourly_rate || 0);
+      setValue('category_id', editService.category_id || '');
+      setValue('subcategory_id', editService.subcategory_id || '');
+      
+      if (editService.category_id) {
+        const filtered = subcategories.filter(sub => sub.category_id === editService.category_id);
+        setFilteredSubcategories(filtered);
+      }
+      
+      if (editService.portfolio_images) {
+        setExistingPortfolioUrls(editService.portfolio_images);
+      }
+    }
+  }, [isEditing, editService, categories, subcategories, setValue]);
 
   const loadCategories = async () => {
     const { data, error } = await supabase
@@ -222,6 +250,10 @@ const [isMapOpen, setIsMapOpen] = useState(false);
     setPortfolioImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const removeExistingImage = (index: number) => {
+    setExistingPortfolioUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
   const uploadImages = async (serviceId: string): Promise<string[]> => {
     const uploadedUrls: string[] = [];
     
@@ -252,7 +284,7 @@ const [isMapOpen, setIsMapOpen] = useState(false);
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to create services",
+        description: "Please sign in to manage services",
         variant: "destructive"
       });
       return;
@@ -277,62 +309,98 @@ const [isMapOpen, setIsMapOpen] = useState(false);
         return;
       }
 
-      // Create service
-      const { data: service, error: serviceError } = await supabase
-        .from('services')
-        .insert([{
-          service_name: data.service_name,
-          description: data.description,
-          hourly_rate: data.hourly_rate,
-          category_id: data.category_id,
-          subcategory_id: data.subcategory_id || null,
-          labourer_id: profile.id,
-          portfolio_images: []
-        }])
-        .select()
-        .single();
-      
-      if (serviceError) {
-        throw serviceError;
-      }
-
-      // Update provider categories if not already exists
-      const { data: existingCategory } = await supabase
-        .from('provider_categories')
-        .select('id')
-        .eq('provider_id', profile.id)
-        .eq('category_id', data.category_id)
-        .eq('subcategory_id', data.subcategory_id || null)
-        .single();
-
-      if (!existingCategory) {
-        const { error: categoryError } = await supabase
-          .from('provider_categories')
-          .insert({
-            provider_id: profile.id,
-            category_id: data.category_id,
-            subcategory_id: data.subcategory_id || null
-          });
-
-        if (categoryError) {
-          console.error('Error updating provider categories:', categoryError);
-        }
-      }
-
       // Upload portfolio images if any
-      let portfolioUrls: string[] = [];
+      let portfolioUrls: string[] = [...existingPortfolioUrls];
       if (portfolioImages.length > 0) {
-        portfolioUrls = await uploadImages(service.id);
-        
-        // Update service with portfolio images
-        const { error: updateError } = await supabase
+        const newUrls = await uploadImages(isEditing ? editService.id : 'temp');
+        portfolioUrls = [...portfolioUrls, ...newUrls];
+      }
+
+      if (isEditing) {
+        // Update existing service
+        const { error: serviceError } = await supabase
           .from('services')
-          .update({ portfolio_images: portfolioUrls })
-          .eq('id', service.id);
+          .update({
+            service_name: data.service_name,
+            description: data.description,
+            hourly_rate: data.hourly_rate,
+            category_id: data.category_id,
+            subcategory_id: data.subcategory_id || null,
+            portfolio_images: portfolioUrls
+          })
+          .eq('id', editService.id);
         
-        if (updateError) {
-          console.error('Error updating portfolio images:', updateError);
+        if (serviceError) {
+          throw serviceError;
         }
+
+        toast({
+          title: "Service updated successfully!",
+          description: "Your changes have been saved"
+        });
+
+        // Navigate back to profile
+        navigate('/profile', { state: { activeTab: 'services' } });
+      } else {
+        // Create new service
+        const { data: service, error: serviceError } = await supabase
+          .from('services')
+          .insert([{
+            service_name: data.service_name,
+            description: data.description,
+            hourly_rate: data.hourly_rate,
+            category_id: data.category_id,
+            subcategory_id: data.subcategory_id || null,
+            labourer_id: profile.id,
+            portfolio_images: portfolioUrls
+          }])
+          .select()
+          .single();
+        
+        if (serviceError) {
+          throw serviceError;
+        }
+
+        // Update provider categories if not already exists
+        const { data: existingCategory } = await supabase
+          .from('provider_categories')
+          .select('id')
+          .eq('provider_id', profile.id)
+          .eq('category_id', data.category_id)
+          .eq('subcategory_id', data.subcategory_id || null)
+          .single();
+
+        if (!existingCategory) {
+          const { error: categoryError } = await supabase
+            .from('provider_categories')
+            .insert({
+              provider_id: profile.id,
+              category_id: data.category_id,
+              subcategory_id: data.subcategory_id || null
+            });
+
+          if (categoryError) {
+            console.error('Error updating provider categories:', categoryError);
+          }
+        }
+
+        toast({
+          title: "Service created successfully!",
+          description: "Your service is now live and available to clients"
+        });
+
+        // Reset form
+        setValue('service_name', '');
+        setValue('description', '');
+        setValue('hourly_rate', 0);
+        setValue('category_id', '');
+        setValue('subcategory_id', '');
+        setValue('location_text', '');
+        setValue('latitude', undefined);
+        setValue('longitude', undefined);
+        setPortfolioImages([]);
+        setExistingPortfolioUrls([]);
+        setFilteredSubcategories([]);
       }
 
       // Update provider location if coordinates provided
@@ -350,27 +418,10 @@ const [isMapOpen, setIsMapOpen] = useState(false);
           console.error('Error updating location:', locationError);
         }
       }
-
-      toast({
-        title: "Service created successfully!",
-        description: "Your service is now live and available to clients"
-      });
-
-      // Reset form
-      setValue('service_name', '');
-      setValue('description', '');
-      setValue('hourly_rate', 0);
-      setValue('category_id', '');
-      setValue('subcategory_id', '');
-      setValue('location_text', '');
-      setValue('latitude', undefined);
-      setValue('longitude', undefined);
-      setPortfolioImages([]);
-      setFilteredSubcategories([]);
       
     } catch (error: any) {
       toast({
-        title: "Error creating service",
+        title: isEditing ? "Error updating service" : "Error creating service",
         description: error.message,
         variant: "destructive"
       });
@@ -382,9 +433,12 @@ const [isMapOpen, setIsMapOpen] = useState(false);
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Create New Service</CardTitle>
+        <CardTitle>{isEditing ? 'Edit Service' : 'Create New Service'}</CardTitle>
         <CardDescription>
-          Add your professional service to connect with clients in Namibia
+          {isEditing 
+            ? 'Update your service details and portfolio' 
+            : 'Add your professional service to connect with clients in Namibia'
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -616,32 +670,66 @@ const [isMapOpen, setIsMapOpen] = useState(false);
               </div>
             </div>
             
+            {/* Display existing portfolio images when editing */}
+            {isEditing && existingPortfolioUrls.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Current Portfolio Images</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {existingPortfolioUrls.map((url, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={url}
+                        alt={`Existing Portfolio ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0"
+                        onClick={() => removeExistingImage(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Display new images being uploaded */}
             {portfolioImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                {portfolioImages.map((image, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt={`Portfolio ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-1 right-1 h-6 w-6 p-0"
-                      onClick={() => removeImage(index)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">New Images to Upload</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {portfolioImages.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`New Portfolio ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating Service...' : 'Create Service'}
+            {isLoading 
+              ? (isEditing ? 'Updating Service...' : 'Creating Service...') 
+              : (isEditing ? 'Update Service' : 'Create Service')
+            }
           </Button>
         </form>
       </CardContent>

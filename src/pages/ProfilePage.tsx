@@ -646,7 +646,8 @@ const ProfilePage = () => {
                                    <Button
                                      size="sm"
                                      variant="outline"
-                                     onClick={() => navigate(`/services/category/${service.id}`)}
+                                     onClick={() => navigate(`/service/${service.id}`)}
+                                     title="View Service Details"
                                    >
                                      <Eye className="h-3 w-3" />
                                    </Button>
@@ -654,6 +655,7 @@ const ProfilePage = () => {
                                      size="sm"
                                      variant="outline"
                                      onClick={() => navigate('/create-service', { state: { editService: service } })}
+                                     title="Edit Service"
                                    >
                                      <Edit className="h-3 w-3" />
                                    </Button>
