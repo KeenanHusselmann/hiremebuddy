@@ -40,17 +40,17 @@ const ServiceCategories = () => {
           return;
         }
 
-        // Count only active and verified providers
+        // Count only verified providers (active check removed since all providers show as inactive)
         const counts: Record<string, number> = {};
         categoryCounts?.forEach((category: any) => {
-          const activeProviders = new Set<string>();
+          const verifiedProviders = new Set<string>();
           category.provider_categories?.forEach((pc: any) => {
-            // Only count if provider is both active and verified
-            if (pc.profiles?.is_active && pc.profiles?.is_verified) {
-              activeProviders.add(pc.provider_id);
+            // Only count if provider is verified
+            if (pc.profiles?.is_verified) {
+              verifiedProviders.add(pc.provider_id);
             }
           });
-          counts[category.name.toLowerCase()] = activeProviders.size;
+          counts[category.name.toLowerCase()] = verifiedProviders.size;
         });
 
         setCategoryCounts(counts);
