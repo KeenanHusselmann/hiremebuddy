@@ -145,6 +145,16 @@ const ServiceDetailPage = () => {
         return;
       }
 
+      // Check if user is trying to book their own service
+      if (clientProfile.id === service.labourer_id) {
+        toast({
+          title: "Cannot book own service",
+          description: "You cannot book your own service",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Navigate to booking with service data
       navigate('/booking', { 
         state: { 
@@ -175,14 +185,49 @@ const ServiceDetailPage = () => {
       return;
     }
 
-    // Navigate to quote request page with service data
-    navigate('/request-quote', { 
-      state: { 
-        service,
-        serviceId: service.id,
-        labourerId: service.labourer_id
-      } 
-    });
+    try {
+      // Get user profile to check if they're trying to quote their own service
+      const { data: clientProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profileError || !clientProfile) {
+        toast({
+          title: "Profile not found",
+          description: "Please complete your profile first",
+          variant: "destructive"
+        });
+        navigate('/profile');
+        return;
+      }
+
+      // Check if user is trying to request quote for their own service
+      if (clientProfile.id === service.labourer_id) {
+        toast({
+          title: "Cannot request quote",
+          description: "You cannot request a quote for your own service",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Navigate to quote request page with service data
+      navigate('/request-quote', { 
+        state: { 
+          service,
+          serviceId: service.id,
+          labourerId: service.labourer_id
+        } 
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
