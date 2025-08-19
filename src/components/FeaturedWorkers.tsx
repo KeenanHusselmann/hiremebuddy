@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { CommunicationButtons } from '@/components/CommunicationButtons';
 import { supabase } from '@/integrations/supabase/client';
 import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Worker {
   id: string; // service id
@@ -32,6 +34,9 @@ const FeaturedWorkers = () => {
   // Get ratings for all workers
   const serviceIds = workers.map(worker => worker.id);
   const { ratings } = useServiceRatings(serviceIds);
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const isOwnService = (labourerId: string) => profile?.id === labourerId;
 
   useEffect(() => {
     const fetchFeaturedWorkers = async () => {
@@ -273,13 +278,35 @@ const FeaturedWorkers = () => {
                      <div className="grid grid-cols-2 gap-2">
                       <Button 
                         className="btn-sunset"
-                        onClick={() => window.location.href = `/booking?serviceId=${worker.id}`}
+                        disabled={isOwnService(worker.labourerId)}
+                        onClick={() => {
+                          if (isOwnService(worker.labourerId)) {
+                            toast({
+                              title: "Cannot book own service",
+                              description: "You cannot book your own service",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          window.location.href = `/booking?serviceId=${worker.id}`;
+                        }}
                       >
                         Book Service
                       </Button>
                       <Button 
                         variant="outline"
-                        onClick={() => window.location.href = `/request-quote?serviceId=${worker.id}`}
+                        disabled={isOwnService(worker.labourerId)}
+                        onClick={() => {
+                          if (isOwnService(worker.labourerId)) {
+                            toast({
+                              title: "Cannot request quote",
+                              description: "You cannot request a quote for your own service",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          window.location.href = `/request-quote?serviceId=${worker.id}`;
+                        }}
                       >
                         Request Quote
                       </Button>
