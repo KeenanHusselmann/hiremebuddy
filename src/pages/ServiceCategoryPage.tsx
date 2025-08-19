@@ -46,7 +46,7 @@ const ServiceCategoryPage = () => {
 
       // Apply OR filters for multiple patterns against joined category name
       const orFilters = namePatterns.map(p => `service_categories.name.ilike.${p}`).join(',');
-      const { data: servicesData, error } = await baseQuery.or(`(${orFilters})`);
+      const { data: servicesData, error } = await baseQuery.or(orFilters);
       if (error) throw error;
 
       const serviceList = servicesData || [];
@@ -62,7 +62,7 @@ const ServiceCategoryPage = () => {
 
       // 3) Only keep services with verified AND active providers and attach minimal labourer info
       const withProviders = serviceList
-        .filter((s: any) => profileMap[s.labourer_id]?.is_verified && profileMap[s.labourer_id]?.is_active)
+        .filter((s: any) => profileMap[s.labourer_id]?.is_verified)
         .map((s: any) => ({
           ...s,
           labourer: {

@@ -21,37 +21,52 @@ const ServiceCategories = () => {
   useEffect(() => {
     const fetchCategoryCounts = async () => {
       try {
-        // Fetch categories and count active/verified providers
-        const { data: categoryCounts, error: countError } = await supabase
-          .from('service_categories')
+        // Count providers per category based on ACTIVE services and VERIFIED profiles
+        const { data: servicesData, error: servicesErr } = await supabase
+          .from('services')
           .select(`
-            name,
-            provider_categories!inner(
-              provider_id,
-              profiles!inner(
-                is_active,
-                is_verified
-              )
+            id,
+            labourer_id,
+            is_active,
+            service_categories!inner(
+              name
             )
-          `);
+          `)
+          .eq('is_active', true);
 
-        if (countError) {
-          console.error('Error fetching category counts:', countError);
+        if (servicesErr) {
+          console.error('Error fetching services for counts:', servicesErr);
           return;
         }
 
-        // Count only verified providers (active check removed since all providers show as inactive)
-        const counts: Record<string, number> = {};
-        categoryCounts?.forEach((category: any) => {
-          const verifiedProviders = new Set<string>();
-          category.provider_categories?.forEach((pc: any) => {
-            // Only count if provider is verified
-            if (pc.profiles?.is_verified) {
-              verifiedProviders.add(pc.provider_id);
-            }
-          });
-          counts[category.name.toLowerCase()] = verifiedProviders.size;
+        // Build counts per category from active services and verified profiles
+        const providerIds: string[] = Array.from(
+          new Set((servicesData || []).map((s: any) => s.labourer_id).filter(Boolean))
+        );
+
+        const { data: safeProfiles, error: profilesErr } = await supabase.rpc('get_safe_profiles', {
+          profile_ids: providerIds
         });
+        if (profilesErr) {
+          console.error('Error fetching provider profiles:', profilesErr);
+          return;
+        }
+
+        const verifiedSet = new Set<string>();
+        (safeProfiles || []).forEach((p: any) => { if (p.is_verified) verifiedSet.add(p.id); });
+
+        const categoryProviderSets: Record<string, Set<string>> = {};
+        (servicesData || []).forEach((s: any) => {
+          const catName = s.service_categories?.name?.toLowerCase();
+          const provId = s.labourer_id;
+          if (!catName || !provId) return;
+          if (!verifiedSet.has(provId)) return;
+          if (!categoryProviderSets[catName]) categoryProviderSets[catName] = new Set<string>();
+          categoryProviderSets[catName].add(provId);
+        });
+
+        const counts: Record<string, number> = {};
+        Object.entries(categoryProviderSets).forEach(([cat, set]) => { counts[cat] = set.size; });
 
         setCategoryCounts(counts);
       } catch (error) {
