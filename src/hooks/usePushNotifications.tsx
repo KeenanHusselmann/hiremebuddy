@@ -16,7 +16,7 @@ export const usePushNotifications = () => {
       
       if (permission === 'granted') {
         const token = await getToken(messaging, {
-          vapidKey: 'YOUR_VAPID_KEY' // You'll need to get this from Firebase Console
+          vapidKey: 'PASTE_YOUR_VAPID_KEY_HERE' // Replace with your actual VAPID key
         });
         
         if (token && profile?.id) {
