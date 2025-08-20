@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -101,6 +101,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      device_tokens: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -619,49 +652,49 @@ export type Database = {
     Functions: {
       create_contact_notification: {
         Args: {
-          p_user_id: string
-          p_type: string
-          p_message: string
           p_category?: string
+          p_message: string
           p_target_url?: string
+          p_type: string
+          p_user_id: string
         }
         Returns: string
       }
       create_notification: {
         Args: {
-          user_id_param: string
-          type_param: string
-          message_param: string
           category_param?: string
+          message_param: string
           target_url_param?: string
+          type_param: string
+          user_id_param: string
         }
         Returns: string
       }
       get_completed_jobs: {
         Args: { provider_ids: string[] }
         Returns: {
-          provider_id: string
           completed_count: number
+          provider_id: string
         }[]
       }
       get_safe_profiles: {
         Args: { profile_ids: string[] }
         Returns: {
-          id: string
-          full_name: string
-          town: string
-          location_text: string
           avatar_url: string
+          full_name: string
+          id: string
           is_verified: boolean
+          location_text: string
+          town: string
           user_type: Database["public"]["Enums"]["user_type"]
         }[]
       }
       get_service_ratings: {
         Args: { service_ids: string[] }
         Returns: {
-          service_id: string
           average_rating: number
           review_count: number
+          service_id: string
         }[]
       }
       is_admin: {
