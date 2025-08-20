@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { MessageNotificationToast } from "@/components/MessageNotificationToast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useNativePushNotifications } from "@/hooks/useNativePushNotifications";
 import PageLoader from "@/components/PageLoader";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -54,8 +55,9 @@ const ScrollToTop = () => {
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  // Initialize push notifications
+  // Initialize push notifications (web and native)
   usePushNotifications();
+  useNativePushNotifications();
   
   return (
     <>
