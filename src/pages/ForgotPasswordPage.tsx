@@ -30,7 +30,6 @@ const ForgotPasswordPage = () => {
       const { data, error } = await supabase.functions.invoke('reset-password', {
         body: {
           email,
-          redirectTo: `${window.location.origin}/reset-password`,
         },
       });
 

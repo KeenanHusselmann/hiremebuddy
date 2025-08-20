@@ -320,7 +320,6 @@ const ProfilePage = () => {
       const { data, error } = await supabase.functions.invoke('reset-password', {
         body: {
           email: user.email,
-          redirectTo: `${window.location.origin}/reset-password`,
         },
       });
 

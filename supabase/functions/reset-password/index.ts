@@ -11,6 +11,7 @@ const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 interface PasswordResetRequest {
@@ -48,7 +49,8 @@ const handler = async (req: Request): Promise<Response> => {
     // 1) Generate reset link if not provided using Admin API
     let resetLink = incomingResetLink;
     if (!resetLink) {
-      const redirect = redirectTo || "https://hiremebuddy.na/reset-password";
+      const safeDefault = "https://hiremebuddy.lovable.app/reset-password";
+      const redirect = redirectTo && !redirectTo.includes("sandbox.lovable.dev") ? redirectTo : safeDefault;
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: "recovery",
         email,
