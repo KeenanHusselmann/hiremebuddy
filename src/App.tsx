@@ -60,47 +60,45 @@ const AppContent = () => {
   useNativePushNotifications();
   
   return (
-    <>
+    <AccessibilityProvider>
       <ScrollToTop />
       <MessageNotificationToast />
-      <AccessibilityProvider>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                    <Route path="/reset-password" element={<ResetPasswordPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/create-service" element={<CreateServicePage />} />
-                    <Route path="/booking" element={<BookingPage />} />
-                    <Route path="/request-quote" element={<RequestQuotePage />} />
-                    <Route path="/insights" element={<InsightsPage />} />
-                    <Route path="/browse" element={<BrowseServicesPage />} />
-                    <Route path="/services/:category" element={<ServiceCategoryPage />} />
-                    <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
-                    <Route path="/how-it-works" element={<HowItWorksPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/booking/:id" element={<BookingDetailPage />} />
-                    <Route path="/bookings/:bookingId" element={<BookingDetailPage />} />
-                    <Route path="/quote-requests/:id" element={<QuoteRequestDetailPage />} />
-                    <Route path="/bookings" element={<BookingManagementPage />} />
-                    <Route path="/quotes" element={<BookingManagementPage />} />
-                    <Route path="/support" element={<SupportPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/privacy" element={<PrivacyPage />} />
-                    
-                    {/* Admin Routes - Separate Layout */}
-                    <Route path="/admin/*" element={<AdminLayout />}>
-                      <Route index element={<AdminDashboard />} />
-                      <Route path="users" element={<AdminUsers />} />
-                      <Route path="bookings" element={<AdminBookings />} />
-                      <Route path="settings" element={<AdminSettings />} />
-                    </Route>
-                    
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AccessibilityProvider>
-    </>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/create-service" element={<CreateServicePage />} />
+        <Route path="/booking" element={<BookingPage />} />
+        <Route path="/request-quote" element={<RequestQuotePage />} />
+        <Route path="/insights" element={<InsightsPage />} />
+        <Route path="/browse" element={<BrowseServicesPage />} />
+        <Route path="/services/:category" element={<ServiceCategoryPage />} />
+        <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/booking/:id" element={<BookingDetailPage />} />
+        <Route path="/bookings/:bookingId" element={<BookingDetailPage />} />
+        <Route path="/quote-requests/:id" element={<QuoteRequestDetailPage />} />
+        <Route path="/bookings" element={<BookingManagementPage />} />
+        <Route path="/quotes" element={<BookingManagementPage />} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        
+        {/* Admin Routes - Separate Layout */}
+        <Route path="/admin/*" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="bookings" element={<AdminBookings />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
+        
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AccessibilityProvider>
   );
 };
 
