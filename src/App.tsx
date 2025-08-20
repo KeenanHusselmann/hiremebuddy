@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/hooks/useLanguage";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { MessageNotificationToast } from "@/components/MessageNotificationToast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageLoader from "@/components/PageLoader";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -52,30 +53,15 @@ const ScrollToTop = () => {
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
+const AppContent = () => {
+  // Initialize push notifications
+  usePushNotifications();
+  
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
-        <LanguageProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <PageLoader isLoading={isLoading} />
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <ScrollToTop />
-                <MessageNotificationToast />
-                <AccessibilityProvider>
+    <>
+      <ScrollToTop />
+      <MessageNotificationToast />
+      <AccessibilityProvider>
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<AuthPage />} />
@@ -110,8 +96,34 @@ const App = () => {
                     
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AccessibilityProvider>
+        </Routes>
+      </AccessibilityProvider>
+    </>
+  );
+};
+
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="system" storageKey="hiremebuddy-theme">
+        <LanguageProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <PageLoader isLoading={isLoading} />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AppContent />
               </BrowserRouter>
             </TooltipProvider>
           </AuthProvider>

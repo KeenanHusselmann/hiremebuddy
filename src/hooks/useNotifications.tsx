@@ -174,6 +174,24 @@ export const useNotifications = () => {
             setUnreadCount(next.filter(n => !n.is_read).length);
             return next;
           });
+          
+          // Send push notification for message notifications
+          if (newNotification.category === 'message') {
+            supabase.functions.invoke('send-push-notification', {
+              body: {
+                user_id: profile.id,
+                title: 'New Message',
+                body: newNotification.message,
+                data: {
+                  url: newNotification.target_url || '/',
+                  type: newNotification.type
+                }
+              }
+            }).catch(error => {
+              console.error('Error sending push notification:', error);
+            });
+          }
+          
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('New Notification', {
               body: newNotification.message,
