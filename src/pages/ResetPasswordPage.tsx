@@ -19,17 +19,52 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have the necessary tokens in the URL
-    const accessToken = searchParams.get('access_token');
-    
-    if (!accessToken) {
-      toast({
-        title: "Invalid Reset Link",
-        description: "This reset link is invalid or has expired. Please request a new one.",
-        variant: "destructive",
-      });
-      navigate('/forgot-password');
-    }
+    // Handle Supabase recovery redirect parameters which arrive in the URL hash
+    // Example: /reset-password#access_token=...&refresh_token=...&type=recovery
+    const hash = window.location.hash?.startsWith('#') ? window.location.hash.slice(1) : '';
+    const hashParams = new URLSearchParams(hash);
+
+    // Fallback to query params just in case
+    const searchAccess = searchParams.get('access_token');
+    const searchRefresh = searchParams.get('refresh_token');
+
+    const accessToken = hashParams.get('access_token') || searchAccess;
+    const refreshToken = hashParams.get('refresh_token') || searchRefresh;
+    const type = hashParams.get('type');
+
+    const processSession = async () => {
+      if (accessToken && refreshToken && (type === 'recovery' || type === null || type === undefined)) {
+        try {
+          // Establish a temporary session so we can call updateUser
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) throw error;
+
+          // Clean up the URL to remove sensitive tokens from the address bar
+          if (window.location.hash) {
+            history.replaceState(null, document.title, window.location.pathname + window.location.search);
+          }
+        } catch (err: any) {
+          toast({
+            title: 'Invalid Reset Link',
+            description: err.message || 'This reset link is invalid or has expired. Please request a new one.',
+            variant: 'destructive',
+          });
+          navigate('/forgot-password');
+        }
+      } else if (!accessToken) {
+        toast({
+          title: 'Invalid Reset Link',
+          description: 'This reset link is invalid or has expired. Please request a new one.',
+          variant: 'destructive',
+        });
+        navigate('/forgot-password');
+      }
+    };
+
+    void processSession();
   }, [searchParams, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
