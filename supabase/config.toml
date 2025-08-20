@@ -10,7 +10,7 @@ max_rows = 1000
 [auth]
 enabled = true
 site_url = "https://hiremebuddy.na"
-additional_redirect_urls = ["https://lovableproject.com", "http://localhost:3000", "https://hiremebuddy.app", "https://hiremebuddy.lovable.app"]
+additional_redirect_urls = ["https://lovableproject.com", "http://localhost:3000", "https://hiremebuddy.app", "https://hiremebuddy.lovable.app", "https://14b47211-b303-4860-bc73-b25e391a98e0.sandbox.lovable.dev"]
 jwt_expiry = 3600
 enable_signup = true
 enable_email_confirmations = true

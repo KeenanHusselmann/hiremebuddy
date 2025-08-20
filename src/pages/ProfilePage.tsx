@@ -317,10 +317,9 @@ const ProfilePage = () => {
     if (!user?.email) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('reset-password', {
-        body: {
-          email: user.email,
-        },
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: redirectUrl,
       });
 
       if (error) throw error;

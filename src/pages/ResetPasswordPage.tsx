@@ -21,9 +21,8 @@ const ResetPasswordPage = () => {
   useEffect(() => {
     // Check if we have the necessary tokens in the URL
     const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
     
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
       toast({
         title: "Invalid Reset Link",
         description: "This reset link is invalid or has expired. Please request a new one.",
