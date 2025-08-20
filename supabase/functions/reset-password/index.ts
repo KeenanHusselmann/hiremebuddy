@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resend = new Resend(Deno.env.get("RESEND_API_KEY") as string);
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") as string;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
+
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,7 +15,8 @@ const corsHeaders = {
 
 interface PasswordResetRequest {
   email: string;
-  resetLink: string;
+  resetLink?: string;
+  redirectTo?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -20,18 +26,18 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   if (req.method !== "POST") {
-    return new Response("Method not allowed", { 
-      status: 405, 
-      headers: corsHeaders 
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
     });
   }
 
   try {
-    const { email, resetLink }: PasswordResetRequest = await req.json();
+    const { email, resetLink: incomingResetLink, redirectTo }: PasswordResetRequest = await req.json();
 
-    if (!email || !resetLink) {
+    if (!email) {
       return new Response(
-        JSON.stringify({ error: "Email and reset link are required" }),
+        JSON.stringify({ error: "Email is required" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -39,8 +45,33 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // 1) Generate reset link if not provided using Admin API
+    let resetLink = incomingResetLink;
+    if (!resetLink) {
+      const redirect = redirectTo || "https://hiremebuddy.na/reset-password";
+      const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+        type: "recovery",
+        email,
+        options: { redirectTo: redirect },
+      });
+
+      if (error || !data?.properties?.action_link) {
+        console.error("Error generating recovery link:", error);
+        return new Response(
+          JSON.stringify({ error: error?.message || "Failed to generate reset link" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
+      resetLink = data.properties.action_link;
+    }
+
+    // 2) Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: "HireMeBuddy <noreply@hiremebuddy.na>",
+      from: "HireMeBuddy <onboarding@resend.dev>",
       to: [email],
       subject: "Reset Your Password - HireMeBuddy",
       html: `
@@ -106,7 +137,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in reset-password function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || "Unexpected error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
