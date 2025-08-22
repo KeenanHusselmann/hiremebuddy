@@ -64,9 +64,9 @@ const HeroSection = () => {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      window.location.href = `/browse?search=${encodeURIComponent(searchQuery)}`;
+      navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
     } else {
-      window.location.href = '/browse';
+      navigate('/browse');
     }
   };
 

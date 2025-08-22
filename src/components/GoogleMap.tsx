@@ -290,7 +290,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
                      </div>
                    </div>
                    <div class="hmb-actions">
-                     <a href="/auth" class="hmb-btn">Log in to view</a>
+                     <button onclick="window.location.href='/auth'" class="hmb-btn">Log in to view</button>
                    </div>
                  </div>`;
                  
