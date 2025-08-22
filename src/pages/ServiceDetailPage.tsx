@@ -267,7 +267,7 @@ const ServiceDetailPage = () => {
 
                 <CardTitle className="text-3xl mb-2">{service.service_name}</CardTitle>
                 <CardDescription className="text-xl text-primary font-semibold">
-                  {service.provider?.full_name}
+                  {service.provider?.full_name || 'Unknown Provider'}
                 </CardDescription>
 
                 <div className="flex items-center gap-4 mt-4">
