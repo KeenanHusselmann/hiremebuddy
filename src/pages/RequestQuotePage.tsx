@@ -320,7 +320,7 @@ const RequestQuotePage = () => {
                 <CardContent className="space-y-4">
                   <div>
                     <h3 className="font-semibold text-lg">{service.title}</h3>
-                    <p className="text-primary font-medium">{service.provider}</p>
+                    <p className="text-primary font-medium">{service.provider?.full_name || service.provider || 'Service Provider'}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="text-sm">{service.rating}</span>
