@@ -250,7 +250,7 @@ useEffect(() => {
   });
 
   const handleServiceClick = (service: Service) => {
-    navigate(`/services/${service.category}/${service.id}`);
+    navigate(`/service/${service.id}`);
   };
 
 if (!session) {
@@ -489,7 +489,7 @@ if (!session) {
                   service.provider === worker.name
                 );
                 if (workerService) {
-                  navigate(`/services/${workerService.category}/${workerService.id}`);
+                  navigate(`/service/${workerService.id}`);
                 } else {
                   // If no service found, navigate to browse with the worker's service category
                   const category = worker.service.toLowerCase().replace(/\s+/g, '-');
