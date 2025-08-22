@@ -211,7 +211,7 @@ const AdminUsers: React.FC = () => {
   const filteredUsers = userManagement?.users?.filter(user =>
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.contact_number?.includes(searchTerm) ||
-    user.location_text?.toLowerCase().includes(searchTerm.toLowerCase())
+    (typeof user.location_text === 'string' && user.location_text.toLowerCase().includes(searchTerm.toLowerCase()))
   ) || [];
 
   if (loading) {
@@ -378,7 +378,9 @@ const AdminUsers: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{user.contact_number || 'N/A'}</TableCell>
-                    <TableCell className="max-w-32 truncate">{user.location_text}</TableCell>
+                    <TableCell className="max-w-32 truncate">
+                      {typeof user.location_text === 'string' ? user.location_text : 'N/A'}
+                    </TableCell>
                     <TableCell>
                       {(user.user_type === 'labourer' || user.user_type === 'both') ? (
                         user.is_verified ? (
