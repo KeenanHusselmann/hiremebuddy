@@ -120,31 +120,38 @@ const MapComponent: React.FC<GoogleMapProps> = ({
               }
             });
 
-            // Add info window for user location
-            const userInfoWindow = new google.maps.InfoWindow({
-              content: `
-                <div class="p-4 min-w-64 max-w-80">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      📍
-                    </div>
-                    <div class="flex-1">
-                      <h3 class="font-bold text-lg text-gray-800">Your Location</h3>
-                      <p class="text-sm text-gray-600 font-medium">Current Position</p>
-                    </div>
-                  </div>
-                  
-                  <div class="border-t pt-2">
-                    <p class="text-xs text-gray-500 flex items-center gap-1">
-                      <span>📍</span>
-                      You are here
-                    </p>
-                  </div>
-                </div>
-              `
-            });
-
             userMarker.addListener('click', () => {
+              // Close any open worker info windows first
+              if (infoWindowRef.current) {
+                infoWindowRef.current.close();
+                selectedIdRef.current = null;
+              }
+              
+              // Create user info window only when needed
+              const userInfoWindow = new google.maps.InfoWindow({
+                content: `
+                  <div class="p-4 min-w-64 max-w-80">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        📍
+                      </div>
+                      <div class="flex-1">
+                        <h3 class="font-bold text-lg text-gray-800">Your Location</h3>
+                        <p class="text-sm text-gray-600 font-medium">Current Position</p>
+                      </div>
+                    </div>
+                    
+                    <div class="border-t pt-2">
+                      <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span>📍</span>
+                        You are here
+                      </p>
+                    </div>
+                  </div>
+                `,
+                maxWidth: 360
+              });
+              
               userInfoWindow.open(googleMap, userMarker);
             });
             
@@ -239,6 +246,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
             }
 
             marker.addListener('click', () => {
+               // Close any other info windows first
                selectedIdRef.current = worker.id;
                const authContent = `
                  <style>
