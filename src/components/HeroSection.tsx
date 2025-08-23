@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, ArrowRight, Users, Award, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
   const { profile, session } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({
     providers: 0,
@@ -52,10 +54,19 @@ const HeroSection = () => {
         .select('*', { count: 'exact', head: true })
         .eq('status', 'completed');
 
+      // Count unique regions/towns from verified providers
+      const { data: townsData } = await supabase
+        .from('profiles')
+        .select('town')
+        .eq('is_verified', true)
+        .not('town', 'is', null);
+
+      const uniqueRegions = new Set((townsData || []).map(p => p.town).filter(Boolean));
+
       setStats({
         providers: verifiedCount,
         jobsCompleted: jobsCount || 0,
-        regionsCovered: 14 // Static for now as it represents coverage areas
+        regionsCovered: uniqueRegions.size || 1 // At least 1 to avoid showing 0
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -63,11 +74,16 @@ const HeroSection = () => {
   };
 
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate('/browse');
+    // Don't allow empty searches
+    if (!searchQuery.trim()) {
+      toast({
+        title: "Search required",
+        description: "Please enter a keyword to search for services",
+        variant: "destructive",
+      });
+      return;
     }
+    navigate(`/browse?search=${encodeURIComponent(searchQuery)}`);
   };
 
   return (

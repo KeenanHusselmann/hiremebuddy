@@ -16,6 +16,7 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
+import { findMatchingCategories, isValidSearchQuery } from '@/lib/searchUtils';
 
 interface Service {
   id: string;
@@ -194,40 +195,31 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  // NLP-style keyword expansion for search
-  const synonymMap: Record<string, string[]> = {
-    catering: ['food', 'cooking', 'chef', 'kitchen', 'cater'],
-    'tech support': ['it', 'computer', 'software', 'hardware', 'tech', 'pc', 'laptop', 'repairs'],
-    it: ['tech', 'computer', 'software', 'hardware', 'pc', 'laptop', 'repairs'],
-    plumbing: ['pipes', 'leak', 'toilet', 'bathroom', 'sink', 'drain'],
-    electrical: ['wiring', 'power', 'lights', 'electrician', 'circuit'],
-  };
-
-  const expandKeywords = (q: string): string[] => {
-    if (!q.trim()) return [];
-    const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
-    const expanded = new Set<string>();
-    tokens.forEach((t) => {
-      expanded.add(t);
-      // include mapped synonyms
-      Object.entries(synonymMap).forEach(([key, synonyms]) => {
-        if (t.includes(key) || key.includes(t) || synonyms.some(s => t.includes(s) || s.includes(t))) {
-          expanded.add(key);
-          synonyms.forEach(s => expanded.add(s));
-        }
-      });
-    });
-    return Array.from(expanded);
-  };
-
-  const keywords = expandKeywords(searchQuery);
-
+  // Enhanced NLP search filtering
   const filteredServices = services.filter(service => {
+    // If no search query, show all services (filtered by other criteria)
+    if (!searchQuery.trim()) {
+      const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+      const matchesLocation = selectedLocation === 'all' || 
+                             service.location.toLowerCase() === selectedLocation.replace('-', ' ');
+      return matchesCategory && matchesLocation;
+    }
+
+    // Use NLP keyword matching for search
+    const matchingCategories = findMatchingCategories(searchQuery);
     const haystack = `${service.title} ${service.description} ${service.provider} ${service.category}`.toLowerCase();
-    const matchesSearch = keywords.length === 0 || keywords.some(k => haystack.includes(k));
+    const searchLower = searchQuery.toLowerCase();
+    
+    // Check if search matches directly in content or through NLP category mapping
+    const matchesDirectSearch = haystack.includes(searchLower);
+    const matchesNLPCategory = matchingCategories.length > 0 && 
+                              matchingCategories.some(cat => service.category.includes(cat) || cat.includes(service.category));
+    
+    const matchesSearch = matchesDirectSearch || matchesNLPCategory;
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     const matchesLocation = selectedLocation === 'all' || 
                            service.location.toLowerCase() === selectedLocation.replace('-', ' ');
+    
     return matchesSearch && matchesCategory && matchesLocation;
   });
 
@@ -292,12 +284,12 @@ if (!session) {
             {/* Search and Filters */}
             <div className="mb-8 space-y-4">
               <div className="flex flex-col lg:flex-row gap-4">
-                {/* Search Bar */}
+                 {/* Search Bar */}
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                   <Input
                     type="text"
-                    placeholder="Search services, providers, or keywords..."
+                    placeholder="Search services, providers, or keywords (e.g., 'car', 'wood', 'electric')..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
