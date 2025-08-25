@@ -235,6 +235,7 @@ export type Database = {
           first_login_completed: boolean | null
           full_name: string
           id: string
+          id_document_back_image_path: string | null
           id_document_image_path: string | null
           is_active: boolean | null
           is_verified: boolean | null
@@ -250,6 +251,10 @@ export type Database = {
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
           whatsapp_link: string | null
         }
         Insert: {
@@ -261,6 +266,7 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name: string
           id?: string
+          id_document_back_image_path?: string | null
           id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
@@ -276,6 +282,10 @@ export type Database = {
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
           whatsapp_link?: string | null
         }
         Update: {
@@ -287,6 +297,7 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name?: string
           id?: string
+          id_document_back_image_path?: string | null
           id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
@@ -302,6 +313,10 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
           whatsapp_link?: string | null
         }
         Relationships: []
@@ -708,6 +723,10 @@ export type Database = {
       update_user_presence: {
         Args: { status_param?: string }
         Returns: undefined
+      }
+      update_verification_status: {
+        Args: { admin_notes?: string; new_status: string; profile_id: string }
+        Returns: boolean
       }
     }
     Enums: {
