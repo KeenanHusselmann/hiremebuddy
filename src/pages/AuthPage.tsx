@@ -15,6 +15,7 @@ import { Eye, EyeOff, ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TermsModal } from '@/components/TermsModal';
 import { PrivacyModal } from '@/components/PrivacyModal';
+import IdentityVerification from '@/components/IdentityVerification';
 import logo from '@/assets/hiremebuddy-logo.png';
 import CameraCapture from '@/components/CameraCapture';
 
@@ -34,11 +35,12 @@ const AuthPage = () => {
   const [experience, setExperience] = useState('');
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  // KYC camera captures
-  const [idDocumentBlob, setIdDocumentBlob] = useState<Blob | null>(null);
-  const [idDocPreview, setIdDocPreview] = useState<string | null>(null);
-  const [selfieBlob, setSelfieBlob] = useState<Blob | null>(null);
-  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  // Identity verification state
+  const [verificationData, setVerificationData] = useState<{
+    frontImagePath: string;
+    backImagePath: string;
+    selfieImagePath: string;
+  } | null>(null);
 
   
   // Modal states
@@ -119,10 +121,10 @@ const AuthPage = () => {
 
     // Validation for providers
     if (userType === 'labourer') {
-      if (!idDocumentBlob || !selfieBlob) {
+      if (!verificationData) {
         toast({
           title: "Verification required",
-          description: "Please capture your ID document and a face selfie to continue",
+          description: "Please complete identity verification to continue",
           variant: "destructive",
         });
         return;
@@ -178,13 +180,36 @@ const AuthPage = () => {
 
       if (error) throw error;
 
+      // Save verification data for providers
+      if (userType === 'labourer' && verificationData) {
+        try {
+          // Get the newly created user session
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            // Update the profile with verification data
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({
+                id_document_image_path: verificationData.frontImagePath,
+                id_document_back_image_path: verificationData.backImagePath,
+                selfie_image_path: verificationData.selfieImagePath,
+                verification_status: 'pending'
+              })
+              .eq('user_id', session.user.id);
+
+            if (updateError) {
+              console.error('Error saving verification data:', updateError);
+            }
+          }
+        } catch (verificationError) {
+          console.error('Error saving verification data:', verificationError);
+        }
+      }
+
       toast({
         title: "Success!",
         description: "Please check your email to verify your account.",
       });
-      
-      // Categories are no longer selected during signup; skipping category save
-
       
       // Reset form after successful signup
       resetForm();
@@ -283,6 +308,7 @@ const AuthPage = () => {
     setCurrentSubcategory('');
     setHasAcceptedTerms(false);
     setHasAcceptedPrivacy(false);
+    setVerificationData(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -512,23 +538,9 @@ const AuthPage = () => {
                           />
                         </div>
 
-                        <div className="space-y-4">
-                          <CameraCapture
-                            label="Capture ID Document (Use back camera)"
-                            facingMode="environment"
-                            onCapture={(blob, dataUrl) => { setIdDocumentBlob(blob); setIdDocPreview(dataUrl); }}
-                            captureText="Capture ID Document"
-                          />
-                          <CameraCapture
-                            label="Capture Selfie (Face verification)"
-                            facingMode="user"
-                            onCapture={(blob, dataUrl) => { setSelfieBlob(blob); setSelfiePreview(dataUrl); }}
-                            captureText="Capture Selfie"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Real-time camera capture is required. Gallery uploads are disabled for security.
-                          </p>
-                        </div>
+                        <IdentityVerification
+                          onVerificationComplete={(data) => setVerificationData(data)}
+                        />
 
                         {/* Service Categories Selection removed per requirements */}
 

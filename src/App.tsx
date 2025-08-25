@@ -34,6 +34,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminVerification from "./pages/admin/AdminVerification";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CreateServicePage from "./pages/CreateServicePage";
@@ -92,6 +93,7 @@ const AppContent = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="bookings" element={<AdminBookings />} />
+          <Route path="verification" element={<AdminVerification />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
         

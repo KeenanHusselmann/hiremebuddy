@@ -20,7 +20,8 @@ import {
   Settings,
   LogOut,
   Bell,
-  Home
+  Home,
+  CheckCircle
 } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
@@ -40,6 +41,7 @@ const AdminLayout: React.FC = () => {
     { path: '/admin', label: 'Dashboard', icon: BarChart3 },
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/bookings', label: 'Bookings', icon: Calendar },
+    { path: '/admin/verification', label: 'Verification', icon: CheckCircle },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
