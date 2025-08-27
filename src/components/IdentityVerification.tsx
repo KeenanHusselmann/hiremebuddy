@@ -11,9 +11,10 @@ interface IdentityVerificationProps {
     backImagePath: string;
     selfieImagePath: string;
   }) => void;
+  isSignupFlow?: boolean;
 }
 
-const IdentityVerification = ({ onVerificationComplete }: IdentityVerificationProps) => {
+const IdentityVerification = ({ onVerificationComplete, isSignupFlow = false }: IdentityVerificationProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [capturedImages, setCapturedImages] = useState({
     front: null as string | null,
@@ -24,7 +25,7 @@ const IdentityVerification = ({ onVerificationComplete }: IdentityVerificationPr
   const { user } = useAuth();
 
   const handleImageCapture = async (blob: Blob, dataUrl: string, type: 'front' | 'back' | 'selfie') => {
-    if (!user) {
+    if (!isSignupFlow && !user) {
       toast({
         title: "Error",
         description: "You must be logged in to capture images",
@@ -36,7 +37,7 @@ const IdentityVerification = ({ onVerificationComplete }: IdentityVerificationPr
     setIsProcessing(true);
 
     try {
-      const fileName = `${user.id}/${type}_${Date.now()}.jpeg`;
+      const fileName = `${isSignupFlow ? 'temp' : user?.id}/${type}_${Date.now()}.jpeg`;
 
       const { data, error } = await supabase.storage
         .from('kyc-photos')

@@ -540,6 +540,7 @@ const AuthPage = () => {
 
                         <IdentityVerification
                           onVerificationComplete={(data) => setVerificationData(data)}
+                          isSignupFlow={true}
                         />
 
                         {/* Service Categories Selection removed per requirements */}
