@@ -64,12 +64,12 @@ export const NotificationCenter: React.FC = () => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative">
-          <Bell className="h-5 w-5" />
+        <Button variant="ghost" size="lg" className="relative min-h-[48px] min-w-[48px] sm:min-h-[52px] sm:min-w-[52px] lg:min-h-[56px] lg:min-w-[56px]">
+          <Bell className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 sm:h-6 sm:w-6 p-0 flex items-center justify-center text-xs"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>

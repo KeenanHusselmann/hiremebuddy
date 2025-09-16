@@ -7,7 +7,6 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import heroBackground from '@/assets/hero-background.jpg';
 
 interface ServiceData {
   labourer_id: string;
@@ -96,27 +95,19 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent"></div>
-      </div>
-
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-light">
       {/* Content */}
       <div className="relative z-10 container-responsive text-center">
         <div className="max-w-4xl mx-auto">
           {/* Main Heading */}
           <div className="hero-glass p-8 md:p-12 fade-in">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
               {t('hero.title')}
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
               {t('hero.subtitle')}
             </p>
-            <p className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
               {t('hero.description')}
             </p>
 
@@ -169,22 +160,22 @@ const HeroSection = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">{stats.providers}</p>
-                <p className="text-white/80">{t('hero.skilledWorkers')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.providers}</p>
+                <p className="text-muted-foreground">{t('hero.skilledWorkers')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">{stats.jobsCompleted}</p>
-                <p className="text-white/80">{t('hero.jobsCompleted')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.jobsCompleted}</p>
+                <p className="text-muted-foreground">{t('hero.jobsCompleted')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <MapPin className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-2xl md:text-3xl font-bold text-white">{stats.regionsCovered}</p>
-                <p className="text-white/80">{t('hero.regionsCovered')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.regionsCovered}</p>
+                <p className="text-muted-foreground">{t('hero.regionsCovered')}</p>
               </div>
             </div>
           </div>

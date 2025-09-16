@@ -68,8 +68,8 @@ export default {
 				}
 			},
 			backgroundImage: {
-				'gradient-sunset': 'var(--gradient-sunset)',
-				'gradient-sand': 'var(--gradient-sand)',
+				'gradient-teal': 'var(--gradient-teal)',
+				'gradient-light': 'var(--gradient-light)',
 				'gradient-glass': 'var(--gradient-glass)'
 			},
 			backdropBlur: {

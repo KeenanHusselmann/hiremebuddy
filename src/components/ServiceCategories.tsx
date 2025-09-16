@@ -141,7 +141,7 @@ const ServiceCategories = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-background/50 to-background">
+    <section className="py-16 bg-gradient-to-b from-muted/30 to-muted/10">
       <div className="container-responsive">
         <div className="text-center mb-12 slide-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -165,8 +165,8 @@ const ServiceCategories = () => {
                 onClick={() => window.location.href = `/services/${categorySlug}`}
               >
                 <div className="mb-4">
-                  <div className="w-16 h-16 mx-auto bg-gradient-sunset rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <IconComponent className="h-8 w-8 text-white" />
+                  <div className="w-16 h-16 mx-auto bg-gradient-teal rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <IconComponent className="h-8 w-8 text-primary-foreground" />
                   </div>
                 </div>
                 

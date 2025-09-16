@@ -4,7 +4,6 @@ import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import logo from '@/assets/hiremebuddy-logo.png';
 
@@ -19,10 +18,10 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full pt-safe-top">
       <div className="glass-card border-0 border-b border-glass-border/30 rounded-none">
         <div className="container-responsive">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-24 sm:h-28 lg:h-32">
             {/* Logo and Brand */}
             <Link to="/" className="flex items-center space-x-2 sm:space-x-3 hover:scale-105 transition-transform duration-200 tap-target">
-              <img src={logo} alt="Hire.Me.Bra Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
+              <img src={logo} alt="Hire.Me.Bra Logo" className="h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28" />
               <div className="hidden sm:block">
                 <h1 className="text-lg sm:text-xl font-bold text-foreground">HireMeBuddy</h1>
                 <p className="text-xs text-muted-foreground">Connect • Create • Collaborate</p>
@@ -32,8 +31,7 @@ const Header = () => {
             {/* Desktop Navigation - now in burger menu for all screen sizes */}
 
             {/* Right side items */}
-            <div className="flex items-center space-x-2">
-              <ThemeToggle />
+            <div className="flex items-center space-x-3 sm:space-x-4">
               {user && <NotificationCenter />}
               
               {/* User profile avatar or login button */}
@@ -43,18 +41,18 @@ const Header = () => {
                     <img 
                       src={profile.avatar_url} 
                       alt="Profile" 
-                      className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border border-border cursor-pointer"
+                      className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-full object-cover border border-border cursor-pointer"
                     />
                   ) : (
-                    <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer tap-target">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    <div className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-full bg-primary/10 flex items-center justify-center cursor-pointer tap-target">
+                      <User className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-primary" />
                     </div>
                   )}
                   <span className="hidden sm:block text-sm font-medium truncate max-w-[120px]">{profile?.full_name || 'User'}</span>
                 </Link>
               ) : (
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="lg" className="h-12 px-6">
                     {t('nav.login')}
                   </Button>
                 </Link>
@@ -64,12 +62,12 @@ const Header = () => {
             {/* Burger Menu Button (always visible) */}
             <Button
               variant="ghost"
-              size="sm"
+              size="lg"
               onClick={toggleMobileMenu}
-              className="tap-target min-h-[44px] min-w-[44px]"
+              className="tap-target min-h-[48px] min-w-[48px] sm:min-h-[52px] sm:min-w-[52px] lg:min-h-[56px] lg:min-w-[56px]"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
+              {isMobileMenuOpen ? <X className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" /> : <Menu className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />}
             </Button>
           </div>
 

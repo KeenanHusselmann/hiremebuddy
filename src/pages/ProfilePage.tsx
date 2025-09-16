@@ -419,10 +419,6 @@ const ProfilePage = () => {
                 <Gamepad2 className="h-4 w-4" />
                 <span>Games</span>
               </TabsTrigger>
-              <TabsTrigger id="profile-settings-tab" value="settings" className="sr-only absolute -left-full">
-                <Settings className="h-4 w-4" />
-                <span>{t('profile.settings')}</span>
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
@@ -801,67 +797,6 @@ const ProfilePage = () => {
                   </p>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('profile.languagePreferences')}</CardTitle>
-                  <CardDescription>
-                    Choose your preferred language for the interface
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="language">{t('profile.language')}</Label>
-                      <Select value={language} onValueChange={handleLanguageChange}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="af">Afrikaans</SelectItem>
-                          <SelectItem value="de">Deutsch (German)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('profile.accountSettings')}</CardTitle>
-                  <CardDescription>
-                    Manage your account security settings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{t('profile.email')}</h4>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-
-                  <Button onClick={handleChangePassword} variant="outline">
-                    {t('profile.changePassword')}
-                  </Button>
-
-                  <div className="pt-4 border-t">
-                    <Button onClick={signOut} variant="destructive">
-                      {t('profile.signOut')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Accessibility Settings */}
-              <AccessibilityPanel />
-
-              {/* Facebook Marketplace */}
-              <FacebookMarketplace />
             </TabsContent>
           </Tabs>
         </div>

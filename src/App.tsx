@@ -11,7 +11,7 @@ import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { MessageNotificationToast } from "@/components/MessageNotificationToast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useNativePushNotifications } from "@/hooks/useNativePushNotifications";
-import PageLoader from "@/components/PageLoader";
+import LaunchScreen from "@/components/LaunchScreen";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
@@ -105,15 +105,15 @@ const AppContent = () => {
 };
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [showLaunchScreen, setShowLaunchScreen] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+  const handleLaunchComplete = () => {
+    setShowLaunchScreen(false);
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
+  if (showLaunchScreen) {
+    return <LaunchScreen onComplete={handleLaunchComplete} />;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -121,7 +121,6 @@ const App = () => {
         <LanguageProvider>
           <AuthProvider>
             <TooltipProvider>
-              <PageLoader isLoading={isLoading} />
               <Toaster />
               <Sonner />
               <BrowserRouter>
