@@ -81,30 +81,57 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm font-medium">{label}</p>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={openCamera}>
-            <Camera className="h-4 w-4 mr-2" /> Open Camera
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={openCamera}
+            className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 flex-1 sm:flex-none"
+          >
+            <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> 
+            <span className="truncate">Open Camera</span>
           </Button>
           {preview && (
-            <Button type="button" variant="ghost" size="sm" onClick={openCamera}>
-              <RefreshCw className="h-4 w-4 mr-2" /> Retake
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="sm" 
+              onClick={openCamera}
+              className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 flex-1 sm:flex-none"
+            >
+              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> 
+              <span className="truncate">Retake</span>
             </Button>
           )}
         </div>
       </div>
 
       {preview && (
-        <img src={preview} alt={`${label} preview`} className="w-full rounded-lg border" />
+        <img 
+          src={preview} 
+          alt={`${label} preview`} 
+          className="w-full max-w-sm mx-auto rounded-lg border" 
+        />
       )}
 
       {isOpen && (
         <div className="space-y-3">
-          <div className="rounded-lg overflow-hidden border relative">
-            <video ref={videoRef} className="w-full h-auto bg-black" playsInline muted />
+          <div className="rounded-lg overflow-hidden border relative max-w-sm mx-auto">
+            <video 
+              ref={videoRef} 
+              className="w-full h-auto bg-black aspect-[3/4] object-cover" 
+              playsInline 
+              muted 
+            />
           </div>
-          <Button type="button" className="w-full" onClick={takePhoto}>
+          <Button 
+            type="button" 
+            className="w-full max-w-sm mx-auto block py-3 text-sm sm:text-base" 
+            onClick={takePhoto}
+          >
             {captureText}
           </Button>
         </div>

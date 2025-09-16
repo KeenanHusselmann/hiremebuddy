@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { TermsModal } from '@/components/TermsModal';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import IdentityVerification from '@/components/IdentityVerification';
+import MobileHeader from '@/components/MobileHeader';
 import logo from '@/assets/hiremebuddy-logo.png';
 import CameraCapture from '@/components/CameraCapture';
 
@@ -365,19 +366,23 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sunset-deep via-sunset-primary to-sunset-light flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
-      </div>
+    <>
+      {/* Mobile Status Bar Header */}
+      <MobileHeader />
       
-      <div className="w-full max-w-lg relative z-10">
-        <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-white hover:text-sunset-accent transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
+      <div className="min-h-screen bg-gradient-teal flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
         </div>
+        
+        <div className="w-full max-w-lg relative z-10">
+          <div className="mb-6">
+            <Link to="/" className="inline-flex items-center text-white hover:text-white/80 transition-colors backdrop-blur-sm bg-white/10 px-3 py-2 rounded-lg">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Link>
+          </div>
 
         <Card className="glass-card border-glass-border/30 shadow-2xl">
           <CardHeader className="text-center pb-6">
@@ -711,7 +716,8 @@ const AuthPage = () => {
         onClose={() => setShowPrivacyModal(false)}
         onAccept={() => setHasAcceptedPrivacy(true)}
       />
-    </div>
+        </div>
+      </>
   );
 };
 

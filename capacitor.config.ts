@@ -6,10 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     PushNotifications: {
-      presentationOptions: ["badge", "sound", "alert"]
+      presentationOptions: ["badge", "sound", "alert"],
+      requestPermissionOnLoad: false
     },
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 3000,
       backgroundColor: "#00A693",
       showSpinner: false,
       launchAutoHide: true,

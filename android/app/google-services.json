@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "48834374487",
+    "project_id": "hiremebuddy-82e2a",
+    "storage_bucket": "hiremebuddy-82e2a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48834374487:android:b13b889cedea652ed36c12",
+        "android_client_info": {
+          "package_name": "app.hiremebuddy.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "48834374487-example.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTFfrHgcU7AGSdb2oALmuLOUfKBBLoJIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "48834374487-example.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

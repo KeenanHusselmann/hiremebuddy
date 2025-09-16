@@ -286,7 +286,7 @@ html.high-contrast.dark {
 
   /* Input Styling */
   .input-glass {
-    background: var(--gradient-glass);
+    background: hsl(180 20% 98%);
     backdrop-filter: var(--glass-backdrop);
     border: 1px solid hsl(var(--glass-border));
     border-radius: var(--radius);
@@ -452,6 +452,9 @@ html.high-contrast.dark {
 /* Navigation improvements */
 .nav-mobile {
   @apply pb-safe-bottom;
+  background: hsl(var(--card));
+  backdrop-filter: blur(8px);
+  border-radius: 0 0 var(--radius) var(--radius);
 }
 
 /* Safe area support for mobile devices */
@@ -461,6 +464,24 @@ html.high-contrast.dark {
 
 .pt-safe-top {
   padding-top: env(safe-area-inset-top);
+}
+
+/* Mobile header specific styles */
+.mobile-header {
+  height: calc(32px + env(safe-area-inset-top));
+  background: linear-gradient(135deg, hsl(var(--teal-600)), hsl(var(--teal-500)));
+}
+
+/* Adjusted header for mobile */
+@media (max-width: 768px) {
+  .mobile-compact-header {
+    height: 64px !important;
+  }
+  
+  .mobile-compact-header .logo-mobile {
+    height: 56px !important;
+    width: 56px !important;
+  }
 }
 
 /* Improved tap targets */
