@@ -59,7 +59,11 @@ export const useNotifications = () => {
 
   const playDing = () => {
     try {
-      const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const windowWithAudio = window as typeof window & {
+        AudioContext?: typeof AudioContext;
+        webkitAudioContext?: typeof AudioContext;
+      };
+      const AudioCtx = windowWithAudio.AudioContext || windowWithAudio.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       const o = ctx.createOscillator();
@@ -73,7 +77,10 @@ export const useNotifications = () => {
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
       o.start();
       o.stop(ctx.currentTime + 0.2);
-    } catch {}
+    } catch (error) {
+      // Silently fail if audio context is not available
+      console.debug('Audio notification failed:', error);
+    }
   };
 
   // Mark notification as read

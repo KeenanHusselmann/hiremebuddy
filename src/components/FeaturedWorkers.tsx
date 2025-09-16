@@ -7,6 +7,31 @@ import { useServiceRatings, formatRating, renderStars } from '@/hooks/useService
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 
+interface SafeProfile {
+  id: string;
+  full_name: string;
+  location: string;
+  profile_image_url: string | null;
+  is_verified: boolean;
+  phone_number: string | null;
+  whatsapp_link: string | null;
+  facebook_link: string | null;
+}
+
+interface CompletedJobsData {
+  provider_id: string;
+  completed_count: number;
+}
+
+interface ServiceData {
+  id: string;
+  labourer_id: string;
+  service_name: string;
+  description: string;
+  hourly_rate: number;
+  specialties: string[];
+}
+
 interface Worker {
   id: string; // service id
   labourerId: string; // provider profile id
@@ -65,13 +90,13 @@ const FeaturedWorkers = () => {
         });
         if (safeErr) throw safeErr;
 
-        const profileMap: Record<string, any> = {};
-        (safeProfiles || []).forEach((p: any) => {
+        const profileMap: Record<string, SafeProfile> = {};
+        (safeProfiles || []).forEach((p: SafeProfile) => {
           profileMap[p.id] = p;
         });
 
         // 3) Transform services data to worker format
-        const workersData = serviceList.map((service: any) => {
+        const workersData = serviceList.map((service: ServiceData) => {
           const p = profileMap[service.labourer_id] || {};
           return {
             id: service.id,
@@ -111,7 +136,7 @@ const FeaturedWorkers = () => {
         const { data, error } = await supabase.rpc('get_completed_jobs', { provider_ids: providerIds });
         if (error) throw error;
         const countMap: Record<string, number> = {};
-        (data || []).forEach((row: any) => {
+        (data || []).forEach((row: CompletedJobsData) => {
           countMap[row.provider_id] = row.completed_count;
         });
         setWorkers(prev => prev.map(w => ({ ...w, completedJobs: countMap[w.labourerId] || 0 })));

@@ -45,8 +45,9 @@ const MapComponent: React.FC<GoogleMapProps> = ({
   const selectedIdRef = useRef<string | null>(null);
 
   // Helpers
-  const isFiniteNumber = (n: any) => typeof n === 'number' && Number.isFinite(n);
-  const isValidLatLng = (lat?: any, lng?: any) => isFiniteNumber(lat) && isFiniteNumber(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  const isFiniteNumber = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
+  const isValidLatLng = (lat?: unknown, lng?: unknown): boolean => 
+    isFiniteNumber(lat) && isFiniteNumber(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
   // Geocode address to get accurate coordinates
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
@@ -167,7 +168,7 @@ const MapComponent: React.FC<GoogleMapProps> = ({
       
       setMap(googleMap);
     }
-  }, [mapRef, map, center, zoom]);
+  }, [center.lat, center.lng, zoom, isValidLatLng]);
 
   useEffect(() => {
     if (map && workers.length > 0) {
@@ -321,14 +322,14 @@ const MapComponent: React.FC<GoogleMapProps> = ({
       updateMarkersAsync();
 
       // Set up global worker selection handler
-      (window as any).selectWorker = (workerId: string) => {
+      (window as unknown as Record<string, unknown>).selectWorker = (workerId: string) => {
         const worker = workers.find(w => w.id === workerId);
         if (worker && onWorkerSelect) {
           onWorkerSelect(worker);
         }
       };
     }
-  }, [map, workers, onWorkerSelect]);
+  }, [map, workers, onWorkerSelect, isAuthenticated]);
 
   return <div ref={mapRef} className={className} />;
 };

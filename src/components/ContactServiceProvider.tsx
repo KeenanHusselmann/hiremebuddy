@@ -99,7 +99,7 @@ export const ContactServiceProvider: React.FC<ContactServiceProviderProps> = ({
       });
 
       onContactSent?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Log error only in development
       if (process.env.NODE_ENV === 'development') {
         console.error('Error sending message:', error);

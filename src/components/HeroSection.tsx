@@ -9,6 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.jpg';
 
+interface ServiceData {
+  labourer_id: string;
+}
+
+interface SafeProfile {
+  id: string;
+  is_verified: boolean;
+}
+
 const HeroSection = () => {
   const { t } = useLanguage();
   const { profile, session } = useAuth();
@@ -35,7 +44,7 @@ const HeroSection = () => {
 
       if (servicesErr) throw servicesErr;
 
-      const providerIds = Array.from(new Set((servicesData || []).map((s: any) => s.labourer_id).filter(Boolean)));
+      const providerIds = Array.from(new Set((servicesData || []).map((s: ServiceData) => s.labourer_id).filter(Boolean)));
 
       // Fetch safe provider profiles and count verified ones
       let verifiedCount = 0;
@@ -44,7 +53,7 @@ const HeroSection = () => {
           profile_ids: providerIds,
         });
         if (profilesErr) throw profilesErr;
-        verifiedCount = (safeProfiles || []).filter((p: any) => p.is_verified).length;
+        verifiedCount = (safeProfiles || []).filter((p: SafeProfile) => p.is_verified).length;
       }
 
 

@@ -118,7 +118,10 @@ const PickerInner: React.FC<PickerInnerProps> = ({ initial, onConfirm }) => {
         reverseGeocode(pos.lat, pos.lng);
         return true;
       }
-    } catch (e) {}
+    } catch (e) {
+      // Silently handle location parse errors
+      console.debug('Failed to parse location from URL:', e);
+    }
     return false;
   };
 

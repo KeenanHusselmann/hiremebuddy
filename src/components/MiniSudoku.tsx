@@ -46,7 +46,7 @@ const MiniSudoku = () => {
 
   useEffect(() => {
     initializeGame();
-  }, []);
+  }, [initializeGame]);
 
   const checkComplete = (currentGrid: SudokuGrid) => {
     // Check if all cells are filled
@@ -57,7 +57,7 @@ const MiniSudoku = () => {
     if (!allFilled) return false;
 
     // Check rows
-    for (let row of currentGrid) {
+    for (const row of currentGrid) {
       const uniqueNumbers = new Set(row);
       if (uniqueNumbers.size !== 4) return false;
     }
