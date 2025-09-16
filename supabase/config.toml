@@ -1,0 +1,33 @@
+project_id = "vjpaolkqlumpyuxxmmvr"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "https://hiremebuddy.na"
+additional_redirect_urls = ["https://lovableproject.com", "http://localhost:3000", "https://hiremebuddy.app", "https://hiremebuddy.lovable.app", "https://14b47211-b303-4860-bc73-b25e391a98e0.sandbox.lovable.dev"]
+jwt_expiry = 3600
+enable_signup = true
+enable_email_confirmations = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[functions.reset-password]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.reverse-geocode]
+verify_jwt = false
+
+[functions.geolocate]
+verify_jwt = false
