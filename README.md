@@ -78,6 +78,52 @@ This project is built with:
 - Capacitor (Mobile App Framework)
 - Google Maps API
 
+## Mobile App Development
+
+### Prerequisites
+- Node.js 18+ and npm
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
+
+### Setup Mobile Development
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Add mobile platforms**
+   ```bash
+   # Add Android platform
+   npm run cap:add:android
+   
+   # Add iOS platform (macOS only)
+   npm run cap:add:ios
+   ```
+
+3. **Development with live reload**
+   ```bash
+   # Run on Android with development server
+   npm run cap:run:android:dev
+   
+   # Run on iOS with development server
+   npm run cap:run:ios:dev
+   ```
+
+4. **Production builds**
+   ```bash
+   # Build for Android
+   npm run cap:build:android
+   
+   # Build for iOS
+   npm run cap:build:ios
+   ```
+
+### Configuration
+
+- **Production**: Uses `capacitor.config.ts` pointing to `https://hiremebuddy.app`
+- **Development**: Uses `capacitor.config.dev.ts` pointing to `http://localhost:8080`
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/14b47211-b303-4860-bc73-b25e391a98e0) and click on Share -> Publish.
