@@ -186,19 +186,28 @@ const AuthPage = () => {
           // Get the newly created user session
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
-            // Update the profile with verification data
-            const { error: updateError } = await supabase
+            // First get the profile ID
+            const { data: profile } = await supabase
               .from('profiles')
-              .update({
-                id_document_image_path: verificationData.frontImagePath,
-                id_document_back_image_path: verificationData.backImagePath,
-                selfie_image_path: verificationData.selfieImagePath,
-                verification_status: 'pending'
-              })
-              .eq('user_id', session.user.id);
+              .select('id')
+              .eq('user_id', session.user.id)
+              .single();
 
-            if (updateError) {
-              console.error('Error saving verification data:', updateError);
+            if (profile) {
+              // Insert verification data into new table
+              const { error: verificationError } = await supabase
+                .from('verification_documents')
+                .insert({
+                  profile_id: profile.id,
+                  id_document_front_path: verificationData.frontImagePath,
+                  id_document_back_path: verificationData.backImagePath,
+                  selfie_image_path: verificationData.selfieImagePath,
+                  verification_status: 'pending'
+                });
+
+              if (verificationError) {
+                console.error('Error saving verification data:', verificationError);
+              }
             }
           }
         } catch (verificationError) {

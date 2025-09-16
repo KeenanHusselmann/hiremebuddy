@@ -36,39 +36,54 @@ const AdminVerification = () => {
 
   const loadPendingVerifications = async () => {
     try {
-      const { data, error } = await supabase
+      // First get verification documents with pending status
+      const { data: verificationDocs, error: verificationError } = await supabase
         .from('verification_documents')
-        .select(`
-          *,
-          profiles!inner(
-            id,
-            full_name,
-            contact_number,
-            location_text,
-            user_type
-          )
-        `)
+        .select('*')
         .eq('verification_status', 'pending')
-        .in('profiles.user_type', ['labourer', 'both'])
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      // Transform the data to match our interface
-      const transformedData = data?.map(item => ({
-        id: item.id,
-        profile_id: item.profile_id,
-        full_name: item.profiles.full_name,
-        contact_number: item.profiles.contact_number,
-        location_text: item.profiles.location_text,
-        user_type: item.profiles.user_type,
-        id_document_front_path: item.id_document_front_path,
-        id_document_back_path: item.id_document_back_path,
-        selfie_image_path: item.selfie_image_path,
-        verification_status: item.verification_status,
-        verification_notes: item.verification_notes,
-        created_at: item.created_at,
-      })) || [];
+      if (verificationError) throw verificationError;
+
+      if (!verificationDocs || verificationDocs.length === 0) {
+        setVerifications([]);
+        return;
+      }
+
+      // Get the profile IDs to fetch profile data
+      const profileIds = verificationDocs.map(doc => doc.profile_id);
+
+      // Fetch profile data for these verification documents
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, contact_number, location_text, user_type')
+        .in('id', profileIds)
+        .in('user_type', ['labourer', 'both']);
+
+      if (profileError) throw profileError;
+
+      // Combine the data
+      const transformedData = verificationDocs
+        .map(doc => {
+          const profile = profiles?.find(p => p.id === doc.profile_id);
+          if (!profile) return null;
+          
+          return {
+            id: doc.id,
+            profile_id: doc.profile_id,
+            full_name: profile.full_name,
+            contact_number: profile.contact_number,
+            location_text: profile.location_text,
+            user_type: profile.user_type,
+            id_document_front_path: doc.id_document_front_path,
+            id_document_back_path: doc.id_document_back_path,
+            selfie_image_path: doc.selfie_image_path,
+            verification_status: doc.verification_status,
+            verification_notes: doc.verification_notes,
+            created_at: doc.created_at,
+          };
+        })
+        .filter(Boolean) as PendingVerification[];
       
       setVerifications(transformedData);
     } catch (error: any) {
