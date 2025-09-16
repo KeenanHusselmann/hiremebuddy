@@ -1,8 +1,9 @@
-# Welcome to your Lovable project
+# HireMeBuddy - Service Marketplace Platform
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/14b47211-b303-4860-bc73-b25e391a98e0
+**Live URL**: https://hiremebuddy.app
+**GitHub**: https://github.com/KeenanHusselmann/hiremebuddy
 
 ## How can I edit this code?
 
@@ -50,7 +51,21 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
+## What is HireMeBuddy?
+
+HireMeBuddy is a comprehensive service marketplace platform that connects service providers with clients in Namibia. Built with modern web technologies and designed for both web and mobile platforms.
+
+### Key Features
+- 🔍 Location-based service discovery
+- 💬 Real-time messaging between clients and providers
+- 📱 Native mobile app support (Android & iOS)
+- 🌍 Multi-language support
+- ⭐ Rating and review system
+- 📍 Google Maps integration
+- 🔔 Push notifications
+- 💳 Secure booking and payment system
+
+## Technologies Used
 
 This project is built with:
 
@@ -59,6 +74,9 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Database & Backend)
+- Capacitor (Mobile App Framework)
+- Google Maps API
 
 ## How can I deploy this project?
 
