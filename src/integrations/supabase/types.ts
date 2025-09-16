@@ -769,6 +769,14 @@ export type Database = {
         Args: { status_param?: string }
         Returns: undefined
       }
+      update_verification_documents_status: {
+        Args: {
+          admin_notes?: string
+          new_status: string
+          verification_id: string
+        }
+        Returns: boolean
+      }
       update_verification_status: {
         Args: { admin_notes?: string; new_status: string; profile_id: string }
         Returns: boolean

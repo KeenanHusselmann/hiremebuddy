@@ -100,15 +100,11 @@ const AdminVerification = () => {
   const handleVerificationDecision = async (verificationId: string, status: 'approved' | 'rejected') => {
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('verification_documents')
-        .update({
-          verification_status: status,
-          verification_notes: notes || null,
-          verified_at: status === 'approved' ? new Date().toISOString() : null,
-          verified_by: status === 'approved' ? (await supabase.auth.getUser()).data.user?.id : null
-        })
-        .eq('id', verificationId);
+      const { error } = await supabase.rpc('update_verification_documents_status', {
+        verification_id: verificationId,
+        new_status: status,
+        admin_notes: notes || null
+      });
 
       if (error) throw error;
 
