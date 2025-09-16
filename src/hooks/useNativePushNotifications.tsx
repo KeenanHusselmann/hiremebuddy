@@ -17,14 +17,22 @@ export const useNativePushNotifications = () => {
     }
 
     try {
+      console.log('Requesting push notification permissions...');
       const result = await PushNotifications.requestPermissions();
+      console.log('Permission result:', result);
       setNotificationPermission(result.receive);
       
       if (result.receive === 'granted') {
+        console.log('Permission granted, registering for push notifications...');
         await PushNotifications.register();
+      } else {
+        console.log('Permission not granted:', result.receive);
       }
     } catch (error) {
       console.error('Error requesting push notification permissions:', error);
+      toast.error('Failed to setup notifications');
+      // Don't crash the app, just log the error
+      setNotificationPermission('denied');
     }
   };
 
@@ -33,69 +41,85 @@ export const useNativePushNotifications = () => {
 
     // Register for push notifications
     const initializePushNotifications = async () => {
-      // Request permission to use push notifications
-      await requestPermissions();
-
-      // On successful registration, store the token
-      PushNotifications.addListener('registration', (token: Token) => {
-        console.log('Push registration success, token: ' + token.value);
-        setPushToken(token.value);
+      try {
+        console.log('Initializing push notifications...');
         
-        // Store token in database
-        if (profile?.id) {
-          supabase
-            .from('device_tokens')
-            .upsert({
-              user_id: profile.id,
-              token: token.value,
-              platform: Capacitor.getPlatform(),
-              device_info: {
+        // Request permission to use push notifications
+        await requestPermissions();
+
+        // On successful registration, store the token
+        PushNotifications.addListener('registration', (token: Token) => {
+          console.log('Push registration success, token: ' + token.value);
+          setPushToken(token.value);
+          
+          // Store token in database
+          if (profile?.id) {
+            supabase
+              .from('device_tokens')
+              .upsert({
+                user_id: profile.id,
+                token: token.value,
                 platform: Capacitor.getPlatform(),
-                timestamp: new Date().toISOString()
-              }
-            })
-            .then(({ error }) => {
-              if (error) {
-                console.error('Error storing device token:', error);
-              } else {
-                console.log('Device token stored successfully');
-              }
-            });
-        }
-      });
-
-      // Handle registration errors
-      PushNotifications.addListener('registrationError', (error: any) => {
-        console.error('Error on registration: ' + JSON.stringify(error));
-      });
-
-      // Handle notifications when app is in foreground
-      PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-        console.log('Push notification received: ', notification);
-        
-        // Show toast notification
-        toast(notification.title || 'New notification', {
-          description: notification.body,
-          action: notification.data?.url ? {
-            label: 'View',
-            onClick: () => {
-              // Handle navigation to the URL if needed
-              console.log('Navigate to:', notification.data.url);
-            }
-          } : undefined
+                device_info: {
+                  platform: Capacitor.getPlatform(),
+                  timestamp: new Date().toISOString()
+                }
+              })
+              .then(({ error }) => {
+                if (error) {
+                  console.error('Error storing device token:', error);
+                } else {
+                  console.log('Device token stored successfully');
+                }
+              });
+          }
         });
-      });
 
-      // Handle notification tap when app is in background
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
-        console.log('Push notification action performed: ', notification);
-        
-        // Handle navigation based on notification data
-        if (notification.notification.data?.url) {
-          // You can implement navigation logic here
-          console.log('Navigate to:', notification.notification.data.url);
-        }
-      });
+        // Handle registration errors
+        PushNotifications.addListener('registrationError', (error: any) => {
+          console.error('Error on registration: ' + JSON.stringify(error));
+          toast.error('Failed to register for notifications');
+        });
+
+        // Handle notifications when app is in foreground
+        PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+          console.log('Push notification received: ', notification);
+          
+          try {
+            // Show toast notification
+            toast(notification.title || 'New notification', {
+              description: notification.body,
+              action: notification.data?.url ? {
+                label: 'View',
+                onClick: () => {
+                  // Handle navigation to the URL if needed
+                  console.log('Navigate to:', notification.data.url);
+                }
+              } : undefined
+            });
+          } catch (err) {
+            console.error('Error handling notification:', err);
+          }
+        });
+
+        // Handle notification tap when app is in background
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
+          console.log('Push notification action performed: ', notification);
+          
+          try {
+            // Handle navigation based on notification data
+            if (notification.notification.data?.url) {
+              // You can implement navigation logic here
+              console.log('Navigate to:', notification.notification.data.url);
+            }
+          } catch (err) {
+            console.error('Error handling notification action:', err);
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing push notifications:', error);
+        toast.error('Failed to initialize notifications');
+      }
     };
 
     initializePushNotifications();

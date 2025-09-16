@@ -4,23 +4,23 @@ const config: CapacitorConfig = {
   appId: 'app.hiremebuddy.mobile',
   appName: 'HireMeBuddy',
   webDir: 'dist',
-  server: {
-    url: 'https://hiremebuddy.app',
-    cleartext: false
-  },
   plugins: {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"]
     },
     SplashScreen: {
-      launchShowDuration: 0,
+      launchShowDuration: 2000,
       backgroundColor: "#00A693",
       showSpinner: false,
-      launchAutoHide: false
+      launchAutoHide: true,
+      androidScaleType: "CENTER_CROP",
+      splashFullScreen: true,
+      splashImmersive: true
     },
     StatusBar: {
-      style: "DEFAULT",
-      backgroundColor: "#00A693"
+      style: "LIGHT",
+      backgroundColor: "#007B6A",
+      overlaysWebView: false
     }
   },
   ios: {
@@ -30,7 +30,8 @@ const config: CapacitorConfig = {
     buildOptions: {
       keystorePath: undefined,
       keystoreAlias: undefined
-    }
+    },
+    backgroundColor: "#F5F5F5"
   }
 };
 
