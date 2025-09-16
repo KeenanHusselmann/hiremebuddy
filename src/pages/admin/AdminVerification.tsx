@@ -9,11 +9,12 @@ import { Eye, CheckCircle, XCircle, User } from 'lucide-react';
 
 interface PendingVerification {
   id: string;
+  profile_id: string;
   full_name: string;
   contact_number: string;
   location_text: string;
-  id_document_image_path: string;
-  id_document_back_image_path: string;
+  id_document_front_path: string;
+  id_document_back_path: string;
   selfie_image_path: string;
   verification_status: string;
   verification_notes: string;
@@ -36,15 +37,40 @@ const AdminVerification = () => {
   const loadPendingVerifications = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .in('user_type', ['labourer', 'both'])
+        .from('verification_documents')
+        .select(`
+          *,
+          profiles!inner(
+            id,
+            full_name,
+            contact_number,
+            location_text,
+            user_type
+          )
+        `)
         .eq('verification_status', 'pending')
-        .not('id_document_image_path', 'is', null)
+        .in('profiles.user_type', ['labourer', 'both'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVerifications(data || []);
+      
+      // Transform the data to match our interface
+      const transformedData = data?.map(item => ({
+        id: item.id,
+        profile_id: item.profile_id,
+        full_name: item.profiles.full_name,
+        contact_number: item.profiles.contact_number,
+        location_text: item.profiles.location_text,
+        user_type: item.profiles.user_type,
+        id_document_front_path: item.id_document_front_path,
+        id_document_back_path: item.id_document_back_path,
+        selfie_image_path: item.selfie_image_path,
+        verification_status: item.verification_status,
+        verification_notes: item.verification_notes,
+        created_at: item.created_at,
+      })) || [];
+      
+      setVerifications(transformedData);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -56,14 +82,18 @@ const AdminVerification = () => {
     }
   };
 
-  const handleVerificationDecision = async (profileId: string, status: 'approved' | 'rejected') => {
+  const handleVerificationDecision = async (verificationId: string, status: 'approved' | 'rejected') => {
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase.rpc('update_verification_status', {
-        profile_id: profileId,
-        new_status: status,
-        admin_notes: notes || null
-      });
+      const { error } = await supabase
+        .from('verification_documents')
+        .update({
+          verification_status: status,
+          verification_notes: notes || null,
+          verified_at: status === 'approved' ? new Date().toISOString() : null,
+          verified_by: status === 'approved' ? (await supabase.auth.getUser()).data.user?.id : null
+        })
+        .eq('id', verificationId);
 
       if (error) throw error;
 
@@ -73,7 +103,7 @@ const AdminVerification = () => {
       });
 
       // Remove from pending list
-      setVerifications(prev => prev.filter(v => v.id !== profileId));
+      setVerifications(prev => prev.filter(v => v.id !== verificationId));
       setSelectedVerification(null);
       setNotes('');
 
@@ -195,10 +225,10 @@ const AdminVerification = () => {
                       </h4>
                       <div 
                         className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => openImageInNewTab(selectedVerification.id_document_image_path)}
+                        onClick={() => openImageInNewTab(selectedVerification.id_document_front_path)}
                       >
                         <img 
-                          src={selectedVerification.id_document_image_path}
+                          src={selectedVerification.id_document_front_path}
                           alt="ID Front"
                           className="w-full h-full object-cover"
                         />
@@ -215,10 +245,10 @@ const AdminVerification = () => {
                       </h4>
                       <div 
                         className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => openImageInNewTab(selectedVerification.id_document_back_image_path)}
+                        onClick={() => openImageInNewTab(selectedVerification.id_document_back_path)}
                       >
                         <img 
-                          src={selectedVerification.id_document_back_image_path}
+                          src={selectedVerification.id_document_back_path}
                           alt="ID Back"
                           className="w-full h-full object-cover"
                         />

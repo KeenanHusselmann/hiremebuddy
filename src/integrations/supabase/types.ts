@@ -235,8 +235,6 @@ export type Database = {
           first_login_completed: boolean | null
           full_name: string
           id: string
-          id_document_back_image_path: string | null
-          id_document_image_path: string | null
           is_active: boolean | null
           is_verified: boolean | null
           latitude: number | null
@@ -244,14 +242,12 @@ export type Database = {
           longitude: number | null
           privacy_accepted_at: string | null
           privacy_version: string | null
-          selfie_image_path: string | null
           terms_accepted_at: string | null
           terms_version: string | null
           town: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
-          verification_notes: string | null
           verification_status: string | null
           verified_at: string | null
           verified_by: string | null
@@ -266,8 +262,6 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name: string
           id?: string
-          id_document_back_image_path?: string | null
-          id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -275,14 +269,12 @@ export type Database = {
           longitude?: number | null
           privacy_accepted_at?: string | null
           privacy_version?: string | null
-          selfie_image_path?: string | null
           terms_accepted_at?: string | null
           terms_version?: string | null
           town?: string | null
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
-          verification_notes?: string | null
           verification_status?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -297,8 +289,6 @@ export type Database = {
           first_login_completed?: boolean | null
           full_name?: string
           id?: string
-          id_document_back_image_path?: string | null
-          id_document_image_path?: string | null
           is_active?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -306,14 +296,12 @@ export type Database = {
           longitude?: number | null
           privacy_accepted_at?: string | null
           privacy_version?: string | null
-          selfie_image_path?: string | null
           terms_accepted_at?: string | null
           terms_version?: string | null
           town?: string | null
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
-          verification_notes?: string | null
           verification_status?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -660,6 +648,51 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_documents: {
+        Row: {
+          created_at: string
+          id: string
+          id_document_back_path: string | null
+          id_document_front_path: string | null
+          profile_id: string
+          selfie_image_path: string | null
+          submitted_at: string
+          updated_at: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          id_document_back_path?: string | null
+          id_document_front_path?: string | null
+          profile_id: string
+          selfie_image_path?: string | null
+          submitted_at?: string
+          updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          id_document_back_path?: string | null
+          id_document_front_path?: string | null
+          profile_id?: string
+          selfie_image_path?: string | null
+          submitted_at?: string
+          updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -717,6 +750,10 @@ export type Database = {
         Returns: string
       }
       is_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_verification_admin: {
         Args: { _user_id: string }
         Returns: boolean
       }
