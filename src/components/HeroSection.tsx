@@ -1,21 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowRight, Users, Award, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-
-interface ServiceData {
-  labourer_id: string;
-}
-
-interface SafeProfile {
-  id: string;
-  is_verified: boolean;
-}
 
 const HeroSection = () => {
   const { t } = useLanguage();
@@ -23,63 +12,6 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [stats, setStats] = useState({
-    providers: 0,
-    jobsCompleted: 0,
-    regionsCovered: 14
-  });
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      // Get all active services to collect provider IDs
-      const { data: servicesData, error: servicesErr } = await supabase
-        .from('services')
-        .select('labourer_id')
-        .eq('is_active', true);
-
-      if (servicesErr) throw servicesErr;
-
-      const providerIds = Array.from(new Set((servicesData || []).map((s: ServiceData) => s.labourer_id).filter(Boolean)));
-
-      // Fetch safe provider profiles and count verified ones
-      let verifiedCount = 0;
-      if (providerIds.length) {
-        const { data: safeProfiles, error: profilesErr } = await supabase.rpc('get_safe_profiles', {
-          profile_ids: providerIds,
-        });
-        if (profilesErr) throw profilesErr;
-        verifiedCount = (safeProfiles || []).filter((p: SafeProfile) => p.is_verified).length;
-      }
-
-
-      // Count completed bookings
-      const { count: jobsCount } = await supabase
-        .from('bookings')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'completed');
-
-      // Count unique regions/towns from verified providers
-      const { data: townsData } = await supabase
-        .from('profiles')
-        .select('town')
-        .eq('is_verified', true)
-        .not('town', 'is', null);
-
-      const uniqueRegions = new Set((townsData || []).map(p => p.town).filter(Boolean));
-
-      setStats({
-        providers: verifiedCount,
-        jobsCompleted: jobsCount || 0,
-        regionsCovered: uniqueRegions.size || 1 // At least 1 to avoid showing 0
-      });
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
 
   const handleSearch = () => {
     // Don't allow empty searches
@@ -95,91 +27,51 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-light">
-      {/* Content */}
-      <div className="relative z-10 container-responsive text-center">
-        <div className="max-w-4xl mx-auto">
-          {/* Main Heading */}
-          <div className="hero-glass p-8 md:p-12 fade-in">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-              {t('hero.title')}
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-              {t('hero.subtitle')}
-            </p>
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-              {t('hero.description')}
-            </p>
-
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                  <Input
-                    type="text"
-                    placeholder={t('hero.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="input-glass pl-12 pr-4 py-4 text-lg"
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  />
-                </div>
-                <Button 
-                  onClick={handleSearch}
-                  className="btn-sunset px-8 py-4 text-lg"
-                >
-                  {t('hero.searchButton')}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+    <section className="relative flex flex-col items-center overflow-hidden bg-gradient-light pt-2 sm:pt-4 lg:pt-6 pb-8">
+      {/* Hero Content */}
+      <div className="relative z-10 flex flex-col items-center w-full px-4 pt-20 sm:pt-24 md:pt-28">
+        {/* App Title - moved to top */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 text-center fade-in">
+          {t('hero.title')}
+        </h1>
+        
+        {/* Subtitle */}
+        <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-12 text-center max-w-2xl leading-relaxed fade-in">
+          {t('hero.subtitle')}
+        </p>
+        
+        {/* Conditional Buttons - Only show for logged-in users */}
+        {session && (
+          <>
+            {/* Search Section */}
+            <div className="w-full max-w-md mb-8 fade-in">
               <Button 
-                className="btn-sunset px-8 py-4 text-lg min-w-[200px]"
-                onClick={() => (session ? navigate('/browse') : navigate('/auth'))}
+                onClick={() => navigate('/browse')}
+                className="btn-sunset w-full px-8 py-4 text-lg"
+              >
+                <Search className="mr-2 h-5 w-5" />
+                {t('hero.searchButton')}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 fade-in">
+              <Button 
+                className="btn-sunset px-8 py-3 text-lg min-w-[180px]"
+                onClick={() => navigate('/browse')}
               >
                 {t('hero.findServices')}
               </Button>
-              {/* Only show "Offer Skills" button for labourers/providers */}
-              {(!profile || profile.user_type === 'labourer' || profile.user_type === 'both') && (
-                <Button 
-                  className="btn-glass px-8 py-4 text-lg min-w-[200px]"
-                  onClick={() => navigate('/create-service')}
-                >
-                  {t('hero.offerSkills')}
-                </Button>
-              )}
+              <Button 
+                className="btn-glass px-8 py-3 text-lg min-w-[180px]"
+                onClick={() => navigate('/create-service')}
+              >
+                {t('hero.offerSkills')}
+              </Button>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Users className="h-8 w-8 text-primary" />
-                </div>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.providers}</p>
-                <p className="text-muted-foreground">{t('hero.skilledWorkers')}</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Award className="h-8 w-8 text-primary" />
-                </div>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.jobsCompleted}</p>
-                <p className="text-muted-foreground">{t('hero.jobsCompleted')}</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <MapPin className="h-8 w-8 text-primary" />
-                </div>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.regionsCovered}</p>
-                <p className="text-muted-foreground">{t('hero.regionsCovered')}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Scroll Indicator */}

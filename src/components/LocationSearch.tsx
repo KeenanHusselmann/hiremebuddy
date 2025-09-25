@@ -4,6 +4,7 @@ import { Search, MapPin, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAnonymousPreferences } from '@/hooks/useAnonymousPreferences';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyDTgFxj8GM0Sa8du_EBBX1jMbNJCwP022w';
 
@@ -54,6 +55,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const geocoder = useRef<google.maps.Geocoder | null>(null);
+  const { updateLocation } = useAnonymousPreferences();
 
   useEffect(() => {
     // Initialize Google Maps services
@@ -167,6 +169,10 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({
   const handleLocationSelect = (location: Location) => {
     setQuery(location.address);
     setShowSuggestions(false);
+    
+    // Update anonymous device preferences with selected location
+    updateLocation(location.lat, location.lng, location.address);
+    
     onLocationSelect(location);
   };
 
@@ -189,6 +195,10 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({
                 if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
                   location.address = results[0].formatted_address;
                 }
+                
+                // Update anonymous device preferences with current location
+                updateLocation(location.lat, location.lng, location.address);
+                
                 onLocationSelect(location);
                 setQuery(location.address);
                 setIsLoading(false);

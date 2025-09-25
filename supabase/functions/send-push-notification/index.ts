@@ -7,10 +7,18 @@ const corsHeaders = {
 };
 
 interface NotificationPayload {
-  user_id: string;
+  user_id?: string; // Optional for anonymous notifications
+  device_id?: string; // For targeting specific anonymous devices
   title: string;
   body: string;
   data?: Record<string, string>;
+  location?: {
+    lat: number;
+    lng: number;
+    radius?: number; // Radius in kilometers
+  };
+  service_categories?: string[]; // Target users interested in specific categories
+  send_to_all_anonymous?: boolean; // Send to all anonymous users
 }
 
 serve(async (req) => {
@@ -25,24 +33,94 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     );
 
-    const { user_id, title, body, data }: NotificationPayload = await req.json();
+    const { user_id, device_id, title, body, data, location, service_categories, send_to_all_anonymous }: NotificationPayload = await req.json();
     
-    console.log('Sending push notification to user:', user_id);
+    console.log('Sending push notification:', { user_id, device_id, title, send_to_all_anonymous });
 
-    // Get user's device tokens
-    const { data: tokens, error: tokensError } = await supabaseClient
-      .from('device_tokens')
-      .select('token, platform')
-      .eq('user_id', user_id)
-      .eq('is_active', true);
+    let allTokens = [];
 
-    if (tokensError) {
-      console.error('Error fetching device tokens:', tokensError);
-      throw tokensError;
+    // Get tokens for logged-in users
+    if (user_id) {
+      const { data: userTokens, error: userTokensError } = await supabaseClient
+        .from('device_tokens')
+        .select('token, platform')
+        .eq('user_id', user_id)
+        .eq('is_active', true);
+
+      if (userTokensError) {
+        console.error('Error fetching user device tokens:', userTokensError);
+      } else if (userTokens) {
+        allTokens.push(...userTokens);
+        console.log(`Found ${userTokens.length} tokens for user ${user_id}`);
+      }
     }
 
-    if (!tokens || tokens.length === 0) {
-      console.log('No active device tokens found for user:', user_id);
+    // Get tokens for anonymous devices
+    if (device_id) {
+      // Target specific anonymous device
+      const { data: deviceTokens, error: deviceTokensError } = await supabaseClient
+        .from('anonymous_device_tokens')
+        .select('token, platform')
+        .eq('device_id', device_id)
+        .eq('is_active', true);
+
+      if (deviceTokensError) {
+        console.error('Error fetching device tokens:', deviceTokensError);
+      } else if (deviceTokens) {
+        allTokens.push(...deviceTokens);
+        console.log(`Found ${deviceTokens.length} tokens for device ${device_id}`);
+      }
+    } else if (send_to_all_anonymous) {
+      // Send to all anonymous devices (optionally filtered by location/categories)
+      let query = supabaseClient
+        .from('anonymous_device_tokens')
+        .select('token, platform, location_lat, location_lng, service_categories')
+        .eq('is_active', true);
+
+      const { data: anonymousTokens, error: anonymousTokensError } = await query;
+
+      if (anonymousTokensError) {
+        console.error('Error fetching anonymous device tokens:', anonymousTokensError);
+      } else if (anonymousTokens) {
+        let filteredTokens = anonymousTokens;
+
+        // Filter by location if provided
+        if (location && location.lat && location.lng) {
+          const radius = location.radius || 10; // Default 10km radius
+          filteredTokens = filteredTokens.filter(token => {
+            if (!token.location_lat || !token.location_lng) return false;
+            
+            // Calculate distance using Haversine formula
+            const R = 6371; // Earth's radius in km
+            const dLat = (token.location_lat - location.lat) * Math.PI / 180;
+            const dLng = (token.location_lng - location.lng) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(location.lat * Math.PI / 180) * Math.cos(token.location_lat * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            
+            return distance <= radius;
+          });
+        }
+
+        // Filter by service categories if provided
+        if (service_categories && service_categories.length > 0) {
+          filteredTokens = filteredTokens.filter(token => {
+            if (!token.service_categories || token.service_categories.length === 0) return false;
+            return service_categories.some(category => 
+              token.service_categories.includes(category)
+            );
+          });
+        }
+
+        allTokens.push(...filteredTokens.map(token => ({ token: token.token, platform: token.platform })));
+        console.log(`Found ${filteredTokens.length} anonymous tokens (filtered from ${anonymousTokens.length})`);
+      }
+    }
+
+    if (!allTokens || allTokens.length === 0) {
+      console.log('No active device tokens found');
       return new Response(
         JSON.stringify({ success: true, message: 'No devices to notify' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -74,7 +152,7 @@ serve(async (req) => {
 
     // Send notifications to all tokens
     const results = await Promise.allSettled(
-      tokens.map(async (tokenData) => {
+      allTokens.map(async (tokenData) => {
         const message = {
           message: {
             token: tokenData.token,
@@ -107,10 +185,17 @@ serve(async (req) => {
           const errorText = await response.text();
           console.error('FCM Error:', errorText);
           
-          // If token is invalid, deactivate it
+          // If token is invalid, deactivate it from both tables
           if (response.status === 404 || errorText.includes('UNREGISTERED')) {
+            // Try to deactivate from device_tokens table
             await supabaseClient
               .from('device_tokens')
+              .update({ is_active: false })
+              .eq('token', tokenData.token);
+            
+            // Try to deactivate from anonymous_device_tokens table
+            await supabaseClient
+              .from('anonymous_device_tokens')
               .update({ is_active: false })
               .eq('token', tokenData.token);
           }
@@ -132,7 +217,7 @@ serve(async (req) => {
         success: true, 
         sent: successful,
         failed: failed,
-        total: tokens.length
+        total: allTokens.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

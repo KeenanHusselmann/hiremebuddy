@@ -5,6 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
+// Generate or retrieve device ID for anonymous users
+const getDeviceId = (): string => {
+  let deviceId = localStorage.getItem('device_id');
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem('device_id', deviceId);
+  }
+  return deviceId;
+};
+
 export const useNativePushNotifications = () => {
   const { profile } = useAuth();
   const [notificationPermission, setNotificationPermission] = useState<string>('prompt');
@@ -97,8 +107,11 @@ export const useNativePushNotifications = () => {
             console.log('Push registration success, token: ' + token.value);
             setPushToken(token.value);
             
-            // Store token in database
+            // Store token in database for both logged-in and anonymous users
+            const deviceId = getDeviceId();
+            
             if (profile?.id) {
+              // Store in regular device_tokens table for logged-in users
               supabase
                 .from('device_tokens')
                 .upsert({
@@ -107,14 +120,35 @@ export const useNativePushNotifications = () => {
                   platform: Capacitor.getPlatform(),
                   device_info: {
                     platform: Capacitor.getPlatform(),
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    device_id: deviceId
                   }
                 })
                 .then(({ error }) => {
                   if (error) {
                     console.error('Error storing device token:', error);
                   } else {
-                    console.log('Device token stored successfully');
+                    console.log('Device token stored successfully for logged-in user');
+                  }
+                });
+            } else {
+              // Store in anonymous_device_tokens table for anonymous users
+              // Use rpc to insert into the table since types aren't generated yet
+              supabase
+                .rpc('insert_anonymous_device_token', {
+                  p_device_id: deviceId,
+                  p_token: token.value,
+                  p_platform: Capacitor.getPlatform(),
+                  p_device_info: {
+                    platform: Capacitor.getPlatform(),
+                    timestamp: new Date().toISOString()
+                  }
+                })
+                .then(({ error }) => {
+                  if (error) {
+                    console.error('Error storing anonymous device token:', error);
+                  } else {
+                    console.log('Device token stored successfully for anonymous user');
                   }
                 });
             }

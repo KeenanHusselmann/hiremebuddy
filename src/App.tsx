@@ -105,7 +105,8 @@ const AppContent = () => {
 };
 
 const App = () => {
-  const [showLaunchScreen, setShowLaunchScreen] = useState(true);
+  // Disable launch screen to prevent interference
+  const [showLaunchScreen, setShowLaunchScreen] = useState(false);
 
   const handleLaunchComplete = () => {
     setShowLaunchScreen(false);

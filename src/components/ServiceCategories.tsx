@@ -14,9 +14,11 @@ import {
   Building
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAnonymousPreferences } from '@/hooks/useAnonymousPreferences';
 
 const ServiceCategories = () => {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const { addServiceCategory } = useAnonymousPreferences();
 
   useEffect(() => {
     const fetchCategoryCounts = async () => {
@@ -162,7 +164,11 @@ const ServiceCategories = () => {
                 key={category.title}
                 className="service-card group cursor-pointer fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => window.location.href = `/services/${categorySlug}`}
+                onClick={() => {
+                  // Track user interest in this category
+                  addServiceCategory(category.title.toLowerCase());
+                  window.location.href = `/services/${categorySlug}`;
+                }}
               >
                 <div className="mb-4">
                   <div className="w-16 h-16 mx-auto bg-gradient-teal rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
