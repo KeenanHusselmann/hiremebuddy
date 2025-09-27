@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import logo from '@/assets/hiremebuddy-logo.png';
 
 const HeroSection = () => {
   const { t } = useLanguage();
@@ -30,7 +31,16 @@ const HeroSection = () => {
     <section className="relative flex flex-col items-center overflow-hidden bg-gradient-light pt-2 sm:pt-4 lg:pt-6 pb-8">
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col items-center w-full px-4 pt-20 sm:pt-24 md:pt-28">
-        {/* App Title - moved to top */}
+        {/* Logo above title */}
+        <div className="mb-6 fade-in">
+          <img 
+            src={logo} 
+            alt="HireMeBuddy Logo" 
+            className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 mx-auto"
+          />
+        </div>
+        
+        {/* App Title */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 text-center fade-in">
           {t('hero.title')}
         </h1>

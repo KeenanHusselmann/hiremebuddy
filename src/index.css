@@ -468,7 +468,13 @@ html.high-contrast.dark {
 
 /* Mobile header specific styles */
 .mobile-header {
-  height: calc(32px + env(safe-area-inset-top));
+  height: calc(24px + env(safe-area-inset-top));
+  background: linear-gradient(135deg, hsl(var(--teal-600)), hsl(var(--teal-500)));
+}
+
+/* Mobile footer specific styles */
+.mobile-footer {
+  height: calc(24px + env(safe-area-inset-bottom));
   background: linear-gradient(135deg, hsl(var(--teal-600)), hsl(var(--teal-500)));
 }
 
@@ -481,6 +487,19 @@ html.high-contrast.dark {
   .mobile-compact-header .logo-mobile {
     height: 56px !important;
     width: 56px !important;
+  }
+
+  /* Ensure header layout doesn't overlap */
+  .mobile-compact-header .flex.justify-between {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Prevent logo from shrinking */
+  .mobile-compact-header .flex-shrink-0 {
+    flex-shrink: 0 !important;
   }
 }
 

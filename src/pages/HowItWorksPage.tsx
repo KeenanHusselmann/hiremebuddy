@@ -1,16 +1,11 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MobilePageLayout from '@/components/MobilePageLayout';
 import HowItWorksContent from '@/components/HowItWorksContent';
 
 const HowItWorksPage = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <HowItWorksContent />
-      </main>
-      <Footer />
-    </div>
+    <MobilePageLayout title="How It Works" showBackButton={true}>
+      <HowItWorksContent />
+    </MobilePageLayout>
   );
 };
 

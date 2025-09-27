@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, ArrowLeft, X } from 'lucide-react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TermsModal } from '@/components/TermsModal';
 import { PrivacyModal } from '@/components/PrivacyModal';
@@ -21,7 +21,11 @@ import logo from '@/assets/hiremebuddy-logo.png';
 import CameraCapture from '@/components/CameraCapture';
 
 const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(() => {
+    const mode = searchParams.get('mode');
+    return mode !== 'signup';
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -377,13 +381,6 @@ const AuthPage = () => {
         </div>
         
         <div className="w-full max-w-lg relative z-10">
-          <div className="mb-6">
-            <Link to="/" className="inline-flex items-center text-white hover:text-white/80 transition-colors backdrop-blur-sm bg-white/10 px-3 py-2 rounded-lg">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
-          </div>
-
         <Card className="glass-card border-glass-border/30 shadow-2xl">
           <CardHeader className="text-center pb-6">
             <div className="flex justify-center mb-4">

@@ -7,8 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PhoneInputWithWhatsApp } from '@/components/PhoneInputWithWhatsApp';
 import { CommunicationButtons } from '@/components/CommunicationButtons';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MobilePageLayout from '@/components/MobilePageLayout';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -126,10 +125,7 @@ const ContactPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main>
+    <MobilePageLayout title="Contact Us" showBackButton={true}>
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-primary/5 to-sunset-accent/5">
           <div className="container mx-auto px-4 text-center">
@@ -398,10 +394,7 @@ const ContactPage = () => {
             </div>
           </div>
         </section>
-      </main>
-
-      <Footer />
-    </div>
+    </MobilePageLayout>
   );
 };
 

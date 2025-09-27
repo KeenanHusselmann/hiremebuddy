@@ -12,6 +12,7 @@ import { MessageNotificationToast } from "@/components/MessageNotificationToast"
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useNativePushNotifications } from "@/hooks/useNativePushNotifications";
 import LaunchScreen from "@/components/LaunchScreen";
+import MobileFooter from "@/components/MobileFooter";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
@@ -22,7 +23,6 @@ import ProfilePage from "./pages/ProfilePage";
 import BrowseServicesPage from "./pages/BrowseServicesPage";
 import ServiceCategoryPage from "./pages/ServiceCategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
-import HowItWorksPage from "./pages/HowItWorksPage";
 import ContactPage from "./pages/ContactPage";
 import BookingDetailPage from "./pages/BookingDetailPage";
 import QuoteRequestDetailPage from "./pages/QuoteRequestDetailPage";
@@ -77,7 +77,6 @@ const AppContent = () => {
         <Route path="/browse" element={<BrowseServicesPage />} />
         <Route path="/services/:category" element={<ServiceCategoryPage />} />
         <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
-        <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/booking/:id" element={<BookingDetailPage />} />
         <Route path="/bookings/:bookingId" element={<BookingDetailPage />} />
@@ -100,6 +99,7 @@ const AppContent = () => {
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <MobileFooter />
     </AccessibilityProvider>
   );
 };

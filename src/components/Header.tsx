@@ -25,25 +25,25 @@ const Header = () => {
       
       <header className={`fixed w-full transition-transform duration-300 z-40 ${
         Capacitor.isNativePlatform() 
-          ? `top-8 ${scrollDirection === 'down' ? '-translate-y-[calc(100%+2rem)]' : 'translate-y-0'}`
+          ? `top-16 ${scrollDirection === 'down' ? '-translate-y-[calc(100%+4rem)]' : 'translate-y-0'}`
           : `top-0 ${scrollDirection === 'down' ? '-translate-y-full' : 'translate-y-0'}`
       }`}>
         <div className="glass-card border-0 border-b border-glass-border/30 rounded-none mobile-compact-header">
           <div className="container-responsive">
-            <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
-              {/* Logo and Brand */}
-              <Link to="/" className="flex items-center space-x-2 sm:space-x-3 hover:scale-105 transition-transform duration-200 tap-target">
-                <img src={logo} alt="Hire.Me.Bra Logo" className="logo-mobile h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20" />
-                <div className="hidden sm:block">
-                  <h1 className="text-base sm:text-lg font-bold text-foreground">HireMeBuddy</h1>
-                  <p className="text-xs text-muted-foreground">Connect • Create • Collaborate</p>
-                </div>
-              </Link>
+            <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 w-full">
+              {/* Logo and Brand - Left Side */}
+              <div className="flex-shrink-0">
+                <Link to="/" className="flex items-center space-x-2 sm:space-x-3 hover:scale-105 transition-transform duration-200 tap-target">
+                  <img src={logo} alt="Hire.Me.Bra Logo" className="logo-mobile h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20" />
+                  <div className="hidden sm:block">
+                    <h1 className="text-base sm:text-lg font-bold text-foreground">HireMeBuddy</h1>
+                    <p className="text-xs text-muted-foreground">Connect • Create • Collaborate</p>
+                  </div>
+                </Link>
+              </div>
 
-              {/* Desktop Navigation - now in burger menu for all screen sizes */}
-
-              {/* Right side items */}
-              <div className="flex items-center space-x-3 sm:space-x-4">
+              {/* Right side items - Fixed positioning */}
+              <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
                 {user && <NotificationCenter />}
                 
                 {/* User profile avatar or login button */}
@@ -64,23 +64,23 @@ const Header = () => {
                 </Link>
               ) : (
                 <Link to="/auth">
-                  <Button variant="ghost" size="lg" className="h-12 px-6">
+                  <Button variant="ghost" size="sm" className="h-10 px-3 sm:h-12 sm:px-6 text-sm sm:text-base tap-target">
                     {t('nav.login')}
                   </Button>
                 </Link>
               )}
-            </div>
 
-            {/* Burger Menu Button (always visible) */}
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={toggleMobileMenu}
-              className="tap-target min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] lg:min-h-[48px] lg:min-w-[48px]"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />}
-            </Button>
+                {/* Burger Menu Button (always visible) */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleMobileMenu}
+                  className="tap-target h-10 w-10 sm:h-12 sm:w-12 p-0 flex-shrink-0"
+                  aria-label="Toggle menu"
+                >
+                  {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
+                </Button>
+              </div>
           </div>
 
           {/* Burger Menu */}

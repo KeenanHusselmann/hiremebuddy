@@ -16,8 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MobilePageLayout from '@/components/MobilePageLayout';
 import { ArrowLeft, User, Settings, Camera, Gamepad2, BarChart3, MapPin, DollarSign, Eye, Edit, Briefcase, MoreVertical, Trash, Calendar, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProfileImageUpload from '@/components/ProfileImageUpload';
@@ -348,15 +347,9 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
+    <MobilePageLayout title="Profile" showBackButton={true}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6 flex items-center justify-end">
           <Button
             aria-label="Open settings"
             variant="outline"
@@ -800,10 +793,8 @@ const ProfilePage = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MobilePageLayout>
   );
 };
 

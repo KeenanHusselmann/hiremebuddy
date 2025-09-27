@@ -87,13 +87,6 @@ const QuickActions = ({ userType }: QuickActionsProps) => {
       icon: MapPin,
       href: '/#map',
       variant: 'outline' as const
-    },
-    {
-      title: 'How It Works',
-      description: 'Learn the platform',
-      icon: BookOpen,
-      href: '/how-it-works',
-      variant: 'ghost' as const
     }
   ];
 

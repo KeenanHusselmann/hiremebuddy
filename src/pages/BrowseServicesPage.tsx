@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Star, Clock, Users } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Wrench, Zap, Hammer, Paintbrush, Trees, Home, Car, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +11,7 @@ import { Label } from '@/components/ui/label';
 import { FacebookMarketplace } from '@/components/FacebookMarketplace';
 import { GoogleMap } from '@/components/GoogleMap';
 import { BackButton } from '@/hooks/useBackNavigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MobilePageLayout from '@/components/MobilePageLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useServiceRatings, formatRating, renderStars } from '@/hooks/useServiceRatings';
@@ -247,28 +246,106 @@ useEffect(() => {
 
 if (!session) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-3xl font-bold mb-4">Login required</h1>
-          <p className="text-muted-foreground mb-6">Please log in to browse services and view providers.</p>
-          <Button className="btn-sunset" onClick={() => navigate('/auth')}>Log in</Button>
-        </main>
-        <Footer />
-      </div>
+      <MobilePageLayout title="Browse Services" showBackButton={true}>
+        <div className="container mx-auto px-4 py-8">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold mb-4 text-foreground">Discover Skilled Professionals</h1>
+            <p className="text-lg text-muted-foreground mb-6">
+              Connect with verified service providers across Namibia for all your needs
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button className="btn-sunset" onClick={() => navigate('/auth?mode=signup')}>
+                Sign Up to Browse Services
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/auth')}>
+                Already have an account? Log In
+              </Button>
+            </div>
+          </div>
+
+          {/* Service Categories Preview */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Popular Service Categories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[
+                { name: 'Plumbing', icon: Wrench, description: 'Pipe repairs, installations' },
+                { name: 'Electrical', icon: Zap, description: 'Wiring, repairs, installations' },
+                { name: 'Carpentry', icon: Hammer, description: 'Furniture, repairs, custom work' },
+                { name: 'Painting', icon: Paintbrush, description: 'Interior & exterior painting' },
+                { name: 'Gardening', icon: Trees, description: 'Landscaping, maintenance' },
+                { name: 'Home Repairs', icon: Home, description: 'General maintenance & fixes' },
+                { name: 'Automotive', icon: Car, description: 'Car repairs & maintenance' },
+                { name: 'Photography', icon: Camera, description: 'Events, portraits, commercial' }
+              ].map((category) => {
+                const IconComponent = category.icon;
+                return (
+                  <Card key={category.name} className="text-center p-4 hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate('/auth?mode=signup')}>
+                    <div className="w-12 h-12 mx-auto mb-3 bg-gradient-teal rounded-2xl flex items-center justify-center">
+                      <IconComponent className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-semibold mb-1">{category.name}</h3>
+                    <p className="text-xs text-muted-foreground">{category.description}</p>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Features Section */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="text-center">
+              <div className="bg-teal-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Users className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Verified Professionals</h3>
+              <p className="text-sm text-muted-foreground">All service providers are verified and background-checked for your safety</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-teal-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <MapPin className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Local Coverage</h3>
+              <p className="text-sm text-muted-foreground">Find skilled professionals in Windhoek, Swakopmund, Oshakati, and across Namibia</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-teal-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Star className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Quality Assured</h3>
+              <p className="text-sm text-muted-foreground">Read reviews and ratings from real customers to make informed decisions</p>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <Card className="bg-gradient-to-r from-teal-50 to-blue-50 border-teal-200">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Ready to Get Started?</h3>
+              <p className="text-muted-foreground mb-6">
+                Join thousands of satisfied customers who have found reliable service providers on HireMeBuddy
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button className="btn-sunset" size="lg" onClick={() => navigate('/auth?mode=signup')}>
+                  Create Free Account
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => navigate('/')}>
+                  Learn More
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </MobilePageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-        {/* Back Button and Header */}
+    <MobilePageLayout title="Browse Services" showBackButton={true}>
+      <div className="container mx-auto px-4 py-8">
+        {/* Page Header */}
         <div className="mb-8">
-          <BackButton fallbackPath="/" className="mb-4" />
-          <h1 className="text-4xl font-bold text-foreground mb-4">Browse Services</h1>
-          <p className="text-xl text-muted-foreground">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Browse Services</h1>
+          <p className="text-lg text-muted-foreground">
             Discover skilled professionals for all your needs
           </p>
         </div>
@@ -358,7 +435,7 @@ if (!session) {
                   Be the first to offer your services on our platform!
                 </p>
                 <Button 
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth?mode=signup')}
                   className="btn-sunset"
                 >
                   Register as Service Provider
@@ -492,10 +569,8 @@ if (!session) {
             />
           </TabsContent>
         </Tabs>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MobilePageLayout>
   );
 };
 

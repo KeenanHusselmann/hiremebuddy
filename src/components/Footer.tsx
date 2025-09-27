@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, MessageCircle, Phone, Mail, MapPin } from 'lucide-react';
+import { Facebook, Phone, Mail, MapPin } from 'lucide-react';
 import logo from '@/assets/hiremebuddy-logo.png';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -37,15 +37,6 @@ const Footer = () => {
                   <Facebook className="h-4 w-4 text-primary" />
                 </a>
                 <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=hiremebuddy061@gmail.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Email via Gmail"
-                  className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors"
-                >
-                  <MessageCircle className="h-4 w-4 text-primary" />
-                </a>
-                <a
                   href="tel:+264818536789"
                   aria-label="Call"
                   className="p-2 glass-card rounded-lg hover:bg-primary/10 transition-colors"
@@ -72,13 +63,6 @@ const Footer = () => {
                    className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
                  >
                    Browse Services
-                 </Link>
-                 <Link 
-                   to="/how-it-works" 
-                   onClick={scrollToTop}
-                   className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 text-left"
-                 >
-                   How It Works
                  </Link>
                  <Link 
                    to="/contact" 
@@ -142,21 +126,21 @@ const Footer = () => {
                 <Link 
                   to="/terms" 
                   onClick={scrollToTop}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                  className="text-sm text-teal-600 hover:text-teal-700 transition-colors duration-200"
                 >
                   Terms and Conditions
                 </Link>
                 <Link 
                   to="/privacy" 
                   onClick={scrollToTop}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                  className="text-sm text-teal-600 hover:text-teal-700 transition-colors duration-200"
                 >
                   Privacy Policy
                 </Link>
                 <Link 
                   to="/support" 
                   onClick={scrollToTop}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                  className="text-sm text-teal-600 hover:text-teal-700 transition-colors duration-200"
                 >
                   Support
                 </Link>
